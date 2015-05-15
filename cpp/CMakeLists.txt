@@ -4,10 +4,6 @@ cmake_minimum_required (VERSION 2.8.12)
 # Project Name
 project (TriangleOfLife)
 
-# Add customized CMAKE modules
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/")
-include(CustomPath)
-
 # Pass source dir to preprocessor
 add_definitions(-DSOURCE_DIR=${CMAKE_SOURCE_DIR})
 
@@ -26,6 +22,24 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb3 -DDEBUG")
 
 # Release flags
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -funroll-loops -finline-functions -fomit-frame-pointer -DNDEBUG")
+
+if (NOT ${REVOLVE_INCLUDE_PATH})
+    # Add Revolve as an external project
+    # TODO In the future this should fetch from a repository instead
+    include(ExternalProject)
+    ExternalProject_Add(
+      revolve
+      SOURCE_DIR ${CMAKE_SOURCE_DIR}/../../revolve/cpp
+      INSTALL_DIR revolve
+      CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/revolve
+    )
+
+    # Get Revolve lib / include directories
+    ExternalProject_Get_Property(revolve INSTALL_DIR)
+    set(REVOLVE_INCLUDE_PATH ${INSTALL_DIR}/include)
+    set(REVOLVE_LIBRARIES ${INSTALL_DIR}/lib/librevolve-gazebo.a)
+endif()
+
 
 # Find Boost and add to include dirs
 find_package(Boost REQUIRED COMPONENTS system)
@@ -50,6 +64,7 @@ file(GLOB_RECURSE
 
 add_library(tolmodelcontrol SHARED ${TOL_SRC})
 target_link_libraries(tolmodelcontrol ${TOL_DEPS})
+add_dependencies(tolmodelcontrol revolve)
 
 
 
