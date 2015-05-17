@@ -4,6 +4,13 @@ cmake_minimum_required (VERSION 2.8.12)
 # Project Name
 project (TriangleOfLife)
 
+# CMake flag to build to local directory
+if (${LOCAL_LIB_DIR})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build")
+    message("Using local library directory: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+endif()
+
 # Pass source dir to preprocessor
 add_definitions(-DSOURCE_DIR=${CMAKE_SOURCE_DIR})
 
@@ -23,30 +30,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb3 -DDEBUG")
 # Release flags
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -funroll-loops -finline-functions -fomit-frame-pointer -DNDEBUG")
 
-if (NOT ${REVOLVE_INCLUDE_PATH})
-    # Add Revolve as an external project
-    # TODO In the future this should fetch from a repository instead
-    include(ExternalProject)
-    ExternalProject_Add(
-      revolve
-      SOURCE_DIR ${CMAKE_SOURCE_DIR}/../../revolve/cpp
-      INSTALL_DIR revolve
-      CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/revolve
-    )
-
-    # Get Revolve lib / include directories
-    ExternalProject_Get_Property(revolve INSTALL_DIR)
-    set(REVOLVE_INCLUDE_PATH ${INSTALL_DIR}/include)
-    set(REVOLVE_LIBRARIES ${INSTALL_DIR}/lib/librevolve-gazebo.a)
-endif()
-
-
 # Find Boost and add to include dirs
 find_package(Boost REQUIRED COMPONENTS system)
-
-# Set include dirs and dependencies
-include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH} /home/elte/mt/sdf_builder/src)
-set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES})
 
 # Gazebo control plugins
 # Find and include Gazebo
@@ -63,8 +48,32 @@ file(GLOB_RECURSE
 )
 
 add_library(tolmodelcontrol SHARED ${TOL_SRC})
+
+if (NOT DEFINED REVOLVE_INCLUDE_PATH)
+    # Add Revolve as an external project
+    # TODO In the future this should fetch from a repository instead
+    message("Adding REVOLVE as external project.")
+    message("To prevent this, pass REVOLVE_INCLUDE_PATH and REVOLVE_LIBRARIES.")
+    include(ExternalProject)
+    ExternalProject_Add(
+      revolve
+      SOURCE_DIR ${CMAKE_SOURCE_DIR}/../../revolve/cpp
+      INSTALL_DIR revolve
+      CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/revolve
+    )
+
+    # Get Revolve lib / include directories
+    ExternalProject_Get_Property(revolve INSTALL_DIR)
+    set(REVOLVE_INCLUDE_PATH ${INSTALL_DIR}/include)
+    set(REVOLVE_LIBRARIES ${INSTALL_DIR}/lib/librevolve-gazebo.a)
+    add_dependencies(tolmodelcontrol revolve)
+endif()
+
+# Set include dirs and dependencies
+include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH})
+set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES})
+
 target_link_libraries(tolmodelcontrol ${TOL_DEPS})
-add_dependencies(tolmodelcontrol revolve)
 
 
 
