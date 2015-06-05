@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 
-from revolve.analyze.sdf import analyze_body
+from revolve.gazebo import analyze_body
 from tol.spec import generate_robot
 from tol.config import Config
 from tol.build import get_builder, get_sdf_robot
