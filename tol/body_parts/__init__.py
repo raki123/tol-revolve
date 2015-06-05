@@ -6,3 +6,4 @@ from .hinge import Hinge
 from .light_sensor import LightSensor
 from .touch_sensor import TouchSensor
 from .fixed_brick import FixedBrick
+from .parametric_bar_joint import ParametricBarJoint

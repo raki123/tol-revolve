@@ -1,5 +1,6 @@
 from __future__ import absolute_import
-from revolve.generate import BodyGenerator
+import math
+from revolve.generate import FixedOrientationBodyGenerator
 from revolve.spec import BodyImplementation, PartSpec, ParamSpec
 from ..body_parts import *
 
@@ -31,6 +32,26 @@ body_spec = BodyImplementation({
         arity=2,
         params=color_params
     ),
+    "ParametricBarJoint": PartSpec(
+        body_part=ParametricBarJoint,
+        arity=2,
+        params=[ParamSpec(
+            "connection_length",
+            default=50,
+            min_value=20,
+            max_value=100
+        ), ParamSpec(
+            "alpha",
+            default=0,
+            min_value=-0.5*math.pi,
+            max_value=0.5*math.pi
+        ), ParamSpec(
+            "beta",
+            default=0,
+            min_value=0,
+            max_value=math.pi
+        )] + color_params
+    ),
     "LightSensor": PartSpec(
         body_part=LightSensor,
         arity=1,
@@ -46,7 +67,7 @@ body_spec = BodyImplementation({
 })
 
 # Body generator
-body_gen = BodyGenerator(
+body_gen = FixedOrientationBodyGenerator(
     body_spec,
 
     # Only "Core" can serve as a root node

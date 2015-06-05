@@ -107,8 +107,11 @@ class Hinge(BodyPart, ColorMixin):
             # thickness to the left
             return Vector3(-offset, 0, 0)
         else:
-            # A `BodyPart` is a posable group, so item positions are
-            # in the parent frame. If we convert to the local frame we can
-            # simply add the offset in the x-direction
-            tail_pos = self.to_local_frame(self.hinge_tail.pose.position)
-            return tail_pos + Vector3(offset, 0, 0)
+            # A `BodyPart` is a PosableGroup, so child positions are
+            # simular to sibling positions. We can thus take the position
+            # in the tail, and use sibling conversion to get the position
+            # in the body part.
+            return self.hinge_tail.to_sibling_frame(
+                Vector3(offset, 0, 0),
+                self
+            )
