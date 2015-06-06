@@ -1,0 +1,11 @@
+package tol.msgs;
+
+message InsertSdfRequest {
+	required string robot_id = 1;
+	required string sdf_contents = 2;
+}
+
+message InsertSdfResponse {
+	required string robot_id = 1;
+	required bool success = 2;
+}

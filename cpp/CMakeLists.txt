@@ -30,6 +30,25 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb3 -DDEBUG")
 # Release flags
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -funroll-loops -finline-functions -fomit-frame-pointer -DNDEBUG")
 
+##### Protobuf messages #####
+# Get protobuf library
+find_package(Protobuf REQUIRED)
+
+# Directory where the .proto file resides
+set(SPEC_DIR "${CMAKE_SOURCE_DIR}/tol/msgs")
+include_directories(${CMAKE_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIRS})
+
+# Include the binary dir since that is where the protobuf files are
+# going to be placed.
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+file(GLOB_RECURSE REVOLVE_PROTO ${SPEC_DIR}/*.proto)
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${REVOLVE_PROTO})
+
+# Generate messages library
+add_library(tol-msgs STATIC ${PROTO_SRCS} )
+target_link_libraries(tol-msgs ${PROTOBUF_LIBRARIES})
+
+##### Plugins #####
 # Find Boost and add to include dirs
 find_package(Boost REQUIRED COMPONENTS system)
 
@@ -43,11 +62,17 @@ include_directories(${GAZEBO_INCLUDE_DIRS})
 
 # Plugin CPP files
 file(GLOB_RECURSE
-	 TOL_SRC
-	 tol/*.cpp
+	 TOL_WORLD_SRC
+	 tol/plugin/WorldController.cpp
 )
 
-add_library(tolmodelcontrol SHARED ${TOL_SRC})
+file(GLOB_RECURSE
+	 TOL_ROBOT_SRC
+	 tol/plugin/RobotController.cpp
+)
+
+add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
+add_library(tolrobotcontrol SHARED ${TOL_ROBOT_SRC})
 
 if (NOT DEFINED REVOLVE_INCLUDE_PATH)
     # Add Revolve as an external project
@@ -73,7 +98,7 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH})
 set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES})
 
-target_link_libraries(tolmodelcontrol ${TOL_DEPS})
-
+target_link_libraries(tolworldcontrol tol-msgs ${TOL_DEPS})
+target_link_libraries(tolrobotcontrol tol-msgs ${TOL_DEPS})
 
 
