@@ -108,7 +108,7 @@ class Hinge(BodyPart, ColorMixin):
             return Vector3(-offset, 0, 0)
         else:
             # A `BodyPart` is a PosableGroup, so child positions are
-            # simular to sibling positions. We can thus take the position
+            # similar to sibling positions. We can thus take the position
             # in the tail, and use sibling conversion to get the position
             # in the body part.
             return self.hinge_tail.to_sibling_frame(

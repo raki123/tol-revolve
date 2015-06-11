@@ -8,7 +8,6 @@ from revolve.build.util import in_grams, in_mm
 from sdfbuilder.math import Vector3
 from .util import ColorMixin
 
-
 class ParametricBarJoint(BodyPart, ColorMixin):
     """
     The parametric bar joint allows the introduction of fix
@@ -29,8 +28,6 @@ class ParametricBarJoint(BodyPart, ColorMixin):
     SLOT_THICKNESS = in_mm(1.5)
     CONNECTION_PART_WIDTH = in_mm(20)
     CONNECTION_PART_THICKNESS = in_mm(2)
-    CAPSULE_HEIGHT = in_mm(10)
-    CAPSULE_LENGTH = in_mm(10)
     SEPARATION = in_mm(1)
 
     def _initialize(self, **kwargs):
@@ -51,14 +48,13 @@ class ParametricBarJoint(BodyPart, ColorMixin):
         self.conn_length = conn_length = in_mm(kwargs['connection_length'])
 
         # First, create and attach all components as if alpha=beta=0
-        # Root
         self.root = self.create_link("root")
         self.root.make_box(mass, thickness, width, width)
 
         # Connection
         connection = self.create_link("connection")
-        x_connection = 0.5 * (thickness + conn_length)
-        connection.make_box(0.1 * mass_per_cm * conn_length,
+        x_connection = 0.5 * (thickness + conn_length) + sep
+        connection.make_box(10 * mass_per_cm * conn_length,
                             conn_length, conn_width, conn_thickness)
         connection.set_position(Vector3(x_connection, 0, 0))
 
@@ -77,7 +73,7 @@ class ParametricBarJoint(BodyPart, ColorMixin):
         # connection <> tail
         self.fix_links(connection, self.tail,
                        Vector3(-0.5 * thickness),
-                       Vector3(0, 1, 0))
+                       Vector3(1, 0, 0))
 
         # Now perform the rotations. `BodyPart` guarantees
         # that it has origin position and zero orientation
@@ -97,6 +93,9 @@ class ParametricBarJoint(BodyPart, ColorMixin):
         self.tail.rotate_around(Vector3(0, 1, 0), tilt,
                                 relative_to_child=True)
 
+        # Trigger color mixin
+        self.apply_color()
+
     def get_slot(self, slot_id):
         self.check_slot(slot_id)
         return self.root if slot_id == 0 else self.tail
@@ -104,6 +103,7 @@ class ParametricBarJoint(BodyPart, ColorMixin):
     def get_slot_position(self, slot_id):
         self.check_slot(slot_id)
         offset = 0.5 * self.SLOT_THICKNESS
+
         if slot_id == 0:
             # Root has no relative pose so this is easy
             return Vector3(-offset, 0, 0)
@@ -124,6 +124,7 @@ class ParametricBarJoint(BodyPart, ColorMixin):
 
     def get_slot_normal(self, slot_id):
         self.check_slot(slot_id)
+
         if slot_id == 0:
             return Vector3(-1, 0, 0)
         else:

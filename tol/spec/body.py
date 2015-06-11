@@ -75,7 +75,7 @@ body_gen = FixedOrientationBodyGenerator(
 
     # All other parts can potentially be attached
     attach_parts=["ActiveHinge", "Hinge", "FixedBrick",
-                  "LightSensor", "TouchSensor"],
+                  "LightSensor", "TouchSensor", "ParametricBarJoint"],
 
     # High number of maximum parts, limit will probably be something else
     max_parts=15,

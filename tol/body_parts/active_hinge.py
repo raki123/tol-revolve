@@ -95,7 +95,8 @@ class ActiveHinge(BodyPart, ColorMixin):
         self.joint.set_position(Vector3(-0.5 * frame_length + frame_rot, 0, 0))
         self.joint.axis.limit = Limit(
             lower=-constants.SERVO_LIMIT,
-            upper=constants.SERVO_LIMIT
+            upper=constants.SERVO_LIMIT,
+            effort=constants.MAX_SERVO_TORQUE
         )
         self.add_joint(self.joint)
 
