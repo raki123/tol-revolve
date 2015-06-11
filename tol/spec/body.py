@@ -52,6 +52,17 @@ body_spec = BodyImplementation({
             max_value=math.pi
         )] + color_params
     ),
+    "Wheel": PartSpec(
+        body_part=Wheel,
+        arity=1,
+        params=color_params + [ParamSpec("radius", min_value=40, max_value=80, default=60)]
+    ),
+    "ActiveWheel": PartSpec(
+        body_part=ActiveWheel,
+        arity=1,
+        outputs=1,
+        params=color_params + [ParamSpec("radius", min_value=40, max_value=80, default=60)]
+    ),
     "LightSensor": PartSpec(
         body_part=LightSensor,
         arity=1,

@@ -1,5 +1,4 @@
 from __future__ import print_function
-from sdfbuilder import Link
 from sdfbuilder.math import Vector3
 import os
 import sys
@@ -17,35 +16,15 @@ body:
   type        : FixedBrick
   children:
     0:
-      id:   Brick1
-      type: FixedBrick
-      children:
-        4:
-          id: Brick2
-          type: FixedBrick
-          children:
-            3:
-              id: Brick3
-              type: FixedBrick
-    2:
-      id: Brick4
-      type: FixedBrick
-      children:
-        1:
-          id: Brick5
-          type: FixedBrick
-          children:
-            3:
-              id: Tested
-              type: ParametricBarJoint
-              params:
-                connection_length: 70
-                alpha: 0.5
-                beta: 0.5
-              children:
-                1:
-                  id: Brick6
-                  type: FixedBrick
+      id:  Active
+      type: ActiveWheel
+    1:
+      id: Passive
+      type: Wheel
+      params:
+        red: 1
+        green: 0
+        blue: 0
 '''
 
 conf = Config()

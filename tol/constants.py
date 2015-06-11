@@ -10,5 +10,8 @@ MAX_HIDDEN_NEURONS = 10
 MAX_SERVO_TORQUE = (1.8 * 9.81) / 100
 """ Expressed in Newton*m from kg-cm = ((kg-cm)*g)/100 """
 
+MAX_SERVO_TORQUE_ROTATIONAL = (4 * 9.81) / 100
+""" Expressed in Newton*m from kg-cm = ((kg-cm)*g)/100 """
+
 SERVO_LIMIT = math.radians(45)
 """ Upper and lower limit """
