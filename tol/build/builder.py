@@ -24,7 +24,7 @@ def get_simulation_robot(robot, name, builder, conf):
     :type conf: Config
     :return:
     """
-    model = builder.get_sdf_model(robot, controller_plugin=None,
+    model = builder.get_sdf_model(robot, controller_plugin="libtolrobotcontrol.so",
                                   update_rate=conf.update_rate, name=name)
 
     # Add friction surfaces to all body parts

@@ -17,5 +17,5 @@ MAX_SERVO_TORQUE_ROTATIONAL = (4 * 9.81) / 100
 SERVO_LIMIT = math.radians(45)
 """ Upper and lower limit """
 
-SERVO_PID = PID(proportional_gain=1.0, integral_gain=0.1)
+SERVO_PID = PID(proportional_gain=0.1, integral_gain=0.1)
 """ Default servo PID """

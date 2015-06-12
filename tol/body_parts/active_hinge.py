@@ -106,7 +106,7 @@ class ActiveHinge(BodyPart, ColorMixin):
 
         # Now we add a motor that powers the joint. This particular servo
         # targets a position. Use a simple PID controller initially.
-        pid = PID(proportional_gain=1.0, integral_gain=0.1)
+        pid = constants.SERVO_PID
         self.motors.append(PositionMotor(self.id, "rotate", self.joint, pid))
 
         # Apply color mixin

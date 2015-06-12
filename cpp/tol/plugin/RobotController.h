@@ -16,6 +16,8 @@ class RobotController: public revolve::gazebo::RobotController {
 public:
 	RobotController();
 	virtual ~RobotController();
+
+	virtual void Load(::gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 };
 
 } /* namespace tol */
