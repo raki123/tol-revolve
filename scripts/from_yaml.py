@@ -4,6 +4,9 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 
+from revolve.build import util
+util.size_scale_factor = 10
+
 from revolve.convert.yaml import yaml_to_robot
 from tol.spec import body_spec, brain_spec
 from tol.config import Config
@@ -16,15 +19,12 @@ body:
   type        : FixedBrick
   children:
     0:
-      id:  Active
-      type: ActiveWheel
-    1:
-      id: Passive
-      type: Wheel
-      params:
-        red: 1
-        green: 0
-        blue: 0
+      id:  Cardan
+      type: Cardan
+      children:
+        1:
+          id: Brick
+          type: FixedBrick
 '''
 
 conf = Config()
