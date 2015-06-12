@@ -74,6 +74,18 @@ body_spec = BodyImplementation({
         outputs=2,
         params=color_params
     ),
+    "ActiveRotator": PartSpec(
+        body_part=ActiveRotator,
+        arity=2,
+        outputs=1,
+        params=color_params
+    ),
+    "ActiveWheg": PartSpec(
+        body_part=ActiveWheg,
+        arity=2,
+        outputs=1,
+        params=color_params + [ParamSpec("radius", min_value=40, max_value=80, default=60)]
+    ),
     "LightSensor": PartSpec(
         body_part=LightSensor,
         arity=1,

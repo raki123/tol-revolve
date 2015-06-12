@@ -16,7 +16,18 @@ bot_yaml = '''
 ---
 body:
   id          : Core
-  type        : ActiveCardan
+  type        : FixedBrick
+  children:
+    1:
+      id: Rotator
+      type: ActiveRotator
+      children:
+        1:
+          id: ChildBrick
+          type: FixedBrick
+    2:
+      id: Wheg
+      type: ActiveWheg
 '''
 
 conf = Config()

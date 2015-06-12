@@ -1,13 +1,14 @@
 # Revolve imports
-from revolve.build.sdf import BodyPart, PositionMotor, PID
+from revolve.build.sdf import BodyPart, PositionMotor
 from revolve.build.util import in_grams, in_mm
 
 # SDF builder imports
 from sdfbuilder.math import Vector3
-from sdfbuilder.joint import Joint, Axis
+from sdfbuilder.joint import Joint, Limit
 
 # Local imports
 from .util import ColorMixin
+from .. import constants
 
 MASS_SERVO = in_grams(7)
 MASS_SLOT = in_grams(2)
@@ -108,11 +109,21 @@ class ActiveCardan(BodyPart, ColorMixin):
         # easier to position if conn_a is the child
         joint_a = Joint("revolute", cross_a, conn_a, Vector3(0, 0, 1))
         joint_a.set_position(Vector3(-0.5 * CONNECTION_PART_LENGTH + CONNECTION_PART_ROTATION_OFFSET))
+        joint_a.axis.limit = Limit(
+            lower=-constants.SERVO_LIMIT,
+            upper=constants.SERVO_LIMIT,
+            effort=constants.MAX_SERVO_TORQUE
+        )
         self.add_joint(joint_a)
 
         # cross part b <hinge> connection b
         joint_b = Joint("revolute", cross_b, conn_b, Vector3(0, 1, 0))
         joint_b.set_position(Vector3(0.5 * CONNECTION_PART_LENGTH - CONNECTION_PART_ROTATION_OFFSET))
+        joint_a.axis.limit = Limit(
+            lower=-constants.SERVO_LIMIT,
+            upper=constants.SERVO_LIMIT,
+            effort=constants.MAX_SERVO_TORQUE
+        )
         self.add_joint(joint_b)
 
         # connection b <-> tail
@@ -130,7 +141,7 @@ class ActiveCardan(BodyPart, ColorMixin):
         self.apply_color()
 
         # Register motors
-        pid = PID(proportional_gain=1.0, integral_gain=0.1)
+        pid = constants.SERVO_PID
         self.motors.append(PositionMotor(self.id, "motor_a", joint_a, pid=pid))
         self.motors.append(PositionMotor(self.id, "motor_b", joint_b, pid=pid))
 
