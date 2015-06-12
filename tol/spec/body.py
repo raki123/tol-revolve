@@ -68,6 +68,12 @@ body_spec = BodyImplementation({
         arity=2,
         params=color_params
     ),
+    "ActiveCardan": PartSpec(
+        body_part=ActiveCardan,
+        arity=2,
+        outputs=2,
+        params=color_params
+    ),
     "LightSensor": PartSpec(
         body_part=LightSensor,
         arity=1,
@@ -90,8 +96,8 @@ body_gen = FixedOrientationBodyGenerator(
     root_parts=["Core"],
 
     # All other parts can potentially be attached
-    attach_parts=["ActiveHinge", "Hinge", "FixedBrick",
-                  "LightSensor", "TouchSensor", "ParametricBarJoint"],
+    attach_parts=[part_type for part_type in body_spec.get_all_types()
+                  if part_type != "Core"],
 
     # High number of maximum parts, limit will probably be something else
     max_parts=15,
