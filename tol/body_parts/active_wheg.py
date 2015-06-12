@@ -1,4 +1,5 @@
 # Revolve imports
+from __future__ import print_function
 import itertools
 import math
 from revolve.build.sdf import BodyPart, VelocityMotor, PID
@@ -61,7 +62,7 @@ class ActiveWheg(BodyPart, ColorMixin):
 
         # Initialize the base
         spoke_mass = MASS_WHEG / 4.0
-        wheg_base_radius = WHEG_BASE_RADIUS * self.radius
+        wheg_base_radius = WHEG_BASE_RADIUS
         wheg_base.make_cylinder(spoke_mass, wheg_base_radius, WHEG_THICKNESS)
         wheg_base.set_position(Vector3(z_servo, 0, X_WHEG_BASE))
 
