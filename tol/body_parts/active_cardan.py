@@ -8,7 +8,7 @@ from sdfbuilder.joint import Joint, Limit
 
 # Local imports
 from .util import ColorMixin
-from .. import constants
+from ..config import constants
 
 MASS_SERVO = in_grams(7)
 MASS_SLOT = in_grams(2)

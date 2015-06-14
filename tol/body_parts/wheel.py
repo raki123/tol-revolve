@@ -7,7 +7,7 @@ from sdfbuilder.math import Vector3
 
 # Local imports
 from .util import ColorMixin
-from .. import constants
+from ..config import constants
 
 MASS_SLOT = in_grams(2.5)
 MASS_WHEEL = in_grams(4)

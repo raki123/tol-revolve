@@ -108,6 +108,9 @@ def generate_population(id_start, n_bots, max_x, max_y, creator, analyzer, build
         msg.robot_id = "gen__"+str(id_start + i)
         sdf = get_simulation_robot(robot, msg.robot_id, builder, conf)
 
+        with open('outfile.sdf', 'w') as f:
+            f.write(str(sdf))
+
         # Determine x, y, z position - we translate upwards so the robot is (most likely)
         # not lodged in the ground. The bounding box is unfortunately still inaccurate.
         x = random.uniform(0, max_x)

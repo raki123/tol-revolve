@@ -25,9 +25,6 @@ body:
         1:
           id: ChildBrick
           type: FixedBrick
-    2:
-      id: Wheg
-      type: ActiveWheg
 '''
 
 conf = Config()

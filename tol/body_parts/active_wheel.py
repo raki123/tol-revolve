@@ -1,5 +1,5 @@
 # Revolve imports
-from revolve.build.sdf import BodyPart, VelocityMotor, PID
+from revolve.build.sdf import BodyPart, VelocityMotor
 from revolve.build.util import in_grams, in_mm
 
 from sdfbuilder.joint import Joint, Limit
@@ -7,7 +7,7 @@ from sdfbuilder.math import Vector3
 
 # Local imports
 from .util import ColorMixin
-from .. import constants
+from ..config import constants
 
 MASS_SLOT = in_grams(4)
 MASS_SERVO = in_grams(9)
@@ -58,7 +58,11 @@ class ActiveWheel(BodyPart, ColorMixin):
         # Now we add a motor that powers the joint. This particular servo
         # targets a velocity. Use a simple PID controller initially.
         pid = constants.SERVO_PID
-        self.motors.append(VelocityMotor(self.id, "rotate", self.joint, pid))
+        self.motors.append(VelocityMotor(
+            self.id, "rotate", self.joint, pid=pid,
+            max_velocity=constants.MAX_SERVO_VELOCITY,
+            min_velocity=-constants.MAX_SERVO_VELOCITY
+        ))
 
         # Call color mixin
         self.apply_color()

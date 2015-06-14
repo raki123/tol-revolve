@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 # Revolve imports
-from revolve.build.sdf import BodyPart, PID, PositionMotor
+from revolve.build.sdf import BodyPart, PositionMotor
 from revolve.build.util import in_grams, in_mm
 
 # SDF builder imports
@@ -10,7 +10,7 @@ from sdfbuilder.joint import Joint, Limit
 
 # Local imports
 from .util import ColorMixin
-from .. import constants
+from ..config import constants
 
 
 class ActiveHinge(BodyPart, ColorMixin):
