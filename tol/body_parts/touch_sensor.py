@@ -62,7 +62,7 @@ class TouchSensor(Box, ColorMixin):
         sensor_link.add_element(contact)
 
         # Register the sensor
-        sensor = Sensor(self.id, self.link, contact, "touch")
+        sensor = Sensor(self.id, sensor_link, contact, "touch")
         self.sensors.append(sensor)
 
     def get_slot_position(self, slot):
