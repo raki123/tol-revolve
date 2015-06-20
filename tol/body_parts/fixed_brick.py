@@ -5,7 +5,7 @@ from revolve.build.util import in_grams, in_mm
 # Local imports
 from .util import ColorMixin
 
-width = in_mm(46.5)
+WIDTH = in_mm(46.5)
 
 
 class FixedBrick(Box, ColorMixin):
@@ -14,9 +14,9 @@ class FixedBrick(Box, ColorMixin):
     without any sensors. We can conveniently model this
     as a box.
     """
-    X = width
-    Y = width
-    Z = width
+    X = WIDTH
+    Y = WIDTH
+    Z = WIDTH
     MASS = in_grams(14.9)
 
     def _initialize(self, **kwargs):

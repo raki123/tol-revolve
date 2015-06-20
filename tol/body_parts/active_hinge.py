@@ -1,90 +1,73 @@
 from __future__ import absolute_import
 
 # Revolve imports
-from revolve.build.sdf import BodyPart, PositionMotor
+from revolve.build.sdf import BodyPart, PositionMotor, ComponentJoint as Joint
 from revolve.build.util import in_grams, in_mm
 
 # SDF builder imports
 from sdfbuilder.math import Vector3
-from sdfbuilder.joint import Joint, Limit
+from sdfbuilder.joint import Limit
+from sdfbuilder.structure import Box
 
 # Local imports
 from .util import ColorMixin
 from ..config import constants
+
+MASS_SLOT = in_grams(7)
+MASS_SERVO = in_grams(9)
+MASS_FRAME = in_grams(1.2)
+SLOT_WIDTH = in_mm(34)
+SLOT_THICKNESS = in_mm(1.5)
+
+FRAME_LENGTH = in_mm(18)
+FRAME_HEIGHT = in_mm(10)
+FRAME_ROTATION_OFFSET = in_mm(14)
+""" Left to right """
+
+SERVO_LENGTH = in_mm(24.5)
+SERVO_HEIGHT = in_mm(10)
+SERVO_ROTATION_OFFSET = in_mm(20.5)
+""" Right to left """
+
+SEPARATION = in_mm(0.1)
 
 
 class ActiveHinge(BodyPart, ColorMixin):
     """
     A passive hinge
     """
-    MASS_SLOT = in_grams(7)
-    MASS_SERVO = in_grams(9)
-    MASS_FRAME = in_grams(1.2)
-    SLOT_WIDTH = in_mm(34)
-    SLOT_THICKNESS = in_mm(1.5)
-
-    FRAME_LENGTH = in_mm(18)
-    FRAME_HEIGHT = in_mm(10)
-    FRAME_ROTATION_OFFSET = in_mm(14)
-    """ Left to right """
-
-    SERVO_LENGTH = in_mm(24.5)
-    SERVO_HEIGHT = in_mm(10)
-    SERVO_ROTATION_OFFSET = in_mm(20.5)
-    """ Right to left """
-
-    SEPARATION = in_mm(0.1)
 
     def _initialize(self, **kwargs):
         """
         :param kwargs:
         :return:
         """
-        # Create links
-        self.hinge_root = self.create_link("slot_a")
-        self.hinge_tail = self.create_link("slot_b")
-        frame = self.create_link("frame")
-        servo = self.create_link("servo")
-
         # Shorthand for variables
-        separation = self.SEPARATION
-        slot_mass = self.MASS_SLOT
-        frame_mass = self.MASS_FRAME
-        servo_mass = self.MASS_SERVO
-        thickness = self.SLOT_THICKNESS
-        width = self.SLOT_WIDTH
-        frame_length = self.FRAME_LENGTH
-        frame_height = self.FRAME_HEIGHT
-        frame_rot = self.FRAME_ROTATION_OFFSET
-        servo_length = self.SERVO_LENGTH
-        servo_height = self.SERVO_HEIGHT
-        servo_rot = self.SERVO_ROTATION_OFFSET
-
-        # Initialize root properties
-        self.hinge_root.make_box(slot_mass, thickness, width, width)
+        # Initialize root
+        self.hinge_root = self.create_component(
+            Box(SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH, MASS_SLOT), "root")
 
         # Make frame
-        x_frame = thickness / 2.0 + separation + frame_length / 2.0
+        frame = self.create_component(Box(FRAME_LENGTH, SLOT_WIDTH, FRAME_HEIGHT, MASS_FRAME), "frame")
+        x_frame = SLOT_THICKNESS / 2.0 + SEPARATION + FRAME_LENGTH / 2.0
         frame.set_position(Vector3(x_frame, 0, 0))
-        frame.make_box(frame_mass, frame_length, width, frame_height)
 
         # Make servo
-        x_servo = x_frame + (frame_rot - 0.5 * frame_length) + \
-                  (-0.5 * servo_length + servo_rot)
+        servo = self.create_component(Box(SERVO_LENGTH, SLOT_WIDTH, SERVO_HEIGHT, MASS_SERVO), "servo")
+        x_servo = x_frame + (FRAME_ROTATION_OFFSET - 0.5 * FRAME_LENGTH) + \
+                  (-0.5 * SERVO_LENGTH + SERVO_ROTATION_OFFSET)
         servo.set_position(Vector3(x_servo, 0, 0))
-        servo.make_box(servo_mass, servo_length, width, servo_height)
 
-        # TODO Color servo
+        # TODO Color servo?
 
         # Make the tail
-        x_tail = x_servo + servo_length / 2.0 + separation + thickness / 2.0
+        self.hinge_tail = self.create_component(Box(SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH, MASS_SLOT), "tail")
+        x_tail = x_servo + SERVO_LENGTH / 2.0 + SEPARATION + SLOT_THICKNESS / 2.0
         self.hinge_tail.set_position(Vector3(x_tail, 0, 0))
-        self.hinge_tail.make_box(slot_mass, thickness, width, width)
 
         # Create joints to hold the pieces in position
         # root <-> frame
-        self.fix_links(self.hinge_root, frame, Vector3(-frame_length / 2.0, 0, 0),
-                       Vector3(1, 0, 0))
+        self.fix(self.hinge_root, frame)
 
         # Connection part a <(hinge)> connection part b
         # Hinge joint axis should point straight up, and anchor
@@ -92,7 +75,7 @@ class ActiveHinge(BodyPart, ColorMixin):
         # is expressed in the child link frame, so we need to take the
         # position from the original code and subtract conn_b's position
         self.joint = Joint("revolute", servo, frame, axis=Vector3(0, 1, 0))
-        self.joint.set_position(Vector3(-0.5 * frame_length + frame_rot, 0, 0))
+        self.joint.set_position(Vector3(-0.5 * FRAME_LENGTH + FRAME_ROTATION_OFFSET, 0, 0))
         self.joint.axis.limit = Limit(
             lower=-constants.SERVO_LIMIT,
             upper=constants.SERVO_LIMIT,
@@ -101,8 +84,7 @@ class ActiveHinge(BodyPart, ColorMixin):
         self.add_joint(self.joint)
 
         # connection part b <-> tail
-        self.fix_links(servo, self.hinge_tail, Vector3(-thickness / 2.0, 0, 0),
-                       Vector3(1, 0, 0))
+        self.fix(servo, self.hinge_tail)
 
         # Now we add a motor that powers the joint. This particular servo
         # targets a position. Use a simple PID controller initially.

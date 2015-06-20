@@ -4,6 +4,7 @@ from __future__ import absolute_import
 # SDF builder imports
 from sdfbuilder.sensor import Sensor as SdfSensor
 from sdfbuilder.math import Vector3
+from sdfbuilder.structure import Box
 
 # Revolve imports
 from revolve.build.sdf import BodyPart, Sensor
@@ -12,21 +13,20 @@ from revolve.build.util import in_grams, in_mm
 # Local imports
 from .util import ColorMixin
 
+MASS = in_grams(55.4)
+WIDTH = in_mm(46.5)
 
 class CoreComponent(BodyPart, ColorMixin):
     """
     The core component of the robot, basically a box with an IMU sensor.
     """
-    MASS = in_grams(55.4)
-    WIDTH = in_mm(46.5)
 
     def _initialize(self, **kwargs):
         """
         :param kwargs:
         :return:
         """
-        self.link = self.create_link("%s-box-link" % self.id)
-        self.link.make_box(self.MASS, self.WIDTH, self.WIDTH, self.WIDTH)
+        self.link = self.create_component(Box(WIDTH, WIDTH, WIDTH, MASS), "box")
 
         # Now we will add the IMU sensor. First, we must
         # create a sensor in SDF. Be careful to give the
@@ -34,14 +34,7 @@ class CoreComponent(BodyPart, ColorMixin):
         # robot, adding the ID will help us do that.
         sensor_id = "%s_imu_sensor" % self.id
         imu = SdfSensor(sensor_id, "imu", update_rate=self.conf.update_rate)
-        self.link.add_element(imu)
-
-        # Now, we need to register the sensor so it will be communicated
-        # to the CPP plugin. There is a default handler available for
-        # a few sensors, which can be overridden by replacing / extending
-        # the sensor factory in the model plugin
-        sensor = Sensor(self.id, self.link, imu)
-        self.sensors.append(sensor)
+        self.link.add_sensor(imu)
 
         self.apply_color()
 
@@ -57,7 +50,7 @@ class CoreComponent(BodyPart, ColorMixin):
         Return slot position
         """
         self.check_slot(slot)
-        vmax = self.WIDTH / 2.0
+        vmax = WIDTH / 2.0
         if slot == 0:
             # Front face
             return Vector3(0, -vmax, 0)

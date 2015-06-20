@@ -20,5 +20,8 @@ MAX_SERVO_VELOCITY = -(50.0/60.0) * 2 * math.pi
 SERVO_LIMIT = math.radians(45)
 """ Upper and lower limit """
 
+CARDAN_LIMIT = math.radians(45)
+""" Upper and lower limit of each axis of rotation """
+
 SERVO_PID = PID(proportional_gain=0.1, integral_gain=0.01)
 """ Default servo PID """

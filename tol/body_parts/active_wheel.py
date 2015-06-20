@@ -1,9 +1,10 @@
 # Revolve imports
-from revolve.build.sdf import BodyPart, VelocityMotor
+from revolve.build.sdf import BodyPart, VelocityMotor, ComponentJoint as Joint
 from revolve.build.util import in_grams, in_mm
 
-from sdfbuilder.joint import Joint, Limit
+from sdfbuilder.joint import Limit
 from sdfbuilder.math import Vector3
+from sdfbuilder.structure import Cylinder, Box
 
 # Local imports
 from .util import ColorMixin
@@ -30,24 +31,20 @@ class ActiveWheel(BodyPart, ColorMixin):
     def _initialize(self, **kwargs):
         self.radius = in_mm(kwargs['radius'])
 
-        wheel = self.create_link("wheel")
-        servo = self.create_link("servo")
-        self.root = self.create_link("wheel_root")
-
         # Create the root
-        self.root.make_box(MASS_SLOT, SLOT_WIDTH,
-                           SLOT_WIDTH, SLOT_THICKNESS)
+        self.root = self.create_component(
+            Box(SLOT_WIDTH, SLOT_WIDTH, SLOT_THICKNESS, MASS_SLOT), "root")
 
         # Create the servo
-        servo.make_box(MASS_SERVO, SERVO_HEIGHT, SERVO_WIDTH, SERVO_LENGTH)
+        servo = self.create_component(Box(SERVO_HEIGHT, SERVO_WIDTH, SERVO_LENGTH, MASS_SERVO), "servo")
         servo.set_position(Vector3(0, 0, X_SERVO))
 
         # Create the wheel
-        wheel.make_cylinder(MASS_WHEEL, self.radius, WHEEL_THICKNESS)
+        wheel = self.create_component(Cylinder(self.radius, WHEEL_THICKNESS, MASS_WHEEL), "wheel")
         wheel.set_position(Vector3(0, 0, X_WHEEL))
 
         # Fix the root to the servo
-        self.fix_links(self.root, servo, Vector3(0, 0, -0.5 * SERVO_LENGTH), Vector3(0, 0, 1))
+        self.fix(self.root, servo)
 
         # Attach the wheel and the root with a revolute joint
         self.joint = Joint("revolute", servo, wheel, axis=Vector3(0, 0, -1))

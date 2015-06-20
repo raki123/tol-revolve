@@ -1,9 +1,10 @@
 # Revolve imports
-from revolve.build.sdf import BodyPart, PositionMotor
+from revolve.build.sdf import BodyPart, PositionMotor, ComponentJoint as Joint
 from revolve.build.util import in_grams, in_mm
 
-from sdfbuilder.joint import Joint, Limit
+from sdfbuilder.joint import Limit
 from sdfbuilder.math import Vector3
+from sdfbuilder.structure import Box
 
 # Local imports
 from .util import ColorMixin
@@ -29,30 +30,25 @@ class ActiveRotator(BodyPart, ColorMixin):
     """
 
     def _initialize(self, **kwargs):
-        self.root = self.create_link("root")
-        servo = self.create_link("servo")
-        self.connection = self.create_link("connection")
-
         # Initialize the root
-        self.root.make_box(MASS_SLOT, SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH)
+        self.root = self.create_component(Box(SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH, MASS_SLOT), "root")
 
         # Initialize the servo
+        servo = self.create_component(Box(SERVO_LENGTH, SERVO_WIDTH, SERVO_HEIGHT, MASS_SERVO))
         x_servo = 0.5 * (SLOT_THICKNESS + SERVO_LENGTH) + SEPARATION
         # z_servo = 0.5 * (SERVO_HEIGHT - SLOT_WIDTH) + SERVO_Z_OFFSET
         z_servo = 0
-        servo.make_box(MASS_SERVO, SERVO_LENGTH, SERVO_WIDTH, SERVO_HEIGHT)
         servo.set_position(Vector3(x_servo, 0, z_servo))
 
         # Initialize the connection
+        self.connection = self.create_component(Box(JOINT_CONNECTION_THICKNESS, JOINT_CONNECTION_WIDTH,
+                                                    JOINT_CONNECTION_WIDTH, MASS_CONNECTION_SLOT), "connection")
         x_conn = x_servo + 0.5 * (SERVO_LENGTH - JOINT_CONNECTION_THICKNESS) + SEPARATION
-        self.connection.make_box(MASS_CONNECTION_SLOT, JOINT_CONNECTION_THICKNESS,
-                                 JOINT_CONNECTION_WIDTH, JOINT_CONNECTION_WIDTH)
         self.connection.set_position(Vector3(x_conn, 0, 0))
 
         # Fix the links
         # root <-> servo
-        self.fix_links(self.root, servo, Vector3(-0.5 * SERVO_LENGTH, 0, 0),
-                       Vector3(1, 0, 0))
+        self.fix(self.root, servo)
 
         # servo <revolute> connection
         self.joint = Joint("revolute", servo, self.connection, axis=Vector3(1, 0, 0))

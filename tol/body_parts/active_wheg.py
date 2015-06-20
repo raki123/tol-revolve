@@ -3,11 +3,11 @@ from __future__ import print_function
 import itertools
 import math
 
-from revolve.build.sdf import BodyPart, VelocityMotor
+from revolve.build.sdf import BodyPart, VelocityMotor, ComponentJoint as Joint
 from revolve.build.util import in_grams, in_mm
-from sdfbuilder.joint import Joint, Limit
+from sdfbuilder.joint import Limit
 from sdfbuilder.math import Vector3
-
+from sdfbuilder.structure import Box, Cylinder
 
 # Local imports
 from .util import ColorMixin
@@ -44,33 +44,26 @@ class ActiveWheg(BodyPart, ColorMixin):
     def _initialize(self, **kwargs):
         self.radius = in_mm(kwargs['radius'])
 
-        self.root = self.create_link("root")
-        servo = self.create_link("servo")
-        wheg_base = self.create_link("wheg_base")
-        spoke1 = self.create_link("spoke1")
-        spoke2 = self.create_link("spoke2")
-        spoke3 = self.create_link("spoke3")
-
         # Because of the cylinder shapes, x axis is swapped with z axis
         # as compared to the Robogen code.
         # Initialize root
-        self.root.make_box(MASS_SLOT, SLOT_WIDTH, SLOT_WIDTH, SLOT_THICKNESS)
+        self.root = self.create_component(Box(SLOT_WIDTH, SLOT_WIDTH, SLOT_THICKNESS, MASS_SLOT), "root")
 
         # Initialize servo
         z_servo = 0
-        servo.make_box(MASS_SERVO, SERVO_HEIGHT, SERVO_WIDTH, SERVO_LENGTH)
+        servo = self.create_component(Box(SERVO_HEIGHT, SERVO_WIDTH, SERVO_LENGTH, MASS_SERVO), "servo")
         servo.set_position(Vector3(z_servo, 0, X_SERVO))
 
         # Initialize the base
         spoke_mass = MASS_WHEG / 4.0
         wheg_base_radius = WHEG_BASE_RADIUS
-        wheg_base.make_cylinder(spoke_mass, wheg_base_radius, WHEG_THICKNESS)
+        wheg_base = self.create_component(Cylinder(wheg_base_radius, WHEG_THICKNESS, spoke_mass), "wheg_base")
         wheg_base.set_position(Vector3(z_servo, 0, X_WHEG_BASE))
 
         # Initialize the spokes
-        spoke1.make_box(spoke_mass, self.radius, WHEG_WIDTH, WHEG_THICKNESS)
-        spoke2.make_box(spoke_mass, self.radius, WHEG_WIDTH, WHEG_THICKNESS)
-        spoke3.make_box(spoke_mass, self.radius, WHEG_WIDTH, WHEG_THICKNESS)
+        spoke1 = self.create_component(Box(self.radius, WHEG_WIDTH, WHEG_THICKNESS, spoke_mass), "spoke1")
+        spoke2 = self.create_component(Box(self.radius, WHEG_WIDTH, WHEG_THICKNESS, spoke_mass), "spoke2")
+        spoke3 = self.create_component(Box(self.radius, WHEG_WIDTH, WHEG_THICKNESS, spoke_mass), "spoke3")
 
         # Rotate the spokes
         spokes = [spoke1, spoke2, spoke3]
@@ -87,10 +80,10 @@ class ActiveWheg(BodyPart, ColorMixin):
             spoke.set_position(Vector3(z_servo + x, y, X_WHEG_BASE))
 
         # Create the connecting joints
-        self.fix_links(self.root, servo, Vector3(0, 0, -0.5 * SERVO_LENGTH), Vector3(0, 0, 1))
+        self.fix(self.root, servo)
 
         for spoke in spokes:
-            self.fix_links(wheg_base, spoke, Vector3(-0.5 * self.radius, 0, 0), Vector3(1, 0, 0))
+            self.fix(wheg_base, spoke)
 
         # Revolute joint of the servo
         self.joint = Joint("revolute", servo, wheg_base, axis=Vector3(0, 0, 1))

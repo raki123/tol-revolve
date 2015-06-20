@@ -4,8 +4,11 @@ from __future__ import absolute_import, print_function
 from revolve.build.sdf import BodyPart
 from revolve.build.util import in_grams, in_mm
 
-# Local imports
+# sdfbuilder imports
 from sdfbuilder.math import Vector3
+from sdfbuilder.structure import Box
+
+# Local imports
 from .util import ColorMixin
 
 class ParametricBarJoint(BodyPart, ColorMixin):
@@ -47,33 +50,26 @@ class ParametricBarJoint(BodyPart, ColorMixin):
         # Connection length is in mm
         self.conn_length = conn_length = in_mm(kwargs['connection_length'])
 
-        # First, create and attach all components as if alpha=beta=0
-        self.root = self.create_link("root")
-        self.root.make_box(mass, thickness, width, width)
+        # Initialize root
+        self.root = self.create_component(Box(thickness, width, width, mass), "root")
 
-        # Connection
-        connection = self.create_link("connection")
+        # Initialize connection
         x_connection = 0.5 * (thickness + conn_length) + sep
-        connection.make_box(10 * mass_per_cm * conn_length,
-                            conn_length, conn_width, conn_thickness)
+        connection = self.create_component(
+            Box(conn_length, conn_width, conn_thickness, 10 * mass_per_cm * conn_length), "connection")
         connection.set_position(Vector3(x_connection, 0, 0))
 
         # Tail
-        self.tail = self.create_link("tail")
         x_slot_b = x_connection + 0.5 * (conn_length + thickness) + sep
-        self.tail.make_box(mass, thickness, width, width)
+        self.tail = self.create_component(Box(thickness, width, width, mass), "tail")
         self.tail.set_position(Vector3(x_slot_b, 0, 0))
 
         # Create fixed joints between the parts
         # root <> connection
-        self.fix_links(self.root, connection,
-                       Vector3(-0.5 * conn_length, 0, 0),
-                       Vector3(1, 0, 0))
+        self.fix(self.root, connection)
 
         # connection <> tail
-        self.fix_links(connection, self.tail,
-                       Vector3(-0.5 * thickness),
-                       Vector3(1, 0, 0))
+        self.fix(connection, self.tail)
 
         # Now perform the rotations. `BodyPart` guarantees
         # that it has origin position and zero orientation

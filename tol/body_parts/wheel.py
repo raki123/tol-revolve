@@ -1,9 +1,10 @@
 # Revolve imports
-from revolve.build.sdf import BodyPart
+from revolve.build.sdf import BodyPart, ComponentJoint as Joint
 from revolve.build.util import in_grams, in_mm
 
-from sdfbuilder.joint import Joint, Limit
+from sdfbuilder.joint import Limit
 from sdfbuilder.math import Vector3
+from sdfbuilder.structure import Cylinder, Box
 
 # Local imports
 from .util import ColorMixin
@@ -26,21 +27,15 @@ class Wheel(BodyPart, ColorMixin):
     def _initialize(self, **kwargs):
         self.radius = in_mm(kwargs['radius'])
 
-        wheel = self.create_link("wheel")
-        self.root = self.create_link("wheel_root")
-
-        # Create the root
-        self.root.make_box(MASS_SLOT, SLOT_WIDTH,
-                           SLOT_WIDTH, SLOT_THICKNESS)
+        wheel = self.create_component(Cylinder(self.radius, WHEEL_THICKNESS, MASS_WHEEL), "wheel")
+        self.root = self.create_component(Box(SLOT_WIDTH, SLOT_WIDTH, SLOT_THICKNESS, MASS_SLOT))
 
         # Create the wheel
         z_wheel = 0.5 * SLOT_THICKNESS - (SLOT_THICKNESS + SLOT_CONNECTION_THICKNESS - SLOT_WHEEL_OFFSET)
-        wheel.make_cylinder(MASS_WHEEL, self.radius, WHEEL_THICKNESS)
         wheel.set_position(Vector3(0, 0, z_wheel))
 
         # Attach the wheel and the root with a revolute joint
         joint = Joint("revolute", self.root, wheel, axis=Vector3(0, 0, -1))
-        joint.set_position(Vector3(0, 0, 0))
 
         # TODO Adequate force limit for passive wheel
         joint.axis.limit = Limit(effort=constants.MAX_SERVO_TORQUE_ROTATIONAL)
