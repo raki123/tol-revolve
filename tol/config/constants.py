@@ -14,7 +14,7 @@ MAX_SERVO_TORQUE = 0.1 * (1.8 * 9.81) / 100
 MAX_SERVO_TORQUE_ROTATIONAL = 0.1 * (4 * 9.81) / 100
 """ Expressed in Newton*m from kg-cm = ((kg-cm)*g)/100 """
 
-MAX_SERVO_VELOCITY = -(50.0/60.0) * 2 * math.pi
+MAX_SERVO_VELOCITY = (50.0/60.0) * 2 * math.pi
 """ Maximum rotational velocity of a servo, in radians / second """
 
 SERVO_LIMIT = math.radians(45)

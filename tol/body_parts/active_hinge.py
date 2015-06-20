@@ -108,7 +108,7 @@ class ActiveHinge(BodyPart, ColorMixin):
     def get_slot_position(self, slot_id):
         self.check_slot(slot_id)
 
-        offset = 0.5 * self.SLOT_THICKNESS
+        offset = 0.5 * SLOT_THICKNESS
         if slot_id == 0:
             # The root slot is positioned half the slot
             # thickness to the left
@@ -117,5 +117,5 @@ class ActiveHinge(BodyPart, ColorMixin):
             # A `BodyPart` is a posable group, so item positions are
             # in the parent frame. If we convert to the local frame we can
             # simply add the offset in the x-direction
-            tail_pos = self.to_local_frame(self.hinge_tail.pose.position)
+            tail_pos = self.to_local_frame(self.hinge_tail.get_position())
             return tail_pos + Vector3(offset, 0, 0)

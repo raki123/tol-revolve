@@ -85,7 +85,7 @@ class Hinge(BodyPart, ColorMixin):
     def get_slot_position(self, slot_id):
         self.check_slot(slot_id)
 
-        offset = 0.5 * self.SLOT_THICKNESS
+        offset = 0.5 * SLOT_THICKNESS
         if slot_id == 0:
             # The root slot is positioned half the slot
             # thickness to the left
