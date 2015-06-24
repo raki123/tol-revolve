@@ -54,7 +54,7 @@ class ActiveWheel(BodyPart, ColorMixin):
 
         # Now we add a motor that powers the joint. This particular servo
         # targets a velocity. Use a simple PID controller initially.
-        pid = constants.SERVO_PID
+        pid = constants.SERVO_VELOCITY_PID
         self.motors.append(VelocityMotor(
             self.id, "rotate", self.joint, pid=pid,
             max_velocity=constants.MAX_SERVO_VELOCITY,

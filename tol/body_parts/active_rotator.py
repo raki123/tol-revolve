@@ -57,8 +57,10 @@ class ActiveRotator(BodyPart, ColorMixin):
 
         # Now we add a motor that powers the joint. This particular servo
         # targets a velocity. Use a simple PID controller initially.
-        pid = constants.SERVO_PID
-        self.motors.append(PositionMotor(self.id, "rotate", self.joint, pid))
+        pid = constants.SERVO_POSITION_PID
+        self.motors.append(PositionMotor(self.id, "rotate", self.joint, pid,
+                                         min_velocity=-constants.MAX_SERVO_VELOCITY,
+                                         max_velocity=constants.MAX_SERVO_VELOCITY))
 
         # Call color mixin
         self.apply_color()

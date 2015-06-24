@@ -31,6 +31,7 @@ class TouchSensor(Box, ColorMixin):
         :param kwargs:
         :return:
         """
+        self.mass = MASS
         self.x = SENSOR_BASE_THICKNESS
         self.y = self.z = SENSOR_BASE_WIDTH
         super(TouchSensor, self)._initialize(**kwargs)

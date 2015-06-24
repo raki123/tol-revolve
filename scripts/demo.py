@@ -40,6 +40,7 @@ if len(sys.argv) > 1:
 else:
     seed = random.randint(0, 1000000)
 
+# A good stability-testing bot seems to come up with seed 126839
 random.seed(seed)
 print("Seed: %d" % seed)
 
@@ -53,7 +54,9 @@ MATING_DISTANCE = in_mm(200)
 @trollius.coroutine
 def run_server():
     # Get Configuration element
-    conf = Config()
+    conf = Config(
+        update_rate=25
+    )
 
     # Make a robot builder containing this config
     builder = get_builder(conf)
@@ -77,7 +80,7 @@ def run_server():
 
     # -- Here: create some initial robot population
     # We'll toss the bots in a 5m x 5m square at random positions
-    grid_size = (3, 3)
+    grid_size = (1, 1)
     yield From(generate_population(robot_id, grid_size, robot_creator, analyzer, builder, conf))
     robot_id += grid_size[0] * grid_size[1]
 
@@ -115,8 +118,8 @@ def generate_population(id_start, grid_size, creator, analyzer, builder, conf):
         msg.robot_id = "gen__"+str(current_id)
         sdf = get_simulation_robot(robot, msg.robot_id, builder, conf)
 
-        # with open('outfile.sdf', 'w') as f:
-        #     f.write(str(sdf))
+        with open('outfile.sdf', 'w') as f:
+            f.write(str(sdf))
 
         # Determine x, y, z position - we translate upwards so the robot is (most likely)
         # not lodged in the ground. The bounding box is unfortunately still inaccurate.
