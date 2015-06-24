@@ -140,11 +140,9 @@ class ActiveCardan(BodyPart, ColorMixin):
         # Register motors
         pid = constants.SERVO_POSITION_PID
         self.motors.append(PositionMotor(self.id, "motor_a", joint_a, pid=pid,
-                                         min_velocity=-constants.MAX_SERVO_VELOCITY,
-                                         max_velocity=constants.MAX_SERVO_VELOCITY))
+                                         velocity_limit=constants.MAX_SERVO_VELOCITY))
         self.motors.append(PositionMotor(self.id, "motor_b", joint_b, pid=pid,
-                                         min_velocity=-constants.MAX_SERVO_VELOCITY,
-                                         max_velocity=constants.MAX_SERVO_VELOCITY))
+                                         velocity_limit=constants.MAX_SERVO_VELOCITY))
 
     def get_slot(self, slot_id):
         self.check_slot(slot_id)
