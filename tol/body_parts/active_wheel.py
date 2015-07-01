@@ -49,7 +49,10 @@ class ActiveWheel(BodyPart, ColorMixin):
         # Attach the wheel and the root with a revolute joint
         self.joint = Joint("revolute", servo, wheel, axis=Vector3(0, 0, -1))
         self.joint.set_position(Vector3(0, 0, -WHEEL_THICKNESS))
-        self.joint.axis.limit = Limit(effort=constants.MAX_SERVO_TORQUE_ROTATIONAL)
+        self.joint.axis.limit = Limit(
+            effort=constants.MAX_SERVO_TORQUE_ROTATIONAL,
+            velocity=constants.MAX_SERVO_VELOCITY
+        )
         self.add_joint(self.joint)
 
         # Now we add a motor that powers the joint. This particular servo

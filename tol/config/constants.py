@@ -27,20 +27,20 @@ CARDAN_LIMIT = math.radians(45)
 # overshoot quite rapidly.
 SERVO_VELOCITY_PID = PID(
     proportional_gain=0.5,
-    derivative_gain=1e-2,
+    derivative_gain=0,
 
     # Can apply up to 1/10th of total force as integral error
-    integral_gain=0.1,
+    integral_gain=0,
     integral_max=MAX_SERVO_TORQUE_ROTATIONAL
 )
 """ Default servo velocity PID """
 
 SERVO_POSITION_PID = PID(
     proportional_gain=0.5,
-    derivative_gain=1e-2,
+    derivative_gain=0,
 
     # Can apply up to 1/10th of total force as integral error
-    integral_gain=0.1,
+    integral_gain=0,
     integral_max=MAX_SERVO_TORQUE
 )
 """ Default servo position PID. """

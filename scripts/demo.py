@@ -80,7 +80,7 @@ def run_server():
 
     # -- Here: create some initial robot population
     # We'll toss the bots in a 5m x 5m square at random positions
-    grid_size = (1, 1)
+    grid_size = (3, 3)
     yield From(generate_population(robot_id, grid_size, robot_creator, analyzer, builder, conf))
     robot_id += grid_size[0] * grid_size[1]
 

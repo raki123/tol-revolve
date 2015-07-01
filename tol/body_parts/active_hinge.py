@@ -79,7 +79,8 @@ class ActiveHinge(BodyPart, ColorMixin):
         self.joint.axis.limit = Limit(
             lower=-constants.SERVO_LIMIT,
             upper=constants.SERVO_LIMIT,
-            effort=constants.MAX_SERVO_TORQUE
+            effort=constants.MAX_SERVO_TORQUE,
+            velocity=constants.MAX_SERVO_VELOCITY
         )
         self.add_joint(self.joint)
 
@@ -89,8 +90,7 @@ class ActiveHinge(BodyPart, ColorMixin):
         # Now we add a motor that powers the joint. This particular servo
         # targets a position. Use a simple PID controller initially.
         pid = constants.SERVO_POSITION_PID
-        self.motors.append(PositionMotor(self.id, "rotate", self.joint, pid,
-                                         velocity_limit=constants.MAX_SERVO_VELOCITY))
+        self.motors.append(PositionMotor(self.id, "rotate", self.joint, pid))
 
         # Apply color mixin
         self.apply_color()

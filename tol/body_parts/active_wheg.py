@@ -87,7 +87,10 @@ class ActiveWheg(BodyPart, ColorMixin):
 
         # Revolute joint of the servo
         self.joint = Joint("revolute", servo, wheg_base, axis=Vector3(0, 0, 1))
-        self.joint.axis.limit = Limit(effort=constants.MAX_SERVO_TORQUE_ROTATIONAL)
+        self.joint.axis.limit = Limit(
+            effort=constants.MAX_SERVO_TORQUE_ROTATIONAL,
+            velocity=constants.MAX_SERVO_VELOCITY
+        )
         self.add_joint(self.joint)
 
         # Now we add a motor that powers the joint. This particular servo

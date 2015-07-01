@@ -110,7 +110,8 @@ class ActiveCardan(BodyPart, ColorMixin):
         joint_a.axis.limit = Limit(
             lower=-constants.SERVO_LIMIT,
             upper=constants.SERVO_LIMIT,
-            effort=constants.MAX_SERVO_TORQUE
+            effort=constants.MAX_SERVO_TORQUE,
+            velocity=constants.MAX_SERVO_VELOCITY
         )
         self.add_joint(joint_a)
 
@@ -120,7 +121,8 @@ class ActiveCardan(BodyPart, ColorMixin):
         joint_b.axis.limit = Limit(
             lower=-constants.SERVO_LIMIT,
             upper=constants.SERVO_LIMIT,
-            effort=constants.MAX_SERVO_TORQUE
+            effort=constants.MAX_SERVO_TORQUE,
+            velocity=constants.MAX_SERVO_VELOCITY
         )
         self.add_joint(joint_b)
 
@@ -139,10 +141,8 @@ class ActiveCardan(BodyPart, ColorMixin):
 
         # Register motors
         pid = constants.SERVO_POSITION_PID
-        self.motors.append(PositionMotor(self.id, "motor_a", joint_a, pid=pid,
-                                         velocity_limit=constants.MAX_SERVO_VELOCITY))
-        self.motors.append(PositionMotor(self.id, "motor_b", joint_b, pid=pid,
-                                         velocity_limit=constants.MAX_SERVO_VELOCITY))
+        self.motors.append(PositionMotor(self.id, "motor_a", joint_a, pid=pid))
+        self.motors.append(PositionMotor(self.id, "motor_b", joint_b, pid=pid))
 
     def get_slot(self, slot_id):
         self.check_slot(slot_id)

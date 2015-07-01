@@ -52,14 +52,16 @@ class ActiveRotator(BodyPart, ColorMixin):
 
         # servo <revolute> connection
         self.joint = Joint("revolute", servo, self.connection, axis=Vector3(1, 0, 0))
-        self.joint.axis.limit = Limit(effort=constants.MAX_SERVO_TORQUE_ROTATIONAL)
+        self.joint.axis.limit = Limit(
+            effort=constants.MAX_SERVO_TORQUE_ROTATIONAL,
+            velocity=constants.MAX_SERVO_VELOCITY
+        )
         self.add_joint(self.joint)
 
         # Now we add a motor that powers the joint. This particular servo
         # targets a velocity. Use a simple PID controller initially.
         pid = constants.SERVO_POSITION_PID
-        self.motors.append(PositionMotor(self.id, "rotate", self.joint, pid,
-                                         velocity_limit=constants.MAX_SERVO_VELOCITY))
+        self.motors.append(PositionMotor(self.id, "rotate", self.joint, pid))
 
         # Call color mixin
         self.apply_color()
