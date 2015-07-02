@@ -44,3 +44,11 @@ SERVO_POSITION_PID = PID(
     integral_max=MAX_SERVO_TORQUE
 )
 """ Default servo position PID. """
+
+# Original parameter values from RobogenCollision.cpp
+SURFACE_FRICTION1 = 1.0
+SURFACE_FRICTION2 = 1.0
+SURFACE_SLIP1 = 0.01
+SURFACE_SLIP2 = 0.01
+SURFACE_SOFT_CFM = 0.01
+SURFACE_SOFT_ERP = 0.2

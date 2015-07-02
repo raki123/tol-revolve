@@ -3,6 +3,7 @@ import math
 from revolve.generate import FixedOrientationBodyGenerator
 from revolve.spec import BodyImplementation, PartSpec, ParamSpec
 from ..body_parts import *
+from ..config import Config
 
 # A utility function to generate color property parameters
 channel_func = lambda channel: ParamSpec(channel, min_value=0, max_value=1, default=0.5)
@@ -100,23 +101,33 @@ body_spec = BodyImplementation({
     )
 })
 
-# Body generator
-body_gen = FixedOrientationBodyGenerator(
-    body_spec,
+def get_body_generator(conf):
+    """
+    Returns a body generator.
 
-    # Only "Core" can serve as a root node
-    root_parts=["Core"],
+    :param conf:
+    :type conf: Config
+    :return:
+    """
+    return FixedOrientationBodyGenerator(
+        body_spec,
 
-    # All other parts can potentially be attached
-    attach_parts=[part_type for part_type in body_spec.get_all_types()
-                  if part_type != "Core"],
+        # Only "Core" can serve as a root node
+        root_parts=["Core"],
 
-    # High number of maximum parts, limit will probably be something else
-    max_parts=15,
+        # All other parts can potentially be attached
+        attach_parts=[part_type for part_type in body_spec.get_all_types()
+                      if part_type != "Core"],
 
-    # Maximum number of sensory inputs
-    max_inputs=8,
+        # Require at least some complexity
+        min_parts=conf.min_parts,
 
-    # Maximum number of motor outputs
-    max_outputs=12
-)
+        # High number of maximum parts, limit will probably be something else
+        max_parts=conf.max_parts,
+
+        # Maximum number of sensory inputs
+        max_inputs=conf.max_inputs,
+
+        # Maximum number of motor outputs
+        max_outputs=conf.max_outputs
+    )

@@ -4,7 +4,7 @@ from sdfbuilder.physics import Friction
 from sdfbuilder.structure import Collision
 from sdfbuilder.util import number_format as nf
 from ..spec import body_spec, brain_spec
-from ..config import Config
+from ..config import Config, constants
 
 
 def get_builder(conf):
@@ -30,10 +30,10 @@ def get_simulation_robot(robot, name, builder, conf):
     # Add friction surfaces to all body parts
     surf = Element(tag_name="surface")
     friction = Friction(
-        friction=conf.surface_friction1,
-        friction2=conf.surface_friction2,
-        slip1=conf.surface_slip1,
-        slip2=conf.surface_slip2
+        friction=constants.SURFACE_FRICTION1,
+        friction2=constants.SURFACE_FRICTION2,
+        slip1=constants.SURFACE_SLIP1,
+        slip2=constants.SURFACE_SLIP2
     )
     contact = "<contact>" \
               "<ode>" \
@@ -45,8 +45,8 @@ def get_simulation_robot(robot, name, builder, conf):
               "<soft_erp>%s</soft_erp>" \
               "</bullet>" \
               "</contact>" % (
-                  nf(conf.surface_soft_cfm), nf(conf.surface_soft_erp),
-                  nf(conf.surface_soft_cfm), nf(conf.surface_soft_erp)
+                  nf(constants.SURFACE_SOFT_CFM), nf(constants.SURFACE_SOFT_ERP),
+                  nf(constants.SURFACE_SOFT_CFM), nf(constants.SURFACE_SOFT_ERP)
               )
 
     surf.add_element(contact)

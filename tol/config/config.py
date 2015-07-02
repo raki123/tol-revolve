@@ -11,10 +11,8 @@ class Config(object):
         self.update_rate = kwargs.get('update_rate', 5)
         self.visualize_sensors = kwargs.get('visualize_sensors', False)
 
-        # Original parameter values from RobogenCollision.cpp
-        self.surface_friction1 = 1.0
-        self.surface_friction2 = 1.0
-        self.surface_slip1 = 0.01
-        self.surface_slip2 = 0.01
-        self.surface_soft_cfm = 0.01
-        self.surface_soft_erp = 0.2
+        self.min_parts = kwargs.get('min_parts', 3)
+        self.max_parts = kwargs.get('max_parts', 15)
+        self.max_inputs = kwargs.get('max_inputs', 8)
+        self.max_outputs = kwargs.get('max_outputs', 12)
+
