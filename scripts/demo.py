@@ -28,7 +28,7 @@ from sdfbuilder.math import Vector3
 # util.weight_scale_factor = util.size_scale_factor**3
 
 # ToL imports
-from tol.spec import generate_robot
+from tol.spec import get_tree_generator
 from tol.spec.msgs import InsertSdfRequest
 from tol.config import Config
 from tol.build import get_builder, get_simulation_robot
@@ -61,6 +61,9 @@ def run_server():
     # Make a robot builder containing this config
     builder = get_builder(conf)
 
+    # Instantiate a tree generator
+    generator = get_tree_generator(conf)
+
     # Map of known robots in the world
     robots = {}
 
@@ -81,7 +84,7 @@ def run_server():
     # -- Here: create some initial robot population
     # We'll toss the bots in a 5m x 5m square at random positions
     grid_size = (3, 3)
-    yield From(generate_population(robot_id, grid_size, robot_creator, analyzer, builder, conf))
+    yield From(generate_population(robot_id, grid_size, robot_creator, analyzer, generator, builder, conf))
     robot_id += grid_size[0] * grid_size[1]
 
     # Message ID counter
@@ -100,7 +103,8 @@ def run_server():
 
         # -- Here: Check for robot age, and kill of the old ones
 
-def generate_population(id_start, grid_size, creator, analyzer, builder, conf):
+@trollius.coroutine
+def generate_population(id_start, grid_size, creator, analyzer, generator, builder, conf):
     for i, j in itertools.product(range(grid_size[0]), range(grid_size[1])):
         # Generate a valid robot
         print("Generating valid robot...")
@@ -108,6 +112,7 @@ def generate_population(id_start, grid_size, creator, analyzer, builder, conf):
         robot, bbox = yield From(generate_valid_robot(
             current_id,
             analyzer,
+            generator,
             builder
         ))
 
@@ -125,7 +130,7 @@ def generate_population(id_start, grid_size, creator, analyzer, builder, conf):
         # not lodged in the ground. The bounding box is unfortunately still inaccurate.
         x = 3 * MATING_DISTANCE * i
         y = 3 * MATING_DISTANCE * j
-        pos = Vector3(x, y, 0.1)
+        pos = Vector3(x, y, 0.5 * bbox[2] + 0.1)
         sdf.elements[0].set_position(pos)
         msg.sdf_contents = str(sdf)
 
@@ -134,9 +139,10 @@ def generate_population(id_start, grid_size, creator, analyzer, builder, conf):
         print("Insertion message sent. Robot inserted at: %s" % str(pos))
 
 @trollius.coroutine
-def generate_valid_robot(robot_id, analyzer, builder, max_attempts=100):
+def generate_valid_robot(robot_id, analyzer, generator, builder, max_attempts=100):
     for i in xrange(max_attempts):
-        robot = generate_robot(robot_id)
+        tree = generator.generate_tree()
+        robot = tree.to_robot(robot_id)
         sdf = get_analysis_robot(robot, builder=builder)
 
         # TODO Handle errors

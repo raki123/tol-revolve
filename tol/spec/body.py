@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-import math
 from revolve.generate import FixedOrientationBodyGenerator
 from revolve.spec import BodyImplementation, PartSpec, ParamSpec
 from ..body_parts import *
@@ -101,6 +100,58 @@ body_spec = BodyImplementation({
     )
 })
 
+
+class BodyGenerator(FixedOrientationBodyGenerator):
+    """
+
+    """
+
+    def __init__(self, conf):
+        """
+        """
+        super(BodyGenerator, self).__init__(
+            body_spec,
+
+            # Only "Core" can serve as a root node
+            root_parts=["Core"],
+
+            # All other parts can potentially be attached
+            attach_parts=[part_type for part_type in body_spec.get_all_types()
+                          if part_type != "Core"],
+
+            # Require at least some complexity
+            min_parts=conf.min_parts,
+
+            # High number of maximum parts, limit will probably be something else
+            max_parts=conf.max_parts,
+
+            # Maximum number of sensory inputs
+            max_inputs=conf.max_inputs,
+
+            # Maximum number of motor outputs
+            max_outputs=conf.max_outputs
+        )
+        self.last_parameters = None
+
+    def initialize_part(self, spec, part, root=False):
+        """
+        Overrides `initialize_part` to make sure all parts get
+        the same color as the root part
+        """
+        params = spec.get_random_parameters(serialize=False)
+        if root:
+            self.last_parameters = params
+        else:
+            params['red'], params['green'], params['blue'] = \
+                self.last_parameters['red'], self.last_parameters['green'], self.last_parameters['blue']
+
+        part.orientation = self.choose_orientation(part, root)
+        for p in spec.serialize_params(params):
+            new_param = part.param.add()
+            new_param.value = p
+
+        return part
+
 def get_body_generator(conf):
     """
     Returns a body generator.
@@ -109,25 +160,4 @@ def get_body_generator(conf):
     :type conf: Config
     :return:
     """
-    return FixedOrientationBodyGenerator(
-        body_spec,
-
-        # Only "Core" can serve as a root node
-        root_parts=["Core"],
-
-        # All other parts can potentially be attached
-        attach_parts=[part_type for part_type in body_spec.get_all_types()
-                      if part_type != "Core"],
-
-        # Require at least some complexity
-        min_parts=conf.min_parts,
-
-        # High number of maximum parts, limit will probably be something else
-        max_parts=conf.max_parts,
-
-        # Maximum number of sensory inputs
-        max_inputs=conf.max_inputs,
-
-        # Maximum number of motor outputs
-        max_outputs=conf.max_outputs
-    )
+    return BodyGenerator(conf)

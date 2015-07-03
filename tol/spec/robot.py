@@ -1,26 +1,15 @@
-from revolve.spec import Robot
+from revolve.angle import TreeGenerator
+from ..spec.body import get_body_generator
+from ..spec.brain import get_brain_generator
 
-from tol.spec.body import body_gen, body_spec
-from tol.spec.brain import brain_gen
 
-
-def generate_robot(robot_id=0):
+def get_tree_generator(conf):
     """
-    Generates a random ToL Protobuf robot
-    :param robot_id:
+    :param conf:
+    :type conf: Config
     :return:
-    :rtype: Robot
+    :rtype: TreeGenerator
     """
-    # Create a protobuf robot
-    robot = Robot()
-    robot.id = robot_id
-
-    # Generate a body
-    body = body_gen.generate()
-    robot.body.CopyFrom(body)
-
-    # Generate a brain
-    brain = brain_gen.generate_from_body(body, body_spec)
-    robot.brain.CopyFrom(brain)
-
-    return robot
+    body_gen = get_body_generator(conf)
+    brain_gen = get_brain_generator(conf)
+    return TreeGenerator(body_gen, brain_gen)
