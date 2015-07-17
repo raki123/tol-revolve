@@ -141,16 +141,23 @@ class BodyGenerator(FixedOrientationBodyGenerator):
         params = spec.get_random_parameters(serialize=False)
         if root:
             self.last_parameters = params
-        else:
+        elif self.last_parameters:
             params['red'], params['green'], params['blue'] = \
                 self.last_parameters['red'], self.last_parameters['green'], self.last_parameters['blue']
 
         part.orientation = self.choose_orientation(part, root)
-        for p in spec.serialize_params(params):
-            new_param = part.param.add()
-            new_param.value = p
-
+        spec.set_parameters(part.param, params)
         return part
+
+    def generate(self):
+        """
+        Resets `last_parameters` so that body parts built by the mutator
+        will get random colors still.
+        """
+        result = super(BodyGenerator, self).generate()
+        self.last_parameters = None
+        return result
+
 
 def get_body_generator(conf):
     """
