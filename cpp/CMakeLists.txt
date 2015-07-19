@@ -32,21 +32,21 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -funroll-loops -finl
 
 ##### Protobuf messages #####
 # Get protobuf library
-find_package(Protobuf REQUIRED)
+#find_package(Protobuf REQUIRED)
 
 # Directory where the .proto file resides
-set(SPEC_DIR "${CMAKE_SOURCE_DIR}/tol/msgs")
-include_directories(${CMAKE_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIRS})
+#set(SPEC_DIR "${CMAKE_SOURCE_DIR}/tol/msgs")
+#include_directories(${CMAKE_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIRS})
 
 # Include the binary dir since that is where the protobuf files are
 # going to be placed.
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-file(GLOB_RECURSE REVOLVE_PROTO ${SPEC_DIR}/*.proto)
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${REVOLVE_PROTO})
+#include_directories(${CMAKE_CURRENT_BINARY_DIR})
+#file(GLOB_RECURSE REVOLVE_PROTO ${SPEC_DIR}/*.proto)
+#PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${REVOLVE_PROTO})
 
 # Generate messages library
-add_library(tol-msgs STATIC ${PROTO_SRCS} )
-target_link_libraries(tol-msgs ${PROTOBUF_LIBRARIES})
+#add_library(tol-msgs STATIC ${PROTO_SRCS} )
+#target_link_libraries(tol-msgs ${PROTOBUF_LIBRARIES})
 
 ##### Plugins #####
 # Find Boost and add to include dirs
@@ -98,7 +98,7 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH})
 set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES})
 
-target_link_libraries(tolworldcontrol tol-msgs ${TOL_DEPS})
-target_link_libraries(tolrobotcontrol tol-msgs ${TOL_DEPS})
+target_link_libraries(tolworldcontrol ${TOL_DEPS})
+target_link_libraries(tolrobotcontrol ${TOL_DEPS})
 
 

@@ -15,4 +15,6 @@ class Config(object):
         self.max_parts = kwargs.get('max_parts', 15)
         self.max_inputs = kwargs.get('max_inputs', 8)
         self.max_outputs = kwargs.get('max_outputs', 12)
+        self.world_address = kwargs.get('world_address', ("127.0.0.1", 11345))
+        self.analyzer_address = kwargs.get('analyzer_address', ("127.0.0.1", 11346))
 
