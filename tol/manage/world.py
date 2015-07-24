@@ -1,8 +1,10 @@
 # External / system
+from __future__ import print_function, absolute_import
+import sys
 import trollius
 from trollius import From, Return, Future
 import time
-from pygazebo.msg import model_pb2
+from pygazebo.msg import model_pb2, world_control_pb2
 
 # Revolve / sdfbuilder
 from revolve.gazebo import connect, RequestHandler, analysis_coroutine, get_analysis_robot
@@ -14,6 +16,7 @@ from sdfbuilder.math import Vector3
 from ..config import Config
 from ..build import get_builder, get_simulation_robot
 from ..spec import get_tree_generator
+from ..util import multi_future
 
 
 # Construct a message base from the time. This should make
@@ -32,9 +35,10 @@ class World(object):
     methods to insert / remove robots and request information
     about where they are.
     """
+    # Object used to make constructor private
     _PRIVATE = object()
 
-    def __init__(self, conf, _private=None):
+    def __init__(self, conf, _private):
         """
 
         :param conf:
@@ -68,12 +72,15 @@ class World(object):
         # the general request handler
         self.manager = yield From(connect(self.conf.world_address))
         self.analyzer = yield From(connect(self.conf.analyzer_address))
-        self.request_handler = RequestHandler(self.manager, msg_id_base=MSG_BASE)
+        self.world_control = yield From(self.manager.advertise('/default/gazebo/world_control',
+                                                               'gazebo.msgs.WorldControl'))
+        self.request_handler = yield From(RequestHandler.create(
+            self.manager, msg_id_base=MSG_BASE))
 
         # Request handler for an insert robot flow. Note how this
         # uses the ~/model/info response with the name of the robot
         # to check whether it was inserted.
-        self.robot_creator = RequestHandler(
+        self.robot_creator = yield From(RequestHandler.create(
             self.manager, request_class=InsertSdfRobotRequest,
             response_class=model_pb2.Model,
             request_type='revolve.msgs.InsertSdfRequest',
@@ -81,7 +88,7 @@ class World(object):
             advertise='/gazebo/default/insert_robot_sdf/request',
             subscribe='/gazebo/default/model/info',
             id_attr='name'
-        )
+        ))
 
     @trollius.coroutine
     @classmethod
@@ -97,10 +104,11 @@ class World(object):
         :param conf:
         :type conf: Config
         :return:
+        :rtype: World
         """
-        world = cls(conf)
-        yield From(world._init())
-        raise Return(world)
+        self = cls(conf, cls._PRIVATE)
+        yield From(self._init())
+        raise Return(self)
 
     @trollius.coroutine
     def generate_valid_robot(self, max_attempts=100):
@@ -118,13 +126,39 @@ class World(object):
             robot = tree.to_robot(self.robot_id)
             sdf = get_analysis_robot(robot, builder=self.builder)
 
-            # TODO Handle errors
-            coll, bbox = yield From(analysis_coroutine(sdf, self.analyzer))
+            ret = yield From(analysis_coroutine(sdf, self.analyzer))
+            if ret is None:
+                print("Error in robot analysis, continuing.", file=sys.stderr)
+                continue
 
+            coll, bbox = ret
             if not coll:
                 raise Return(tree, robot, bbox)
 
+        print("Failed to produce a valid robot in %d attempts." % max_attempts,
+              file=sys.stderr)
         raise Return(None)
+
+    @trollius.coroutine
+    def generate_starting_population(self, positions):
+        """
+        Generates and inserts a starting population of robots at the
+        given positions.
+        :param positions: Iterable of (x, y, z) positions, where z
+                          is an offset from the z bounding box.
+        :return:
+        """
+        to_insert = []
+        for position in positions:
+            gen = yield From(self.generate_valid_robot())
+            if not gen:
+                raise Return(None)
+
+            tree, robot, bbox = gen
+            to_insert.append((position, tree))
+
+        futures = [self.insert_robot(tree, position) for tree, position in to_insert]
+        yield From(multi_future(futures))
 
     def get_robot_id(self):
         """
@@ -136,7 +170,6 @@ class World(object):
 
     def insert_robot(self, tree, position):
         """
-
         :param tree:
         :type tree: Tree
         :param position:
@@ -153,10 +186,21 @@ class World(object):
         msg.sdf_contents = str(sdf)
 
         future = Future()
-        yield From(self.robot_creator.do_request(msg, callback=future.set_result))
+        self.robot_creator.do_request(msg, callback=future.set_result)
 
-        self.robot_creator.handled(robot_id)
-        yield Return(True)
+        # Mark the message as handled upon receiving the callback future
+        future.add_done_callback(lambda _: self.robot_creator.handled(robot_id))
+        return future
+
+    def pause(self, paused=True):
+        """
+        Pauses / unpauses the world
+        :param paused:
+        :return:
+        """
+        msg = world_control_pb2.WorldControl()
+        msg.pause = paused
+        return self.world_control.publish(msg)
 
     @trollius.coroutine
     def list_entities(self):
@@ -168,6 +212,7 @@ class World(object):
         rq = self.request_handler
         msg_id = rq.get_msg_id()
         future = Future()
-        yield From(rq.do_gazebo_request(msg_id, data="entity_list", callback=future.set_result))
+        yield From(rq.do_gazebo_request(msg_id, data="entity_list",
+                                        callback=future.set_result))
         rq.handled(msg_id)
         raise Return(future.result())
