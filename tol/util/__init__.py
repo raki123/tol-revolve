@@ -1,1 +1,2 @@
-__author__ = 'elte'
+__author__ = 'Elte Hupkes'
+from .futures import multi_future

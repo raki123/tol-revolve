@@ -74,11 +74,17 @@ file(GLOB_RECURSE
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
 add_library(tolrobotcontrol SHARED ${TOL_ROBOT_SRC})
 
+if (DEFINED REVOLVE_BUILD_PATH)
+    message("Deriving include path / libary path from custom build path.")
+    set(REVOLVE_INCLUDE_PATH ${REVOLVE_BUILD_PATH}/include)
+    set(REVOLVE_LIBRARIES ${REVOLVE_BUILD_PATH}/lib/librevolve-gazebo.a ${REVOLVE_BUILD_PATH}/lib/librevolve-spec.a)
+endif()
+
 if (NOT DEFINED REVOLVE_INCLUDE_PATH)
     # Add Revolve as an external project
     # TODO In the future this should fetch from a repository instead
     message("Adding REVOLVE as external project.")
-    message("To prevent this, pass REVOLVE_INCLUDE_PATH and REVOLVE_LIBRARIES.")
+    message("To prevent this, pass REVOLVE_INCLUDE_PATH and REVOLVE_LIBRARIES or REVOLVE_BUILD_PATH.")
     include(ExternalProject)
     ExternalProject_Add(
       revolve
@@ -90,7 +96,7 @@ if (NOT DEFINED REVOLVE_INCLUDE_PATH)
     # Get Revolve lib / include directories
     ExternalProject_Get_Property(revolve INSTALL_DIR)
     set(REVOLVE_INCLUDE_PATH ${INSTALL_DIR}/include)
-    set(REVOLVE_LIBRARIES ${INSTALL_DIR}/lib/librevolve-gazebo.a)
+    set(REVOLVE_LIBRARIES ${INSTALL_DIR}/lib/librevolve-gazebo.a ${INSTALL_DIR}/lib/librevolve-spec.a)
     add_dependencies(tolmodelcontrol revolve)
 endif()
 

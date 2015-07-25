@@ -90,8 +90,8 @@ class World(object):
             id_attr='name'
         ))
 
-    @trollius.coroutine
     @classmethod
+    @trollius.coroutine
     def create(cls, conf):
         """
         Coroutine to create a world including connection
@@ -155,10 +155,13 @@ class World(object):
                 raise Return(None)
 
             tree, robot, bbox = gen
-            to_insert.append((position, tree))
+            insert_pos = Vector3(position) + Vector3(0, 0, bbox[2])
+            to_insert.append((tree, insert_pos))
 
-        futures = [self.insert_robot(tree, position) for tree, position in to_insert]
-        yield From(multi_future(futures))
+        for tree, position in to_insert:
+            yield From(self.insert_robot(tree, position))
+        # futures = [self.insert_robot(tree, position) for tree, position in to_insert]
+        # yield From(multi_future(futures))
 
     def get_robot_id(self):
         """
@@ -189,7 +192,7 @@ class World(object):
         self.robot_creator.do_request(msg, callback=future.set_result)
 
         # Mark the message as handled upon receiving the callback future
-        future.add_done_callback(lambda _: self.robot_creator.handled(robot_id))
+        future.add_done_callback(lambda _: self.robot_creator.handled(robot_name))
         return future
 
     def pause(self, paused=True):

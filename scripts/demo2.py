@@ -36,9 +36,9 @@ def run_server():
         update_rate=25
     )
 
-    world = World.create(conf)
-    grid_size = (3, 3)
-    positions = [(3 * MATING_DISTANCE * i, 3 * MATING_DISTANCE * j)
+    world = yield From(World.create(conf))
+    grid_size = (2, 2)
+    positions = [(3 * MATING_DISTANCE * i, 3 * MATING_DISTANCE * j, 0.2)
                  for i, j in itertools.product(range(grid_size[0]), range(grid_size[1]))]
 
     yield From(world.generate_starting_population(positions))
