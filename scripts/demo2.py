@@ -3,11 +3,13 @@ import random
 import itertools
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 
 # Trollius / Pygazebo
 import trollius
-from trollius import From, Return
+from trollius import From
+from pygazebo.pygazebo import DisconnectError
 
 # Revolve
 from revolve.build.util import in_mm
@@ -41,12 +43,22 @@ def run_server():
     positions = [(3 * MATING_DISTANCE * i, 3 * MATING_DISTANCE * j, 0.2)
                  for i, j in itertools.product(range(grid_size[0]), range(grid_size[1]))]
 
+    yield From(world.pause(True))
     yield From(world.generate_starting_population(positions))
+    yield From(world.pause(False))
+
+    while True:
+        yield From(trollius.sleep(0.05))
 
 
 def main():
-    loop = trollius.get_event_loop()
-    loop.run_until_complete(run_server())
+    try:
+        loop = trollius.get_event_loop()
+        loop.run_until_complete(run_server())
+    except KeyboardInterrupt:
+        print("Got Ctrl+C, shutting down.")
+    except DisconnectError:
+        print("World disconnected, shutting down.")
 
 if __name__ == '__main__':
     main()

@@ -4,7 +4,9 @@ import sys
 import trollius
 from trollius import From, Return, Future
 import time
-from pygazebo.msg import model_pb2, world_control_pb2
+
+# Pygazebo
+from pygazebo.msg import model_pb2, world_control_pb2, poses_stamped_pb2, world_reset_pb2
 
 # Revolve / sdfbuilder
 from revolve.gazebo import connect, RequestHandler, analysis_coroutine, get_analysis_robot
@@ -17,7 +19,7 @@ from ..config import Config
 from ..build import get_builder, get_simulation_robot
 from ..spec import get_tree_generator
 from ..util import multi_future
-
+from .robot import Robot
 
 # Construct a message base from the time. This should make
 # it unique enough for consecutive use when the script
@@ -72,8 +74,10 @@ class World(object):
         # the general request handler
         self.manager = yield From(connect(self.conf.world_address))
         self.analyzer = yield From(connect(self.conf.analyzer_address))
-        self.world_control = yield From(self.manager.advertise('/default/gazebo/world_control',
-                                                               'gazebo.msgs.WorldControl'))
+        self.world_control = yield From(self.manager.advertise(
+            '/gazebo/default/world_control', 'gazebo.msgs.WorldControl'
+        ))
+
         self.request_handler = yield From(RequestHandler.create(
             self.manager, msg_id_base=MSG_BASE))
 
@@ -89,6 +93,14 @@ class World(object):
             subscribe='/gazebo/default/model/info',
             id_attr='name'
         ))
+
+        # Subscribe to pose updates
+        self.pose_subscriber = self.manager.subscribe(
+            '/gazebo/default/pose/info', 'gazebo.msgs.PosesStamped', self._update_poses)
+
+        # Wait for connections
+        yield From(self.world_control.wait_for_listener())
+        yield From(self.pose_subscriber.wait_for_connection())
 
     @classmethod
     @trollius.coroutine
@@ -158,10 +170,12 @@ class World(object):
             insert_pos = Vector3(position) + Vector3(0, 0, bbox[2])
             to_insert.append((tree, insert_pos))
 
+        futures = []
         for tree, position in to_insert:
-            yield From(self.insert_robot(tree, position))
-        # futures = [self.insert_robot(tree, position) for tree, position in to_insert]
-        # yield From(multi_future(futures))
+            future = yield From(self.insert_robot(tree, position))
+            futures.append(future)
+
+        yield From(multi_future(futures))
 
     def get_robot_id(self):
         """
@@ -171,8 +185,20 @@ class World(object):
         self.robot_id += 1
         return self.robot_id
 
+    @trollius.coroutine
     def insert_robot(self, tree, position):
         """
+        Inserts a robot into the world. This consists of two steps:
+
+        - Sending the insert request message
+        - Receiving a ModelInfo response
+
+        This method is a coroutine because of the first step, writing
+        the message must be yielded since PyGazebo doesn't appear to
+        support writing multiple messages simultaneously. For the response,
+        i.e. the message that confirms the robot has been inserted, a
+        future is returned.
+
         :param tree:
         :type tree: Tree
         :param position:
@@ -189,21 +215,70 @@ class World(object):
         msg.sdf_contents = str(sdf)
 
         future = Future()
-        self.robot_creator.do_request(msg, callback=future.set_result)
+        yield From(self.robot_creator.do_request(msg, callback=future.set_result))
 
-        # Mark the message as handled upon receiving the callback future
-        future.add_done_callback(lambda _: self.robot_creator.handled(robot_name))
-        return future
+        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, position, fut.result()))
+        raise Return(future)
 
-    def pause(self, paused=True):
+    def pause(self, pause=True):
         """
-        Pauses / unpauses the world
-        :param paused:
+        Pause / unpause the world
+        :param pause:
+        :return: Future for the published message
+        """
+        msg = world_control_pb2.WorldControl()
+        msg.pause = pause
+        return self.world_control.publish(msg)
+
+    def reset(self):
+        """
+        Reset the world
         :return:
         """
         msg = world_control_pb2.WorldControl()
-        msg.pause = paused
+        msg.reset.all = True
         return self.world_control.publish(msg)
+
+    def _robot_inserted(self, robot_name, tree, position, msg):
+        """
+        Registers a newly inserted robot and marks the insertion
+        message response as handled.
+
+        :param tree:
+        :param robot_name:
+        :param position:
+        :param msg:
+        :return:
+        """
+        self.register_robot(msg.id, tree, robot_name, position)
+        self.robot_creator.handled(robot_name)
+
+    def register_robot(self, gazebo_id, robot_name, tree, position):
+        """
+
+        :param gazebo_id:
+        :param tree:
+        :param robot_name:
+        :param position:
+        :return:
+        """
+        self.robots[gazebo_id] = Robot(self.conf, gazebo_id, robot_name, tree, position)
+
+    def _update_poses(self, msg):
+        """
+        Handles the pose info message by updating robot positions.
+        :param msg:
+        :return:
+        """
+        poses = poses_stamped_pb2.PosesStamped()
+        poses.ParseFromString(msg)
+        for pose in poses.pose:
+            robot = self.robots.get(pose.id, None)
+            if not robot:
+                continue
+
+            position = Vector3(pose.position.x, pose.position.y, pose.position.z)
+            robot.update_position(None, position)
 
     @trollius.coroutine
     def list_entities(self):
