@@ -16,6 +16,7 @@ from .util import ColorMixin
 MASS = in_grams(55.4)
 WIDTH = in_mm(46.5)
 
+
 class CoreComponent(BodyPart, ColorMixin):
     """
     The core component of the robot, basically a box with an IMU sensor.

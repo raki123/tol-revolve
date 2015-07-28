@@ -24,6 +24,7 @@ JOINT_CONNECTION_THICKNESS = in_mm(7.5)
 JOINT_CONNECTION_WIDTH = in_mm(34)
 SEPARATION = in_mm(0.1)
 
+
 class ActiveRotator(BodyPart, ColorMixin):
     """
     Active wheel

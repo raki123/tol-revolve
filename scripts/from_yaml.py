@@ -19,36 +19,25 @@ body:
   id          : Core
   type        : Core
   children:
-    1:
+    4:
       id: Rotator
       type: ActiveRotator
       children:
         1:
-          id: ChildBrick
+          id: Brick2
           type: FixedBrick
-    2:
-      id: ActiveCardan
-      type: ActiveCardan
-      children:
-        1:
-          id: Cardan
-          type: Cardan
-    3:
-      id: Bar
-      type: ParametricBarJoint
-      params:
-        alpha: 0.12
-        beta: 0.25
-    4:
-      id: Touch
-      type: TouchSensor
-    5:
-      id: Light
-      type: LightSensor
+brain:
+  params:
+    Rotator-out-0:
+      type        : Oscillator
+      period      : 8.0
+      phase_offset : 0
+      gain        : 1
 '''
 
 conf = Config(visualize_sensors=True)
 bot = yaml_to_robot(body_spec, brain_spec, bot_yaml)
 builder = get_builder(conf)
 sdf = get_simulation_robot(bot, "test_bot", builder, conf)
+sdf.elements[0].set_position(Vector3(0, 0, 0.02325))
 print(str(sdf))

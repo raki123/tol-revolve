@@ -20,25 +20,26 @@ MAX_SERVO_VELOCITY = (50.0/60.0) * 2 * math.pi
 SERVO_LIMIT = math.radians(45)
 """ Upper and lower limit """
 
+HINGE_LIMIT = math.radians(45)
+""" Upper and lower limit for hinge """
+
 CARDAN_LIMIT = math.radians(45)
 """ Upper and lower limit of each axis of rotation """
 
-# We're using small values for the default PIDs, since they actually
-# overshoot quite rapidly.
 SERVO_VELOCITY_PID = PID(
-    proportional_gain=0.1,
-    derivative_gain=0.05,
-
-    integral_gain=0.005,
-    integral_max=1
+    proportional_gain=0.5,
+    derivative_gain=0.0,
+    integral_gain=0,
+    integral_max=0
 )
-""" Default servo velocity PID """
+""" Default servo velocity PID. Currently unused as velocity is abstractly set
+    on the servo. """
 
 SERVO_POSITION_PID = PID(
-    proportional_gain=0.1,
-    derivative_gain=0.05,
-    integral_gain=0.005,
-    integral_max=1
+    proportional_gain=0.5,
+    derivative_gain=0,
+    integral_gain=0,
+    integral_max=0
 )
 """ Default servo position PID. """
 
@@ -49,3 +50,7 @@ SURFACE_SLIP1 = 0.01
 SURFACE_SLIP2 = 0.01
 SURFACE_SOFT_CFM = 0.01
 SURFACE_SOFT_ERP = 0.2
+
+# Thickness and height of the arena walls in meters
+WALL_THICKNESS = 0.05
+WALL_HEIGHT = 0.5

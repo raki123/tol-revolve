@@ -3,11 +3,13 @@ from revolve.build.sdf import BodyPart, ComponentJoint as Joint
 from revolve.build.util import in_grams, in_mm
 
 # SDF builder imports
+from sdfbuilder import Limit
 from sdfbuilder.math import Vector3
 from sdfbuilder.structure import Box
 
 # Local imports
 from .util import ColorMixin
+from ..config import constants
 
 MASS_SLOT = in_grams(2)
 MASS_FRAME = in_grams(1)
@@ -66,6 +68,10 @@ class Hinge(BodyPart, ColorMixin):
         # position from the original code and subtract conn_b's position
         self.joint = Joint("revolute", conn_a, conn_b, axis=Vector3(0, 0, 1))
         self.joint.set_position(Vector3(CONNECTION_PART_LENGTH / 2.0 - CONNECTION_ROTATION_OFFSET, 0, 0))
+        self.joint.axis.limit = Limit(
+            upper=constants.HINGE_LIMIT,
+            lower=-constants.HINGE_LIMIT
+        )
         self.add_joint(self.joint)
 
         # Apply color mixin

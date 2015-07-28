@@ -10,16 +10,20 @@ from pygazebo.msg import model_pb2, world_control_pb2, poses_stamped_pb2, world_
 
 # Revolve / sdfbuilder
 from revolve.gazebo import connect, RequestHandler, analysis_coroutine, get_analysis_robot
-from revolve.spec.msgs import InsertSdfRobotRequest
+from revolve.spec.msgs import InsertSdfModelRequest
 from revolve.angle import Tree
+from revolve.util import Time
 from sdfbuilder.math import Vector3
+from sdfbuilder import SDF, Model
+
 
 # Local
-from ..config import Config
+from ..config import Config, constants
 from ..build import get_builder, get_simulation_robot
 from ..spec import get_tree_generator
 from ..util import multi_future
 from .robot import Robot
+from ..scenery import Wall
 
 # Construct a message base from the time. This should make
 # it unique enough for consecutive use when the script
@@ -55,11 +59,12 @@ class World(object):
         self.manager = None
         self.analyzer = None
         self.request_handler = None
-        self.robot_creator = None
+        self.model_inserter = None
         self.builder = get_builder(conf)
         self.generator = get_tree_generator(conf)
         self.robots = {}
         self.robot_id = 0
+        self.last_time = Time()
 
     @trollius.coroutine
     def _init(self):
@@ -84,8 +89,8 @@ class World(object):
         # Request handler for an insert robot flow. Note how this
         # uses the ~/model/info response with the name of the robot
         # to check whether it was inserted.
-        self.robot_creator = yield From(RequestHandler.create(
-            self.manager, request_class=InsertSdfRobotRequest,
+        self.model_inserter = yield From(RequestHandler.create(
+            self.manager, request_class=InsertSdfModelRequest,
             response_class=model_pb2.Model,
             request_type='revolve.msgs.InsertSdfRequest',
             response_type='gazebo.msgs.ModelInfo',
@@ -208,15 +213,10 @@ class World(object):
         robot_id = self.get_robot_id()
         robot_name = "gen__"+str(robot_id)
         robot = tree.to_robot(robot_id)
-        msg = InsertSdfRobotRequest()
-        msg.name = robot_name
         sdf = get_simulation_robot(robot, robot_name, self.builder, self.conf)
         sdf.elements[0].set_position(position)
-        msg.sdf_contents = str(sdf)
 
-        future = Future()
-        yield From(self.robot_creator.do_request(msg, callback=future.set_result))
-
+        future = yield From(self.insert_sdf(sdf))
         future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, position, fut.result()))
         raise Return(future)
 
@@ -251,7 +251,7 @@ class World(object):
         :return:
         """
         self.register_robot(msg.id, tree, robot_name, position)
-        self.robot_creator.handled(robot_name)
+        self.model_inserter.handled(robot_name)
 
     def register_robot(self, gazebo_id, robot_name, tree, position):
         """
@@ -272,13 +272,14 @@ class World(object):
         """
         poses = poses_stamped_pb2.PosesStamped()
         poses.ParseFromString(msg)
+        time = Time(msg=poses.time)
         for pose in poses.pose:
             robot = self.robots.get(pose.id, None)
             if not robot:
                 continue
 
             position = Vector3(pose.position.x, pose.position.y, pose.position.z)
-            robot.update_position(None, position)
+            robot.update_position(time, position)
 
     @trollius.coroutine
     def list_entities(self):
@@ -294,3 +295,49 @@ class World(object):
                                         callback=future.set_result))
         rq.handled(msg_id)
         raise Return(future.result())
+
+    @trollius.coroutine
+    def insert_sdf(self, sdf, callback=None):
+        """
+        Insert a model wrapped in an SDF tag into the world. Make
+        sure it has a unique name, as this is used for the callback.
+
+        This coroutine yields until the request has been successfully sent.
+        It returns a future that resolves when a response has been received. The
+        optional given callback is added to this future.
+
+        :param sdf:
+        :param callback: Response callback.
+        :type sdf: SDF
+        :return:
+        """
+        model = sdf.get_elements_of_type(Model)[0]
+        """ :type: Model """
+
+        msg = InsertSdfModelRequest()
+        msg.name = model.name
+        msg.sdf_contents = str(sdf)
+
+        future = Future()
+        if callback:
+            future.add_done_callback(callback)
+
+        yield From(self.model_inserter.do_request(msg, callback=future.set_result))
+        raise Return(future)
+
+    @trollius.coroutine
+    def build_walls(self, points):
+        """
+        :param points:
+        :return:
+        """
+        futures = []
+        l = len(points)
+        for i in range(l):
+            start = points[i]
+            end = points[(i + 1) % l]
+            wall = Wall("wall_%d" % i, start, end, constants.WALL_THICKNESS, constants.WALL_HEIGHT)
+            future = yield From(self.insert_sdf(SDF(elements=[wall])))
+            futures.append(future)
+
+        raise Return(multi_future(futures))
