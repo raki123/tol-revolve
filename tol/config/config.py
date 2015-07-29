@@ -25,7 +25,14 @@ class Config(object):
 
         # The distance two robots need to be from each other in order
         # to consider mating.
-        self.mating_distance = kwargs.get('mating_distance', in_mm(100))
+        self.mating_distance = kwargs.get('mating_distance', in_mm(400))
+
+        # If other speed / my speed > than this threshold, a mating proposal
+        # is accepted.
+        self.proposal_threshold = kwargs.get('proposal_threshold', 0.5)
+
+        # Seconds
+        self.mating_cooldown = kwargs.get('mating_cooldown', 30)
 
         # Robot specification
         self.min_parts = kwargs.get('min_parts', 3)

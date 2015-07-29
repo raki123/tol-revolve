@@ -8,6 +8,7 @@ class Robot(object):
     """
     Class to manage a single robot
     """
+
     def __init__(self, conf, gazebo_id, name, tree, position):
         """
         :param conf:
@@ -27,12 +28,16 @@ class Robot(object):
         self.starting_time = None
         self.last_update = None
         self.last_position = None
+        self.last_mate = None
 
         self._distances = np.zeros(conf.speed_window)
         self._times = np.zeros(conf.speed_window)
         self._dist = 0
         self._time = 0
         self._idx = 0
+
+        # Set of robots this bot has mated with
+        self.mated_with = set()
 
     def update_position(self, time, position):
         """
@@ -72,6 +77,45 @@ class Robot(object):
 
         self.last_position = position
         self.last_update = time
+
+    def will_mate_with(self, other):
+        """
+        Decides whether or not to mate with the other given robot
+        based on its position and speed.
+        :param other:
+        :type other: Robot
+        :return:
+        """
+        if other in self.mated_with:
+            # Don't mate with the same bot twice
+            return False
+
+        if self.last_mate is not None and \
+           float(self.last_update - self.last_mate) < self.conf.mating_cooldown:
+            # Don't mate within the cooldown window
+            return False
+
+        if not self.last_position or not other.last_position:
+            return False
+
+        dist = other.last_position - self.last_position
+        dist.z = 0
+        if dist.norm() > self.conf.mating_distance:
+            return False
+
+        my_vel = self.velocity()
+        other_vel = other.velocity()
+
+        return my_vel == 0 or (other_vel / my_vel) > self.conf.proposal_threshold
+
+    def did_mate_with(self, other):
+        """
+        Called when this robot mated with another robot successfully.
+        :param other:
+        :return:
+        """
+        self.last_mate = self.last_update
+        self.mated_with.add(other)
 
     def velocity(self):
         """

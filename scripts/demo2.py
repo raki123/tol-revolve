@@ -29,14 +29,11 @@ else:
 random.seed(seed)
 print("Seed: %d" % seed)
 
-# Some variables
-MATING_DISTANCE = in_mm(200)
-
-
 @trollius.coroutine
 def run_server():
     conf = Config(
-        update_rate=25
+        update_rate=25,
+        proposal_threshold=0
     )
 
     world = yield From(World.create(conf))
@@ -52,8 +49,8 @@ def run_server():
     yield From(future)
     print("Done.")
 
-    grid_size = (3, 3)
-    spacing = 6 * MATING_DISTANCE
+    grid_size = (2, 1)
+    spacing = 10 * conf.mating_distance
     grid_x, grid_y = grid_size
     x_offset = -(grid_x - 1) * spacing * 0.5
     y_offset = -(grid_y - 1) * spacing * 0.5
@@ -62,10 +59,12 @@ def run_server():
 
     print("Generating starting population...")
     yield From(world.generate_starting_population(positions))
+    print("Done.")
     # yield From(world.pause(False))
 
     while True:
-        yield From(trollius.sleep(0.05))
+        yield From(trollius.sleep(0.1))
+        yield From(world.perform_reproduction())
 
 
 def main():

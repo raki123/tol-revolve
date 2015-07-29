@@ -1,9 +1,12 @@
 # External / system
 from __future__ import print_function, absolute_import
+import random
 import sys
+import math
 import trollius
 from trollius import From, Return, Future
 import time
+import itertools
 
 # Pygazebo
 from pygazebo.msg import model_pb2, world_control_pb2, poses_stamped_pb2, world_reset_pb2
@@ -11,7 +14,7 @@ from pygazebo.msg import model_pb2, world_control_pb2, poses_stamped_pb2, world_
 # Revolve / sdfbuilder
 from revolve.gazebo import connect, RequestHandler, analysis_coroutine, get_analysis_robot
 from revolve.spec.msgs import InsertSdfModelRequest
-from revolve.angle import Tree
+from revolve.angle import Tree, Crossover, Mutator
 from revolve.util import Time
 from sdfbuilder.math import Vector3
 from sdfbuilder import SDF, Model
@@ -62,9 +65,16 @@ class World(object):
         self.model_inserter = None
         self.builder = get_builder(conf)
         self.generator = get_tree_generator(conf)
+        self.crossover = Crossover(self.generator.body_gen, self.generator.brain_gen)
+        self.mutator = Mutator(self.generator.body_gen, self.generator.brain_gen)
         self.robots = {}
         self.robot_id = 0
         self.last_time = Time()
+
+        # Set to true whenever a reproduction sequence is going on
+        # to prevent another one from starting (which cannot happen now
+        # but might in a more complicated yielding structure).
+        self._reproducing = False
 
     @trollius.coroutine
     def _init(self):
@@ -139,22 +149,37 @@ class World(object):
         """
         for i in xrange(max_attempts):
             tree = self.generator.generate_tree()
-            self.robot_id += 1
-            robot = tree.to_robot(self.robot_id)
-            sdf = get_analysis_robot(robot, builder=self.builder)
 
-            ret = yield From(analysis_coroutine(sdf, self.analyzer))
+            ret = yield From(self.analyze_tree(tree))
             if ret is None:
-                print("Error in robot analysis, continuing.", file=sys.stderr)
+                # Error already shown
                 continue
 
-            coll, bbox = ret
+            coll, bbox, robot = ret
             if not coll:
                 raise Return(tree, robot, bbox)
 
         print("Failed to produce a valid robot in %d attempts." % max_attempts,
               file=sys.stderr)
         raise Return(None)
+
+    @trollius.coroutine
+    def analyze_tree(self, tree):
+        """
+
+        :param tree:
+        :return:
+        """
+        robot = tree.to_robot(self.get_robot_id())
+        sdf = get_analysis_robot(robot, builder=self.builder)
+
+        ret = yield From(analysis_coroutine(sdf, self.analyzer))
+        if ret is None:
+            print("Error in robot analysis, continuing.", file=sys.stderr)
+            raise Return(None)
+
+        coll, bbox = ret
+        raise Return((coll, bbox, robot))
 
     @trollius.coroutine
     def generate_starting_population(self, positions):
@@ -217,7 +242,8 @@ class World(object):
         sdf.elements[0].set_position(position)
 
         future = yield From(self.insert_sdf(sdf))
-        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, position, fut.result()))
+        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, position,
+                                                                  fut.result()))
         raise Return(future)
 
     def pause(self, pause=True):
@@ -250,18 +276,19 @@ class World(object):
         :param msg:
         :return:
         """
-        self.register_robot(msg.id, tree, robot_name, position)
+        self.register_robot(msg.id, robot_name, tree, position)
         self.model_inserter.handled(robot_name)
 
     def register_robot(self, gazebo_id, robot_name, tree, position):
         """
-
+        Registers a robot with its Gazebo ID in the local array.
         :param gazebo_id:
         :param tree:
         :param robot_name:
         :param position:
         :return:
         """
+        print("Registering robot %s." % robot_name)
         self.robots[gazebo_id] = Robot(self.conf, gazebo_id, robot_name, tree, position)
 
     def _update_poses(self, msg):
@@ -273,6 +300,7 @@ class World(object):
         poses = poses_stamped_pb2.PosesStamped()
         poses.ParseFromString(msg)
         time = Time(msg=poses.time)
+
         for pose in poses.pose:
             robot = self.robots.get(pose.id, None)
             if not robot:
@@ -280,21 +308,6 @@ class World(object):
 
             position = Vector3(pose.position.x, pose.position.y, pose.position.z)
             robot.update_position(time, position)
-
-    @trollius.coroutine
-    def list_entities(self):
-        """
-        Performs an `entity_list` request to the world and yields
-        the returned response.
-        :return:
-        """
-        rq = self.request_handler
-        msg_id = rq.get_msg_id()
-        future = Future()
-        yield From(rq.do_gazebo_request(msg_id, data="entity_list",
-                                        callback=future.set_result))
-        rq.handled(msg_id)
-        raise Return(future.result())
 
     @trollius.coroutine
     def insert_sdf(self, sdf, callback=None):
@@ -328,6 +341,8 @@ class World(object):
     @trollius.coroutine
     def build_walls(self, points):
         """
+        Builds a wall defined by the given points, used to shield the
+        arena.
         :param points:
         :return:
         """
@@ -341,3 +356,117 @@ class World(object):
             futures.append(future)
 
         raise Return(multi_future(futures))
+
+    @trollius.coroutine
+    def perform_reproduction(self):
+        """
+        Selects all possible mating pairs and attempts to perform reproduction
+        with them.
+        :return:
+        """
+        if self._reproducing:
+            return
+
+        mates = self.select_mates()
+        if not mates:
+            return
+
+        self._reproducing = True
+        mates = self.select_mates()
+
+        print("Found %d possible pairs for reproduction..." % len(mates))
+        mated = set()
+        futures = []
+
+        for ra, rb in mates:
+            if ra in mated or rb in mated:
+                # Don't reproduce with the same robot
+                # more than once in a loop.
+                continue
+
+            mated.add(ra)
+            mated.add(rb)
+
+            future = yield From(self.mate(ra, rb))
+
+            if future:
+                futures.append(future)
+
+        # All reproductions are done, the only thing left is insert the robots
+        self._reproducing = False
+
+        if futures:
+            yield From(multi_future(futures))
+
+    def select_mates(self):
+        """
+        Finds all mate combinations in the current arena.
+        :return:
+        """
+        robot_list = self.robots.values()
+        return [(ra, rb) for ra, rb in itertools.combinations(robot_list, 2)
+                if ra.will_mate_with(rb) and rb.will_mate_with(ra)]
+
+    @trollius.coroutine
+    def mate(self, ra, rb):
+        """
+        Coroutine that performs a mating attempt between robots `ra` and `rb`.
+        :param ra:
+        :type ra: Robot
+        :param rb:
+        :type rb: Robot
+        :return: Returns `False` if mating failed, or a future with the robot that
+                 is being inserted otherwise.
+        """
+        print("Attempting mating between `%s` and `%s`..." % (ra.name, rb.name))
+
+        # Attempt to create a child through crossover
+        success, child = self.crossover.crossover(ra.tree, rb.tree)
+        if not success:
+            print("Crossover failed.")
+            raise Return(False)
+
+        # Apply mutation
+        print("Crossover succeeded, applying mutation...")
+        self.mutator.mutate(child, in_place=True)
+
+        # Check if the robot is valid
+        ret = yield From(self.analyze_tree(child))
+        if ret is None or ret[0]:
+            print("Miscarriage.")
+            raise Return(False)
+
+        # Alright, we have a valid bot, let's add it
+        # to the world.
+        coll, bbox, robot = ret
+
+        # We position the bot such that we get an equilateral
+        # triangle `ra`, `rb`, `child`.
+        # Get the vector from b to a
+        diff = ra.last_position - rb.last_position
+        diff.z = 0
+        dist = diff.norm()
+
+        # Calculate the vector normal to it
+        if diff.y > 10e-5:
+            normal = Vector3(1, diff.x / -diff.y, 0).normalized()
+        else:
+            normal = Vector3(-diff.y / diff.x, 1, 0).normalized()
+
+        # Traverse half the difference vector, plus the length of
+        # the drop line in the equilateral triangle along the
+        # normal vector.
+        sign = 1 if random.random() < 0.5 else -1
+        drop_length = sign * 0.5 * math.sqrt(3.0) * dist
+        pos = rb.last_position + (0.5 * diff) + drop_length * normal
+        pos.z = bbox[2]
+
+        print("New robot is viable, inserting.")
+
+        # TODO Check if the position is within arena bounds
+        future = yield From(self.insert_robot(child, pos))
+
+        ra.did_mate_with(rb)
+        rb.did_mate_with(ra)
+
+        raise Return(future)

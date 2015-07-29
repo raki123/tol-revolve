@@ -53,4 +53,4 @@ SURFACE_SOFT_ERP = 0.2
 
 # Thickness and height of the arena walls in meters
 WALL_THICKNESS = 0.05
-WALL_HEIGHT = 0.5
+WALL_HEIGHT = 1.0
