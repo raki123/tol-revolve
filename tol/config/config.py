@@ -16,7 +16,7 @@ class Config(object):
         self.visualize_sensors = kwargs.get('visualize_sensors', False)
 
         # Arena size, tuple of meters, meters
-        self.arena_size = kwargs.get('arena_size', (10, 10))
+        self.arena_size = kwargs.get('arena_size', (20, 20))
 
         # Number of entries in the robot's speed window. This does
         # not translate to a number of seconds *exactly*, but you
@@ -25,7 +25,7 @@ class Config(object):
 
         # The distance two robots need to be from each other in order
         # to consider mating.
-        self.mating_distance = kwargs.get('mating_distance', in_mm(400))
+        self.mating_distance = kwargs.get('mating_distance', 1.0)
 
         # If other speed / my speed > than this threshold, a mating proposal
         # is accepted.

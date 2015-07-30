@@ -237,8 +237,10 @@ class World(object):
         """
         robot_id = self.get_robot_id()
         robot_name = "gen__"+str(robot_id)
+
         robot = tree.to_robot(robot_id)
         sdf = get_simulation_robot(robot, robot_name, self.builder, self.conf)
+
         sdf.elements[0].set_position(position)
 
         future = yield From(self.insert_sdf(sdf))
@@ -447,8 +449,9 @@ class World(object):
         diff.z = 0
         dist = diff.norm()
 
-        # Calculate the vector normal to it
-        if diff.y > 10e-5:
+        # Calculate the vector normal to it. Make sure we're
+        # not dividing by zero.
+        if abs(diff.y) > 10e-5:
             normal = Vector3(1, diff.x / -diff.y, 0).normalized()
         else:
             normal = Vector3(-diff.y / diff.x, 1, 0).normalized()

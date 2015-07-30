@@ -29,6 +29,7 @@ else:
 random.seed(seed)
 print("Seed: %d" % seed)
 
+
 @trollius.coroutine
 def run_server():
     conf = Config(
@@ -49,8 +50,8 @@ def run_server():
     yield From(future)
     print("Done.")
 
-    grid_size = (2, 1)
-    spacing = 10 * conf.mating_distance
+    grid_size = (4, 4)
+    spacing = 3 * conf.mating_distance
     grid_x, grid_y = grid_size
     x_offset = -(grid_x - 1) * spacing * 0.5
     y_offset = -(grid_y - 1) * spacing * 0.5
