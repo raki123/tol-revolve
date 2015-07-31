@@ -13,9 +13,9 @@ from pygazebo.msg import model_pb2, world_control_pb2, poses_stamped_pb2, world_
 
 # Revolve / sdfbuilder
 from revolve.gazebo import connect, RequestHandler, analysis_coroutine, get_analysis_robot
-from revolve.spec.msgs import InsertSdfModelRequest
 from revolve.angle import Tree, Crossover, Mutator
 from revolve.util import Time
+from revolve.spec.msgs import ModelInserted
 from sdfbuilder.math import Vector3
 from sdfbuilder import SDF, Model
 
@@ -32,7 +32,7 @@ from ..scenery import Wall
 # it unique enough for consecutive use when the script
 # is restarted.
 _a = time.time()
-MSG_BASE = _a - 14*10e8 + (_a - int(_a)) * 10e5
+MSG_BASE = int(_a - 14e8 + (_a - int(_a)) * 1e5)
 
 # Seconds to wait between checking for answers in waiting loops
 ANSWER_SLEEP = 0.05
@@ -62,7 +62,6 @@ class World(object):
         self.manager = None
         self.analyzer = None
         self.request_handler = None
-        self.model_inserter = None
         self.builder = get_builder(conf)
         self.generator = get_tree_generator(conf)
         self.crossover = Crossover(self.generator.body_gen, self.generator.brain_gen)
@@ -95,19 +94,6 @@ class World(object):
 
         self.request_handler = yield From(RequestHandler.create(
             self.manager, msg_id_base=MSG_BASE))
-
-        # Request handler for an insert robot flow. Note how this
-        # uses the ~/model/info response with the name of the robot
-        # to check whether it was inserted.
-        self.model_inserter = yield From(RequestHandler.create(
-            self.manager, request_class=InsertSdfModelRequest,
-            response_class=model_pb2.Model,
-            request_type='revolve.msgs.InsertSdfRequest',
-            response_type='gazebo.msgs.ModelInfo',
-            advertise='/gazebo/default/insert_robot_sdf/request',
-            subscribe='/gazebo/default/model/info',
-            id_attr='name'
-        ))
 
         # Subscribe to pose updates
         self.pose_subscriber = self.manager.subscribe(
@@ -244,8 +230,7 @@ class World(object):
         sdf.elements[0].set_position(position)
 
         future = yield From(self.insert_sdf(sdf))
-        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, position,
-                                                                  fut.result()))
+        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, fut.result()))
         raise Return(future)
 
     def pause(self, pause=True):
@@ -267,31 +252,40 @@ class World(object):
         msg.reset.all = True
         return self.world_control.publish(msg)
 
-    def _robot_inserted(self, robot_name, tree, position, msg):
+    def _robot_inserted(self, robot_name, tree, msg):
         """
         Registers a newly inserted robot and marks the insertion
         message response as handled.
 
         :param tree:
         :param robot_name:
-        :param position:
         :param msg:
+        :type msg: pygazebo.msgs.response_pb2.Response
         :return:
         """
-        self.register_robot(msg.id, robot_name, tree, position)
-        self.model_inserter.handled(robot_name)
+        inserted = ModelInserted()
+        inserted.ParseFromString(msg.serialized_data)
+        model = inserted.model
+        gazebo_id = model.id
+        time = Time(msg=inserted.time)
+        p = model.pose.position
+        position = Vector3(p.x, p.y, p.z)
 
-    def register_robot(self, gazebo_id, robot_name, tree, position):
+        self.register_robot(gazebo_id, robot_name, tree, position, time)
+        self.request_handler.handled("insert_sdf", msg.id)
+
+    def register_robot(self, gazebo_id, robot_name, tree, position, time):
         """
         Registers a robot with its Gazebo ID in the local array.
         :param gazebo_id:
         :param tree:
         :param robot_name:
         :param position:
+        :param time:
         :return:
         """
         print("Registering robot %s." % robot_name)
-        self.robots[gazebo_id] = Robot(self.conf, gazebo_id, robot_name, tree, position)
+        self.robots[gazebo_id] = Robot(self.conf, gazebo_id, robot_name, tree, position, time)
 
     def _update_poses(self, msg):
         """
@@ -315,7 +309,7 @@ class World(object):
     def insert_sdf(self, sdf, callback=None):
         """
         Insert a model wrapped in an SDF tag into the world. Make
-        sure it has a unique name, as this is used for the callback.
+        sure it has a unique name, as it will be literally inserted into the world.
 
         This coroutine yields until the request has been successfully sent.
         It returns a future that resolves when a response has been received. The
@@ -326,19 +320,20 @@ class World(object):
         :type sdf: SDF
         :return:
         """
-        model = sdf.get_elements_of_type(Model)[0]
-        """ :type: Model """
-
-        msg = InsertSdfModelRequest()
-        msg.name = model.name
-        msg.sdf_contents = str(sdf)
-
         future = Future()
         if callback:
             future.add_done_callback(callback)
 
-        yield From(self.model_inserter.do_request(msg, callback=future.set_result))
+        yield From(self.request_handler.do_gazebo_request("insert_sdf", data=str(sdf), callback=future.set_result))
         raise Return(future)
+
+    def delete_model(self, name):
+        """
+        Deletes the model with the given name from the world.
+        :param name:
+        :return:
+        """
+        # self.request_handler.do_gazebo_request()
 
     @trollius.coroutine
     def build_walls(self, points):

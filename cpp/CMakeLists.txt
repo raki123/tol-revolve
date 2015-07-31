@@ -100,9 +100,26 @@ if (NOT DEFINED REVOLVE_INCLUDE_PATH)
     add_dependencies(tolmodelcontrol revolve)
 endif()
 
+### Include Gazebo as well
+# Find and include Gazebo
+include (FindPkgConfig)
+if (PKG_CONFIG_FOUND)
+  pkg_check_modules(GAZEBO gazebo)
+endif()
+
+# Need to include the Gazebo protobuf include path
+set(GAZEBO_PROTOBUF_DIR)
+foreach(ITR ${GAZEBO_INCLUDE_DIRS})
+  if(ITR MATCHES ".*gazebo-[0-9.]+$")
+    set(GAZEBO_PROTO_PATH "${ITR}/gazebo/msgs/proto")
+    set(GAZEBO_PROTO_INCLUDE "${ITR}/gazebo/msgs")
+  endif()
+endforeach()
+include_directories(${GAZEBO_PROTO_INCLUDE})
+
 # Set include dirs and dependencies
-include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH})
-set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES})
+include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH} ${GAZEBO_INCLUDE_DIRS})
+set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 target_link_libraries(tolworldcontrol ${TOL_DEPS})
 target_link_libraries(tolrobotcontrol ${TOL_DEPS})

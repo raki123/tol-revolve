@@ -9,7 +9,7 @@ class Robot(object):
     Class to manage a single robot
     """
 
-    def __init__(self, conf, gazebo_id, name, tree, position):
+    def __init__(self, conf, gazebo_id, name, tree, position, time):
         """
         :param conf:
         :type conf: Config
@@ -17,6 +17,8 @@ class Robot(object):
         :param name:
         :param position:
         :type position: Vector3
+        :param time:
+        :type time: Time
         :return:
         """
         self.conf = conf
@@ -24,10 +26,10 @@ class Robot(object):
         self.name = name
         self.gazebo_id = gazebo_id
         self.starting_position = position
+        self.starting_time = time
 
-        self.starting_time = None
-        self.last_update = None
-        self.last_position = None
+        self.last_position = position
+        self.last_update = time
         self.last_mate = None
 
         self._distances = np.zeros(conf.speed_window)
