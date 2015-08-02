@@ -17,7 +17,7 @@ from revolve.angle import Tree, Crossover, Mutator
 from revolve.util import Time
 from revolve.spec.msgs import ModelInserted
 from sdfbuilder.math import Vector3
-from sdfbuilder import SDF, Model
+from sdfbuilder import SDF, Model, Pose
 
 
 # Local
@@ -27,6 +27,7 @@ from ..spec import get_tree_generator
 from ..util import multi_future
 from .robot import Robot
 from ..scenery import Wall
+from ..logging import logger
 
 # Construct a message base from the time. This should make
 # it unique enough for consecutive use when the script
@@ -77,12 +78,17 @@ class World(object):
         self.mutator = Mutator(self.generator.body_gen, self.generator.brain_gen)
         self.robots = {}
         self.robot_id = 0
-        self.last_time = Time()
+
+        self.start_time = None
+        self.last_time = None
 
         # Set to true whenever a reproduction sequence is going on
         # to prevent another one from starting (which cannot happen now
         # but might in a more complicated yielding structure).
         self._reproducing = False
+
+        # List of functions called when the local state updates
+        self.update_triggers = []
 
     @trollius.coroutine
     def _init(self):
@@ -154,8 +160,7 @@ class World(object):
             if not coll:
                 raise Return(tree, robot, bbox)
 
-        print("Failed to produce a valid robot in %d attempts." % max_attempts,
-              file=sys.stderr)
+        logger.error("Failed to produce a valid robot in %d attempts." % max_attempts)
         raise Return(None)
 
     @trollius.coroutine
@@ -168,34 +173,39 @@ class World(object):
         robot = tree.to_robot(self.get_robot_id())
         ret = yield From(self.analyzer.analyze_robot(robot, builder=self.builder))
         if ret is None:
-            print("Error in robot analysis, skipping.", file=sys.stderr)
+            logger.error("Error in robot analysis, skipping.")
             raise Return(None)
 
         coll, bbox = ret
         raise Return(coll, bbox, robot)
 
     @trollius.coroutine
-    def generate_starting_population(self, positions):
+    def generate_starting_population(self, poses):
         """
         Generates and inserts a starting population of robots at the
         given positions. Robots will be inserted one by one, so
         it is probably a good idea to pause the world before doing this.
-        :param positions: Iterable of (x, y, z) positions, where z
+        :param poses: Iterable of (x, y, z) positions, where z
                           is an offset from the z bounding box.
+        :type poses: list[Pose]
         :return: Future that resolves when all robots have been inserted.
         """
+        logger.debug("Generating starting population...")
         futures = []
-        for position in positions:
+        for pose in poses:
             gen = yield From(self.generate_valid_robot())
             if not gen:
                 raise Return(None)
 
             tree, robot, bbox = gen
-            insert_pos = Vector3(position) + Vector3(0, 0, bbox[2])
-            future = yield From(self.insert_robot(tree, insert_pos))
+
+            pose.position += Vector3(0, 0, bbox[2])
+            future = yield From(self.insert_robot(tree, pose))
             futures.append(future)
 
-        raise Return(multi_future(futures))
+        future = multi_future(futures)
+        future.add_done_callback(lambda _: logger.debug("Done generating starting population."))
+        raise Return(future)
 
     def get_robot_id(self):
         """
@@ -206,7 +216,7 @@ class World(object):
         return self.robot_id
 
     @trollius.coroutine
-    def insert_robot(self, tree, position):
+    def insert_robot(self, tree, pose):
         """
         Inserts a robot into the world. This consists of two steps:
 
@@ -221,8 +231,8 @@ class World(object):
 
         :param tree:
         :type tree: Tree
-        :param position:
-        :type position: Vector3
+        :param pose:
+        :type pose: Pose
         :return:
         """
         robot_id = self.get_robot_id()
@@ -230,31 +240,63 @@ class World(object):
 
         robot = tree.to_robot(robot_id)
         sdf = get_simulation_robot(robot, robot_name, self.builder, self.conf)
+        sdf.elements[0].set_pose(pose)
 
-        sdf.elements[0].set_position(position)
-
-        future = yield From(self.insert_sdf(sdf))
+        future = yield From(self.insert_model(sdf))
         future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, fut.result()))
         raise Return(future)
 
+    @trollius.coroutine
+    def delete_robot(self, robot):
+        """
+        :param robot:
+        :type robot: Robot
+        :return:
+        """
+        # Immediately unregister the robot so no it won't be used
+        # for anything else while it is being deleted.
+        self.unregister_robot(robot)
+        future = yield From(self.delete_model(robot.name))
+        raise Return(future)
+
+    @trollius.coroutine
+    def delete_all_robots(self):
+        """
+        Deletes all robots from the world. Returns a future that resolves
+        when all responses have been received.
+        :return:
+        """
+        futures = []
+        for bot in self.robots.values():
+            future = yield From(self.delete_robot(bot))
+            futures.append(future)
+
+        raise Return(multi_future(futures))
+
+    @trollius.coroutine
     def pause(self, pause=True):
         """
         Pause / unpause the world
         :param pause:
         :return: Future for the published message
         """
+        logger.debug("Pausing the world.")
         msg = world_control_pb2.WorldControl()
         msg.pause = pause
-        return self.world_control.publish(msg)
+        yield From(self.world_control.publish(msg))
 
+    @trollius.coroutine
     def reset(self):
         """
         Reset the world
         :return:
         """
+        logger.debug("Resetting the world state.")
         msg = world_control_pb2.WorldControl()
         msg.reset.all = True
-        return self.world_control.publish(msg)
+        yield From(self.world_control.publish(msg))
+        self.last_time = None
+        self.start_time = None
 
     def _robot_inserted(self, robot_name, tree, msg):
         """
@@ -287,8 +329,19 @@ class World(object):
         :param time:
         :return:
         """
-        print("Registering robot %s." % robot_name)
+        logger.debug("Registering robot %s." % robot_name)
         self.robots[gazebo_id] = Robot(self.conf, gazebo_id, robot_name, tree, position, time)
+
+    def unregister_robot(self, robot):
+        """
+        Unregisters the robot with the given ID, usually happens when
+        it is deleted.
+        :param robot:
+        :type robot: Robot
+        :return:
+        """
+        logger.debug("Unregistering robot %s." % robot.name)
+        del self.robots[robot.gazebo_id]
 
     def _update_poses(self, msg):
         """
@@ -298,7 +351,10 @@ class World(object):
         """
         poses = poses_stamped_pb2.PosesStamped()
         poses.ParseFromString(msg)
-        time = Time(msg=poses.time)
+
+        self.last_time = t = Time(msg=poses.time)
+        if self.start_time is None:
+            self.start_time = t
 
         for pose in poses.pose:
             robot = self.robots.get(pose.id, None)
@@ -306,10 +362,39 @@ class World(object):
                 continue
 
             position = Vector3(pose.position.x, pose.position.y, pose.position.z)
-            robot.update_position(time, position)
+            robot.update_position(t, position)
+
+        self.call_update_triggers()
+
+    def add_update_trigger(self, callback):
+        """
+        Adds an update trigger, a function called every time the local
+        state is updated.
+        :param callback:
+        :type callback: callable
+        :return:
+        """
+        self.update_triggers.append(callback)
+
+    def remove_update_trigger(self, callback):
+        """
+        Removes a previously installed update trigger.
+        :param callback:
+        :type callback: callable
+        :return:
+        """
+        self.update_triggers.remove(callback)
+
+    def call_update_triggers(self):
+        """
+        Calls all update triggers.
+        :return:
+        """
+        for callback in self.update_triggers:
+            callback(self)
 
     @trollius.coroutine
-    def insert_sdf(self, sdf):
+    def insert_model(self, sdf):
         """
         Insert a model wrapped in an SDF tag into the world. Make
         sure it has a unique name, as it will be literally inserted into the world.
@@ -349,7 +434,7 @@ class World(object):
             start = points[i]
             end = points[(i + 1) % l]
             wall = Wall("wall_%d" % i, start, end, constants.WALL_THICKNESS, constants.WALL_HEIGHT)
-            future = yield From(self.insert_sdf(SDF(elements=[wall])))
+            future = yield From(self.insert_model(SDF(elements=[wall])))
             futures.append(future)
 
         raise Return(multi_future(futures))
@@ -360,12 +445,14 @@ class World(object):
         Initializes the arena by building square arena wall blocks.
         :return: Future that resolves when arena building is done.
         """
+        logger.debug("Building the arena...")
         wall_x = self.conf.arena_size[0] / 2.0
         wall_y = self.conf.arena_size[1] / 2.0
         wall_points = [Vector3(-wall_x, -wall_y, 0), Vector3(wall_x, -wall_y, 0),
                        Vector3(wall_x, wall_y, 0), Vector3(-wall_x, wall_y, 0)]
 
         future = yield From(self.build_walls(wall_points))
+        future.add_done_callback(lambda _: logger.debug("Done building the arena."))
         raise Return(future)
 
     @trollius.coroutine
@@ -385,7 +472,7 @@ class World(object):
         self._reproducing = True
         mates = self.select_mates()
 
-        print("Found %d possible pairs for reproduction..." % len(mates))
+        logger.debug("Found %d possible pairs for reproduction..." % len(mates))
         mated = set()
         futures = []
 
@@ -429,27 +516,31 @@ class World(object):
         :return: Returns `False` if mating failed, or a future with the robot that
                  is being inserted otherwise.
         """
-        print("Attempting mating between `%s` and `%s`..." % (ra.name, rb.name))
+        logger.debug("Attempting mating between `%s` and `%s`..." % (ra.name, rb.name))
 
         # Attempt to create a child through crossover
         success, child = self.crossover.crossover(ra.tree, rb.tree)
         if not success:
-            print("Crossover failed.")
+            logger.debug("Crossover failed.")
             raise Return(False)
 
+        # Set the child's parents for future reference
+        child.parents.update([ra, rb])
+
         # Apply mutation
-        print("Crossover succeeded, applying mutation...")
+        logger.debug("Crossover succeeded, applying mutation...")
         self.mutator.mutate(child, in_place=True)
 
         # Check if the robot is valid
         ret = yield From(self.analyze_tree(child))
         if ret is None or ret[0]:
-            print("Miscarriage.")
+            logger.debug("Miscarriage.")
             raise Return(False)
 
         # Alright, we have a valid bot, let's add it
         # to the world.
-        coll, bbox, robot = ret
+        logger.debug("New robot is viable, inserting.")
+        _, bbox, robot = ret
 
         # We position the bot such that we get an equilateral
         # triangle `ra`, `rb`, `child`.
@@ -473,10 +564,8 @@ class World(object):
         pos = rb.last_position + (0.5 * diff) + drop_length * normal
         pos.z = bbox[2]
 
-        print("New robot is viable, inserting.")
-
         # TODO Check if the position is within arena bounds
-        future = yield From(self.insert_robot(child, pos))
+        future = yield From(self.insert_robot(child, Pose(position=pos)))
 
         ra.did_mate_with(rb)
         rb.did_mate_with(ra)
