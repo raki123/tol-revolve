@@ -77,8 +77,8 @@ def run_server():
     yield From(world.pause(True))
     yield From(yield_wait(world.build_arena()))
 
-    n_bots = [1, 5]
-    radius = 0.2 * conf.arena_size[0]
+    n_bots = [1, 5, 20, 50]
+    radius = 0.4 * conf.arena_size[0]
     n_repeats = 1
     sim_time = 5.0
 
@@ -88,7 +88,7 @@ def run_server():
     def trigger(_):
         elapsed = float(world.last_time)
         if elapsed >= sim_time:
-            _state[0] = time.clock() - _state[0]
+            _state[0] = time.time() - _state[0]
             _state[1] = elapsed
 
             # Remove trigger to prevent other incoming messages
@@ -105,7 +105,7 @@ def run_server():
             # Generate a starting population from the given poses
             yield From(yield_wait(world.generate_starting_population(poses)))
             yield From(trollius.sleep(0.5))
-            _state[0] = time.clock()
+            _state[0] = time.time()
             _state[1] = -1
             world.add_update_trigger(trigger)
             yield From(world.pause(False))

@@ -16,7 +16,7 @@ class Config(object):
         self.visualize_sensors = kwargs.get('visualize_sensors', False)
 
         # Arena size, tuple of meters, meters
-        self.arena_size = kwargs.get('arena_size', (20, 20))
+        self.arena_size = kwargs.get('arena_size', (30, 30))
 
         # Number of entries in the robot's speed window. This does
         # not translate to a number of seconds *exactly*, but you
