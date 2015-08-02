@@ -12,7 +12,7 @@ import itertools
 from pygazebo.msg import model_pb2, world_control_pb2, poses_stamped_pb2, world_reset_pb2
 
 # Revolve / sdfbuilder
-from revolve.gazebo import connect, RequestHandler, analysis_coroutine, get_analysis_robot
+from revolve.gazebo import connect, RequestHandler, BodyAnalyzer
 from revolve.angle import Tree, Crossover, Mutator
 from revolve.util import Time
 from revolve.spec.msgs import ModelInserted
@@ -43,6 +43,15 @@ class World(object):
     A class that is used to manage the world, meaning it provides
     methods to insert / remove robots and request information
     about where they are.
+
+    The world class contains a number of coroutines, usually from
+    a request / response perspective. These methods thus work with
+    two futures - one for the request to complete, one for the
+    response to arrive. The convention for these methods is to
+    always yield the first future, because it has proven problematic
+    to send multiple messages over the same channel, so a request
+    is always sent until completion. The methods then return the
+    future that resolves when the response is delivered.
     """
     # Object used to make constructor private
     _PRIVATE = object()
@@ -87,7 +96,7 @@ class World(object):
         # Initialize the manager / analyzer connections as well as
         # the general request handler
         self.manager = yield From(connect(self.conf.world_address))
-        self.analyzer = yield From(connect(self.conf.analyzer_address))
+        self.analyzer = yield From(BodyAnalyzer.create(self.conf.analyzer_address))
         self.world_control = yield From(self.manager.advertise(
             '/gazebo/default/world_control', 'gazebo.msgs.WorldControl'
         ))
@@ -152,31 +161,30 @@ class World(object):
     @trollius.coroutine
     def analyze_tree(self, tree):
         """
-
+        Calls the body analyzer on a robot tree.
         :param tree:
         :return:
         """
         robot = tree.to_robot(self.get_robot_id())
-        sdf = get_analysis_robot(robot, builder=self.builder)
-
-        ret = yield From(analysis_coroutine(sdf, self.analyzer))
+        ret = yield From(self.analyzer.analyze_robot(robot, builder=self.builder))
         if ret is None:
-            print("Error in robot analysis, continuing.", file=sys.stderr)
+            print("Error in robot analysis, skipping.", file=sys.stderr)
             raise Return(None)
 
         coll, bbox = ret
-        raise Return((coll, bbox, robot))
+        raise Return(coll, bbox, robot)
 
     @trollius.coroutine
     def generate_starting_population(self, positions):
         """
         Generates and inserts a starting population of robots at the
-        given positions.
+        given positions. Robots will be inserted one by one, so
+        it is probably a good idea to pause the world before doing this.
         :param positions: Iterable of (x, y, z) positions, where z
                           is an offset from the z bounding box.
-        :return:
+        :return: Future that resolves when all robots have been inserted.
         """
-        to_insert = []
+        futures = []
         for position in positions:
             gen = yield From(self.generate_valid_robot())
             if not gen:
@@ -184,14 +192,10 @@ class World(object):
 
             tree, robot, bbox = gen
             insert_pos = Vector3(position) + Vector3(0, 0, bbox[2])
-            to_insert.append((tree, insert_pos))
-
-        futures = []
-        for tree, position in to_insert:
-            future = yield From(self.insert_robot(tree, position))
+            future = yield From(self.insert_robot(tree, insert_pos))
             futures.append(future)
 
-        yield From(multi_future(futures))
+        raise Return(multi_future(futures))
 
     def get_robot_id(self):
         """
@@ -272,7 +276,6 @@ class World(object):
         position = Vector3(p.x, p.y, p.z)
 
         self.register_robot(gazebo_id, robot_name, tree, position, time)
-        self.request_handler.handled("insert_sdf", msg.id)
 
     def register_robot(self, gazebo_id, robot_name, tree, position, time):
         """
@@ -306,7 +309,7 @@ class World(object):
             robot.update_position(time, position)
 
     @trollius.coroutine
-    def insert_sdf(self, sdf, callback=None):
+    def insert_sdf(self, sdf):
         """
         Insert a model wrapped in an SDF tag into the world. Make
         sure it has a unique name, as it will be literally inserted into the world.
@@ -316,24 +319,21 @@ class World(object):
         optional given callback is added to this future.
 
         :param sdf:
-        :param callback: Response callback.
         :type sdf: SDF
         :return:
         """
-        future = Future()
-        if callback:
-            future.add_done_callback(callback)
-
-        yield From(self.request_handler.do_gazebo_request("insert_sdf", data=str(sdf), callback=future.set_result))
+        future = yield From(self.request_handler.do_gazebo_request("insert_sdf", data=str(sdf)))
         raise Return(future)
 
+    @trollius.coroutine
     def delete_model(self, name):
         """
         Deletes the model with the given name from the world.
         :param name:
         :return:
         """
-        # self.request_handler.do_gazebo_request()
+        future = yield From(self.request_handler.do_gazebo_request("entity_delete", data=name))
+        raise Return(future)
 
     @trollius.coroutine
     def build_walls(self, points):
@@ -341,7 +341,7 @@ class World(object):
         Builds a wall defined by the given points, used to shield the
         arena.
         :param points:
-        :return:
+        :return: Future that resolves when all walls have been inserted.
         """
         futures = []
         l = len(points)
@@ -353,6 +353,20 @@ class World(object):
             futures.append(future)
 
         raise Return(multi_future(futures))
+
+    @trollius.coroutine
+    def build_arena(self):
+        """
+        Initializes the arena by building square arena wall blocks.
+        :return: Future that resolves when arena building is done.
+        """
+        wall_x = self.conf.arena_size[0] / 2.0
+        wall_y = self.conf.arena_size[1] / 2.0
+        wall_points = [Vector3(-wall_x, -wall_y, 0), Vector3(wall_x, -wall_y, 0),
+                       Vector3(wall_x, wall_y, 0), Vector3(-wall_x, wall_y, 0)]
+
+        future = yield From(self.build_walls(wall_points))
+        raise Return(future)
 
     @trollius.coroutine
     def perform_reproduction(self):

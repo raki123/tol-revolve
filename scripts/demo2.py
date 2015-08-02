@@ -29,7 +29,6 @@ else:
 random.seed(seed)
 print("Seed: %d" % seed)
 
-
 @trollius.coroutine
 def run_server():
     conf = Config(
@@ -40,14 +39,8 @@ def run_server():
     world = yield From(World.create(conf))
     yield From(world.pause(True))
 
-    wall_x = conf.arena_size[0] / 2.0
-    wall_y = conf.arena_size[1] / 2.0
-    wall_points = [Vector3(-wall_x, -wall_y, 0), Vector3(wall_x, -wall_y, 0),
-                   Vector3(wall_x, wall_y, 0), Vector3(-wall_x, wall_y, 0)]
-
-    print("Generating walls...")
-    future = yield From(world.build_walls(wall_points))
-    yield From(future)
+    print("Building the arena...")
+    yield From(world.build_arena())
     print("Done.")
 
     grid_size = (4, 4)
@@ -59,7 +52,8 @@ def run_server():
                  for i, j in itertools.product(range(grid_x), range(grid_y))]
 
     print("Generating starting population...")
-    yield From(world.generate_starting_population(positions))
+    future = yield From(world.generate_starting_population(positions))
+    yield From(future)
     print("Done.")
     # yield From(world.pause(False))
 
