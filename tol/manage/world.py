@@ -216,7 +216,7 @@ class World(object):
         return self.robot_id
 
     @trollius.coroutine
-    def insert_robot(self, tree, pose):
+    def insert_robot(self, tree, pose, parents=None):
         """
         Inserts a robot into the world. This consists of two steps:
 
@@ -243,7 +243,7 @@ class World(object):
         sdf.elements[0].set_pose(pose)
 
         future = yield From(self.insert_model(sdf))
-        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, fut.result()))
+        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, parents, fut.result()))
         raise Return(future)
 
     @trollius.coroutine
@@ -298,13 +298,15 @@ class World(object):
         self.last_time = None
         self.start_time = None
 
-    def _robot_inserted(self, robot_name, tree, msg):
+    def _robot_inserted(self, robot_name, tree, parents, msg):
         """
         Registers a newly inserted robot and marks the insertion
         message response as handled.
 
         :param tree:
         :param robot_name:
+        :param tree:
+        :param parents:
         :param msg:
         :type msg: pygazebo.msgs.response_pb2.Response
         :return:
@@ -317,20 +319,17 @@ class World(object):
         p = model.pose.position
         position = Vector3(p.x, p.y, p.z)
 
-        self.register_robot(gazebo_id, robot_name, tree, position, time)
+        self.register_robot(Robot(self.conf, gazebo_id, robot_name, tree, position, time, parents))
 
-    def register_robot(self, gazebo_id, robot_name, tree, position, time):
+    def register_robot(self, robot):
         """
         Registers a robot with its Gazebo ID in the local array.
-        :param gazebo_id:
-        :param tree:
-        :param robot_name:
-        :param position:
-        :param time:
+        :param robot:
+        :type robot: Robot
         :return:
         """
-        logger.debug("Registering robot %s." % robot_name)
-        self.robots[gazebo_id] = Robot(self.conf, gazebo_id, robot_name, tree, position, time)
+        logger.debug("Registering robot %s." % robot.name)
+        self.robots[robot.gazebo_id] = robot
 
     def unregister_robot(self, robot):
         """
@@ -524,9 +523,6 @@ class World(object):
             logger.debug("Crossover failed.")
             raise Return(False)
 
-        # Set the child's parents for future reference
-        child.parents.update([ra, rb])
-
         # Apply mutation
         logger.debug("Crossover succeeded, applying mutation...")
         self.mutator.mutate(child, in_place=True)
@@ -565,7 +561,7 @@ class World(object):
         pos.z = bbox[2]
 
         # TODO Check if the position is within arena bounds
-        future = yield From(self.insert_robot(child, Pose(position=pos)))
+        future = yield From(self.insert_robot(child, Pose(position=pos), parents=[ra, rb]))
 
         ra.did_mate_with(rb)
         rb.did_mate_with(ra)
