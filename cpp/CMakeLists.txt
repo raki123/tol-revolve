@@ -102,10 +102,8 @@ endif()
 
 ### Include Gazebo as well
 # Find and include Gazebo
-include (FindPkgConfig)
-if (PKG_CONFIG_FOUND)
-  pkg_check_modules(GAZEBO gazebo)
-endif()
+find_package(gazebo REQUIRED)
+include_directories(${GAZEBO_INCLUDE_DIRS})
 
 # Need to include the Gazebo protobuf include path
 set(GAZEBO_PROTOBUF_DIR)

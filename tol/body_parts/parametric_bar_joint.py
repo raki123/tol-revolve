@@ -11,6 +11,7 @@ from sdfbuilder.structure import Box
 # Local imports
 from .util import ColorMixin
 
+
 class ParametricBarJoint(BodyPart, ColorMixin):
     """
     The parametric bar joint allows the introduction of fix

@@ -17,6 +17,7 @@ MASS = in_grams(2)
 SENSOR_BASE_WIDTH = in_mm(34)
 SENSOR_BASE_THICKNESS = in_mm(1.5)
 
+
 class LightSensor(Box, ColorMixin):
     """
     Simple light sensor. This extends `Box` for convenience,
@@ -36,6 +37,8 @@ class LightSensor(Box, ColorMixin):
         # Add the SDF camera sensor
         camera = SdfSensor("%s_light_sensor" % self.id, "camera",
                            update_rate=self.conf.update_rate)
+
+        # TODO Set field of view
         cam_details = "<camera>" \
                       "<image>" \
                       "<width>1</width><height>1</height>" \
