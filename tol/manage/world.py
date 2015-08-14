@@ -114,6 +114,14 @@ class World(object):
             self.write_robots.writerow(['id', 'parent1', 'parent2'])
             self.write_poses.writerow(['id', 'sec', 'nsec', 'x', 'y', 'z'])
 
+    def get_robot_id(self):
+        """
+        Robot ID sequencer
+        :return:
+        """
+        self.robot_id += 1
+        return self.robot_id
+
     @trollius.coroutine
     def _init(self):
         """
@@ -220,40 +228,44 @@ class World(object):
         raise Return(coll, bbox, robot)
 
     @trollius.coroutine
-    def generate_starting_population(self, poses):
+    def generate_population(self, n):
         """
-        Generates and inserts a starting population of robots at the
-        given positions. Robots will be inserted one by one, so
-        it is probably a good idea to pause the world before doing this.
-        :param poses: Iterable of (x, y, z) positions, where z
-                          is an offset from the z bounding box.
-        :type poses: list[Pose]
+        Generates population of `n` valid robots robots.
+
         :return: Future that resolves when all robots have been inserted.
         """
-        logger.debug("Generating starting population...")
-        futures = []
-        for pose in poses:
+        logger.debug("Generating population...")
+        trees = []
+        bboxes = []
+
+        for _ in xrange(n):
             gen = yield From(self.generate_valid_robot())
             if not gen:
                 raise Return(None)
 
             tree, robot, bbox = gen
+            trees.append(tree)
+            bboxes.append(bbox)
 
-            pose.position += Vector3(0, 0, bbox[2])
+        raise Return(trees, bboxes)
+
+    @trollius.coroutine
+    def insert_population(self, trees, poses):
+        """
+        :param trees:
+        :type trees: list[Tree]
+        :param poses: Iterable of (x, y, z) positions to insert.
+        :type poses: list[Pose]
+        :return:
+        """
+        futures = []
+        for tree, pose in itertools.izip(trees, poses):
             future = yield From(self.insert_robot(tree, pose))
             futures.append(future)
 
         future = multi_future(futures)
-        future.add_done_callback(lambda _: logger.debug("Done generating starting population."))
+        future.add_done_callback(lambda _: logger.debug("Done inserting population."))
         raise Return(future)
-
-    def get_robot_id(self):
-        """
-        Robot ID sequencer
-        :return:
-        """
-        self.robot_id += 1
-        return self.robot_id
 
     @trollius.coroutine
     def insert_robot(self, tree, pose, parents=None):

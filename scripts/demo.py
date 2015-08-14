@@ -56,16 +56,20 @@ def run_server():
     future = yield From(world.build_walls(wall_points))
     yield From(future)
 
-    grid_size = (3, 3)
+    grid_size = (2, 2)
     spacing = 3 * conf.mating_distance
     grid_x, grid_y = grid_size
     x_offset = -(grid_x - 1) * spacing * 0.5
     y_offset = -(grid_y - 1) * spacing * 0.5
-    positions = [Pose(position=Vector3(x_offset + spacing * i, y_offset + spacing * j, 0))
-                 for i, j in itertools.product(range(grid_x), range(grid_y))]
+    poses = [Pose(position=Vector3(x_offset + spacing * i, y_offset + spacing * j, 0))
+             for i, j in itertools.product(range(grid_x), range(grid_y))]
 
-    yield From(world.generate_starting_population(positions))
-    # yield From(world.pause(False))
+    trees, bboxes = yield From(world.generate_population(len(poses)))
+    for pose, bbox in itertools.izip(poses, bboxes):
+        pose.position += Vector3(0, 0, bbox[2])
+
+    fut = yield From(world.insert_population(trees, poses))
+    yield From(fut)
 
     while True:
         yield From(trollius.sleep(0.1))

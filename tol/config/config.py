@@ -36,7 +36,7 @@ class Config(object):
 
         # Robot specification
         self.min_parts = kwargs.get('min_parts', 3)
-        self.max_parts = kwargs.get('max_parts', 15)
+        self.max_parts = kwargs.get('max_parts', 10)
         self.max_inputs = kwargs.get('max_inputs', 8)
         self.max_outputs = kwargs.get('max_outputs', 12)
 
