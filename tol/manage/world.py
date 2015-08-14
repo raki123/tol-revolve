@@ -7,6 +7,9 @@ import trollius
 from trollius import From, Return, Future
 import time
 import itertools
+import csv
+import os
+from datetime import datetime
 
 # Pygazebo
 from pygazebo.msg import model_pb2, world_control_pb2, poses_stamped_pb2, world_reset_pb2
@@ -90,6 +93,27 @@ class World(object):
         # List of functions called when the local state updates
         self.update_triggers = []
 
+        # Output files for robot CSV data
+        self.robots_file = None
+        self.poses_file = None
+        self.write_robots = None
+        self.write_poses = None
+        self.output_directory = None
+
+        if self.conf.output_directory:
+            self.output_directory = os.path.join(self.conf.output_directory,
+                                                 datetime.now().strftime('%Y%m%d%H%M%S'))
+
+            # These all raise exceptions on failure, no need to further check
+            os.mkdir(self.output_directory)
+            self.poses_file = open('%s/poses.csv' % self.output_directory, 'wb')
+            self.robots_file = open('%s/robots.csv' % self.output_directory, 'wb')
+            self.write_robots = csv.writer(self.robots_file, delimiter=',')
+            self.write_poses = csv.writer(self.poses_file, delimiter=',')
+
+            self.write_robots.writerow(['id', 'parent1', 'parent2'])
+            self.write_poses.writerow(['id', 'sec', 'nsec', 'x', 'y', 'z'])
+
     @trollius.coroutine
     def _init(self):
         """
@@ -102,7 +126,10 @@ class World(object):
         # Initialize the manager / analyzer connections as well as
         # the general request handler
         self.manager = yield From(connect(self.conf.world_address))
-        self.analyzer = yield From(BodyAnalyzer.create(self.conf.analyzer_address))
+
+        if self.conf.analyzer_address:
+            self.analyzer = yield From(BodyAnalyzer.create(self.conf.analyzer_address))
+
         self.world_control = yield From(self.manager.advertise(
             '/gazebo/default/world_control', 'gazebo.msgs.WorldControl'
         ))
@@ -117,6 +144,16 @@ class World(object):
         # Wait for connections
         yield From(self.world_control.wait_for_listener())
         yield From(self.pose_subscriber.wait_for_connection())
+
+    @trollius.coroutine
+    def teardown(self):
+        """
+        Finalizes the world, flushes files, etc.
+        :return:
+        """
+        if self.robots_file:
+            self.robots_file.close()
+            self.poses_file.close()
 
     @classmethod
     @trollius.coroutine
@@ -170,6 +207,9 @@ class World(object):
         :param tree:
         :return:
         """
+        if not self.analyzer:
+            raise RuntimeError("World.analyze_tree(): No analyzer configured.")
+
         robot = tree.to_robot(self.get_robot_id())
         ret = yield From(self.analyzer.analyze_robot(robot, builder=self.builder))
         if ret is None:
@@ -243,7 +283,7 @@ class World(object):
         sdf.elements[0].set_pose(pose)
 
         future = yield From(self.insert_model(sdf))
-        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, parents, fut.result()))
+        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, robot, parents, fut.result()))
         raise Return(future)
 
     @trollius.coroutine
@@ -298,7 +338,7 @@ class World(object):
         self.last_time = None
         self.start_time = None
 
-    def _robot_inserted(self, robot_name, tree, parents, msg):
+    def _robot_inserted(self, robot_name, tree, robot, parents, msg):
         """
         Registers a newly inserted robot and marks the insertion
         message response as handled.
@@ -306,6 +346,7 @@ class World(object):
         :param tree:
         :param robot_name:
         :param tree:
+        :param robot:
         :param parents:
         :param msg:
         :type msg: pygazebo.msgs.response_pb2.Response
@@ -319,7 +360,8 @@ class World(object):
         p = model.pose.position
         position = Vector3(p.x, p.y, p.z)
 
-        self.register_robot(Robot(self.conf, gazebo_id, robot_name, tree, position, time, parents))
+        self.register_robot(Robot(self.conf, gazebo_id, robot_name, tree, robot,
+                                  position, time, parents))
 
     def register_robot(self, robot):
         """
@@ -330,6 +372,10 @@ class World(object):
         """
         logger.debug("Registering robot %s." % robot.name)
         self.robots[robot.gazebo_id] = robot
+        if self.output_directory:
+            # Write robot details and CSV row to files
+            robot.write_robot('%s/robot_%d.pb' % (self.output_directory, robot.robot.id),
+                              self.write_robots)
 
     def unregister_robot(self, robot):
         """
@@ -361,7 +407,7 @@ class World(object):
                 continue
 
             position = Vector3(pose.position.x, pose.position.y, pose.position.z)
-            robot.update_position(t, position)
+            robot.update_position(t, position, self.write_poses)
 
         self.call_update_triggers()
 
@@ -530,7 +576,7 @@ class World(object):
         # Check if the robot is valid
         ret = yield From(self.analyze_tree(child))
         if ret is None or ret[0]:
-            logger.debug("Miscarriage.")
+            logger.debug("Intersecting body parts: Miscarriage.")
             raise Return(False)
 
         # Alright, we have a valid bot, let's add it

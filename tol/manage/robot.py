@@ -9,12 +9,14 @@ class Robot(object):
     Class to manage a single robot
     """
 
-    def __init__(self, conf, gazebo_id, name, tree, position, time, parents=None):
+    def __init__(self, conf, gazebo_id, name, tree, robot, position, time, parents=None):
         """
         :param conf:
         :type conf: Config
         :param gazebo_id:
         :param name:
+        :param tree:
+        :param robot: Protobuf robot
         :param position:
         :type position: Vector3
         :param time:
@@ -25,6 +27,7 @@ class Robot(object):
         """
         self.conf = conf
         self.tree = tree
+        self.robot = robot
         self.name = name
         self.gazebo_id = gazebo_id
         self.starting_position = position
@@ -45,7 +48,25 @@ class Robot(object):
         # Set of robots this bot has mated with
         self.mated_with = set()
 
-    def update_position(self, time, position):
+    def write_robot(self, details_file, csv_writer):
+        """
+        Writes this robot to a file. This simply writes the
+        protobuf bot to a file, which can later be recovered
+
+        :param details_file:
+        :param csv_writer:
+        :type csv_writer: csv.writer
+        :return:
+        :rtype: bool
+        """
+        with open(details_file, 'w') as f:
+            f.write(self.robot.SerializeToString())
+
+        row = [self.robot.id]
+        row += [parent.robot.id for parent in self.parents] if self.parents else ['', '']
+        csv_writer.writerow(row)
+
+    def update_position(self, time, position, poses_file):
         """
 
         :param time: The simulation time at the time of this
@@ -53,6 +74,8 @@ class Robot(object):
         :type time: Time
         :param position:
         :type position: Vector3
+        :param poses_file: CSV writer to write pose to, if applicable
+        :type poses_file: csv.writer
         :return:
         """
         if self.starting_time is None:
@@ -83,6 +106,10 @@ class Robot(object):
 
         self.last_position = position
         self.last_update = time
+
+        if poses_file:
+            poses_file.writerow([self.robot.id, time.sec, time.nsec,
+                                 position.x, position.y, position.z])
 
     def will_mate_with(self, other):
         """

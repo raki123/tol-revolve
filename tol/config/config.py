@@ -40,7 +40,23 @@ class Config(object):
         self.max_inputs = kwargs.get('max_inputs', 8)
         self.max_outputs = kwargs.get('max_outputs', 12)
 
+        # Connection addresses. The analyzer can be set to any falsy value
+        # to not connect to an analyzer.
         self.world_address = kwargs.get('world_address', ("127.0.0.1", 11345))
         self.analyzer_address = kwargs.get('analyzer_address', ("127.0.0.1", 11346))
 
+        # Directory where robot information will be written. The system writes
+        # two main CSV files:
+        # - The `robots.csv` file containing all the basic robot information, one line
+        #   per robot, in the format
+        #   id,parent1,parent2
+        # - The `poses.csv` file containing each robot pose through time, in the format
+        #   id,sim_time_sec,sim_time_nsec,x,y,z
+        #
+        # Additionally, the `Robot` protobuf message for each bot is written to
+        # a file called `robot_[ID].pb` when the robot is first registered.
+        #
+        # The files are written to a new YYYYMMDDHHIISS directory within the
+        # specified output directory.
+        self.output_directory = kwargs.get('output_directory', None)
 

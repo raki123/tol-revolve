@@ -41,7 +41,8 @@ print("Seed: %d" % seed)
 def run_server():
     conf = Config(
         update_rate=25,
-        proposal_threshold=0
+        proposal_threshold=0,
+        output_directory='/home/elte/tol-out-test'
     )
 
     world = yield From(World.create(conf))
@@ -77,8 +78,6 @@ def main():
         loop.run_until_complete(run_server())
     except KeyboardInterrupt:
         print("Got Ctrl+C, shutting down.")
-    except DisconnectError:
-        print("World disconnected, shutting down.")
 
 if __name__ == '__main__':
     main()

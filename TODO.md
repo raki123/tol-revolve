@@ -2,7 +2,13 @@
 - Updated through `PosesStamped` message (currently easiest, might go for more efficient
   solution later).
 
-# Joint force / velocity instability problem
+# Write robot state to files
+I'd like incremental files for when the simulation does something weird or crashes.
+Idea:
+- Write general robot JSON file (parents, position) + protobuf binary when robot is registered
+- Store and flush robot poses to separate files every once in a while
+
+# Joint force / velocity instability problem (currently "solved" with ODE only)
 ## The problem
 Joints reach ridiculously high velocities making the simulation unstable.
 
@@ -42,6 +48,9 @@ Block weight    1dt velocity
    functions through the Gazebo API), which is undesirable for obvious reasons. 
    It is however very simple to do, ODE will enforce the maximum forces as
    constraints in calculating the angular velocity in the next timestep.
+   **I see a potential of supporting this in Bullet without recompiling
+    Gazebo, by registering a new fake physics engine or overriding
+    the Bullet Physics one with one that does support angular motors...**
 2. Fine-tune the PID-controller to make sure this never happens. The problem
    is that we do not know what type of force we need to reach a certain speed,
    but this is of course what a PID-controller is for. When the joint load is
