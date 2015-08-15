@@ -105,9 +105,16 @@ class World(object):
                                                  datetime.now().strftime('%Y%m%d%H%M%S'))
 
             # These all raise exceptions on failure, no need to further check
+
+            # Create timestamped directory within output directory
             os.mkdir(self.output_directory)
+
+            # Open poses file, this is written *a lot* so use default OS buffering
             self.poses_file = open('%s/poses.csv' % self.output_directory, 'wb')
-            self.robots_file = open('%s/robots.csv' % self.output_directory, 'wb')
+
+            # Open robots file line buffered so we can see it on the fly, isn't written
+            # too often.
+            self.robots_file = open('%s/robots.csv' % self.output_directory, 'wb', buffering=1)
             self.write_robots = csv.writer(self.robots_file, delimiter=',')
             self.write_poses = csv.writer(self.poses_file, delimiter=',')
 
@@ -285,7 +292,7 @@ class World(object):
         :type tree: Tree
         :param pose:
         :type pose: Pose
-        :return:
+        :return: A future that resolves with the created `Robot` object.
         """
         robot_id = self.get_robot_id()
         robot_name = "gen__"+str(robot_id)
@@ -294,9 +301,12 @@ class World(object):
         sdf = get_simulation_robot(robot, robot_name, self.builder, self.conf)
         sdf.elements[0].set_pose(pose)
 
-        future = yield From(self.insert_model(sdf))
-        future.add_done_callback(lambda fut: self._robot_inserted(robot_name, tree, robot, parents, fut.result()))
-        raise Return(future)
+        return_future = Future()
+        insert_future = yield From(self.insert_model(sdf))
+        insert_future.add_done_callback(lambda fut: self._robot_inserted(
+            robot_name, tree, robot, parents, fut.result(), return_future
+        ))
+        raise Return(return_future)
 
     @trollius.coroutine
     def delete_robot(self, robot):
@@ -332,7 +342,11 @@ class World(object):
         :param pause:
         :return: Future for the published message
         """
-        logger.debug("Pausing the world.")
+        if pause:
+            logger.debug("Pausing the world.")
+        else:
+            logger.debug("Resuming the world.")
+
         msg = world_control_pb2.WorldControl()
         msg.pause = pause
         yield From(self.world_control.publish(msg))
@@ -350,7 +364,7 @@ class World(object):
         self.last_time = None
         self.start_time = None
 
-    def _robot_inserted(self, robot_name, tree, robot, parents, msg):
+    def _robot_inserted(self, robot_name, tree, robot, parents, msg, return_future):
         """
         Registers a newly inserted robot and marks the insertion
         message response as handled.
@@ -362,6 +376,8 @@ class World(object):
         :param parents:
         :param msg:
         :type msg: pygazebo.msgs.response_pb2.Response
+        :param return_future: Future to resolve with the created robot object.
+        :type return_future: Future
         :return:
         """
         inserted = ModelInserted()
@@ -372,8 +388,10 @@ class World(object):
         p = model.pose.position
         position = Vector3(p.x, p.y, p.z)
 
-        self.register_robot(Robot(self.conf, gazebo_id, robot_name, tree, robot,
-                                  position, time, parents))
+        robot = Robot(self.conf, gazebo_id, robot_name, tree, robot,
+                      position, time, parents)
+        self.register_robot(robot)
+        return_future.set_result(robot)
 
     def register_robot(self, robot):
         """
@@ -542,7 +560,7 @@ class World(object):
             mated.add(ra)
             mated.add(rb)
 
-            future = yield From(self.mate(ra, rb))
+            future = yield From(self.mate_and_insert(ra, rb))
 
             if future:
                 futures.append(future)
@@ -563,16 +581,25 @@ class World(object):
                 if ra.will_mate_with(rb) and rb.will_mate_with(ra)]
 
     @trollius.coroutine
-    def mate(self, ra, rb):
+    def attempt_mate(self, ra, rb):
         """
-        Coroutine that performs a mating attempt between robots `ra` and `rb`.
+        Attempts mating between two robots.
         :param ra:
-        :type ra: Robot
         :param rb:
-        :type rb: Robot
-        :return: Returns `False` if mating failed, or a future with the robot that
-                 is being inserted otherwise.
+        :return:
         """
+        logger.debug("Attempting mating between `%s` and `%s`..." % (ra.name, rb.name))
+
+        # Attempt to create a child through crossover
+        success, child = self.crossover.crossover(ra.tree, rb.tree)
+        if not success:
+            logger.debug("Crossover failed.")
+            raise Return(False)
+
+        # Apply mutation
+        logger.debug("Crossover succeeded, applying mutation...")
+        self.mutator.mutate(child, in_place=True)
+
         logger.debug("Attempting mating between `%s` and `%s`..." % (ra.name, rb.name))
 
         # Attempt to create a child through crossover
@@ -591,10 +618,27 @@ class World(object):
             logger.debug("Intersecting body parts: Miscarriage.")
             raise Return(False)
 
+        raise Return(child, ret[1])
+
+    @trollius.coroutine
+    def mate_and_insert(self, ra, rb):
+        """
+        Coroutine that performs a mating attempt between robots `ra` and `rb`.
+        :param ra:
+        :type ra: Robot
+        :param rb:
+        :type rb: Robot
+        :return: Returns `False` if mating failed, or a future with the robot that
+                 is being inserted otherwise.
+        """
+        ret = yield From(self.attempt_mate(ra, rb))
+        if ret is False:
+            raise Return(False)
+
         # Alright, we have a valid bot, let's add it
         # to the world.
         logger.debug("New robot is viable, inserting.")
-        _, bbox, robot = ret
+        child, bbox = ret
 
         # We position the bot such that we get an equilateral
         # triangle `ra`, `rb`, `child`.

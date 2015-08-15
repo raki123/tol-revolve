@@ -1,4 +1,3 @@
-# Add "tol" directory to Python path
 from __future__ import absolute_import
 import random
 import itertools
@@ -6,6 +5,7 @@ import os
 import sys
 import logging
 
+# Add "tol" directory to Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 
 # Trollius / Pygazebo
@@ -40,7 +40,6 @@ print("Seed: %d" % seed)
 @trollius.coroutine
 def run_server():
     conf = Config(
-        update_rate=25,
         proposal_threshold=0,
         output_directory='/home/elte/tol-out-test'
     )

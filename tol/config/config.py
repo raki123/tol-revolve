@@ -12,7 +12,7 @@ class Config(object):
         :return:
         """
         # World options
-        self.update_rate = kwargs.get('update_rate', 5)
+        self.update_rate = kwargs.get('update_rate', 10)
         self.visualize_sensors = kwargs.get('visualize_sensors', False)
 
         # Arena size, tuple of meters, meters
