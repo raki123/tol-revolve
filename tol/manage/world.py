@@ -318,7 +318,7 @@ class World(object):
         # Immediately unregister the robot so no it won't be used
         # for anything else while it is being deleted.
         self.unregister_robot(robot)
-        future = yield From(self.delete_model(robot.name))
+        future = yield From(self.delete_model(robot.name, req="delete_robot"))
         raise Return(future)
 
     @trollius.coroutine
@@ -486,13 +486,17 @@ class World(object):
         raise Return(future)
 
     @trollius.coroutine
-    def delete_model(self, name):
+    def delete_model(self, name, req="entity_delete"):
         """
         Deletes the model with the given name from the world.
         :param name:
+        :param req: Type of request to use. If you are going to
+        delete a robot, I suggest using `delete_robot` rather than `entity_delete`
+        because this attempts to prevent some issues with segmentation faults
+        occurring from deleting sensors.
         :return:
         """
-        future = yield From(self.request_handler.do_gazebo_request("entity_delete", data=name))
+        future = yield From(self.request_handler.do_gazebo_request(req, data=name))
         raise Return(future)
 
     @trollius.coroutine

@@ -42,7 +42,7 @@ NUM_CHILDREN = 10
 KEEP_PARENTS = True
 
 # Number of generations to produce
-NUM_GENERATIONS = 10
+NUM_GENERATIONS = 100
 
 # Number of simulation seconds each individual is evaluated
 EVALUATION_TIME = 20
