@@ -18,21 +18,6 @@ bot_yaml = '''
 body:
   id          : Core
   type        : Core
-  children:
-    4:
-      id: Rotator
-      type: ActiveRotator
-      children:
-        1:
-          id: Brick2
-          type: FixedBrick
-brain:
-  params:
-    Rotator-out-0:
-      type        : Oscillator
-      period      : 8.0
-      phase_offset : 0
-      gain        : 1
 '''
 
 conf = Config(visualize_sensors=True)
