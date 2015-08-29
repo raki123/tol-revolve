@@ -33,8 +33,7 @@ class CoreComponent(BodyPart, ColorMixin):
         # create a sensor in SDF. Be careful to give the
         # sensor a name which is unique for the entire
         # robot, adding the ID will help us do that.
-        sensor_id = "%s_imu_sensor" % self.id
-        imu = SdfSensor(sensor_id, "imu", update_rate=self.conf.update_rate)
+        imu = SdfSensor("imu_sensor", "imu", update_rate=self.conf.update_rate)
         self.link.add_sensor(imu)
 
         self.apply_color()
