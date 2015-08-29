@@ -20,6 +20,7 @@ SENSOR_HEIGHT = in_mm(16)
 
 SEPARATION = in_mm(1)
 
+
 class TouchSensor(Box, ColorMixin):
     """
     Simple light sensor. This extends `Box` for convenience,
