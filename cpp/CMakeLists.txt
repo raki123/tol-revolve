@@ -102,7 +102,9 @@ endif()
 
 ### Include Gazebo as well
 # Find and include Gazebo
-find_package(gazebo REQUIRED)
+# TODO Remove hard-coded reference to local install
+find_package(gazebo 7.0 REQUIRED
+        PATHS /home/elte/gz-install/usr/local/lib/x86_64-linux-gnu/cmake/gazebo)
 include_directories(${GAZEBO_INCLUDE_DIRS})
 
 # Need to include the Gazebo protobuf include path
