@@ -299,6 +299,11 @@ class World(object):
 
         robot = tree.to_robot(robot_id)
         sdf = get_simulation_robot(robot, robot_name, self.builder, self.conf)
+
+        if self.output_directory:
+            with open(os.path.join(self.output_directory, 'robot_%d.sdf' % robot_id), 'w') as f:
+                f.write(str(sdf))
+
         sdf.elements[0].set_pose(pose)
 
         return_future = Future()
