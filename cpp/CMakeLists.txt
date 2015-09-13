@@ -5,7 +5,7 @@ cmake_minimum_required (VERSION 2.8.12)
 project (TriangleOfLife)
 
 # CMake flag to build to local directory
-if (${LOCAL_LIB_DIR})
+if (LOCAL_LIB_DIR)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build")
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build")
     message("Using local library directory: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
@@ -102,9 +102,13 @@ endif()
 
 ### Include Gazebo as well
 # Find and include Gazebo
-# TODO Remove hard-coded reference to local install
-find_package(gazebo 7.0 REQUIRED
-        PATHS /home/elte/gz-install/usr/local/lib/x86_64-linux-gnu/cmake/gazebo)
+# LOCAL_GAZEBO_DIR can be set to a path with a gazebo-config.cmake
+if (LOCAL_GAZEBO_DIR)
+    find_package(gazebo 6.1 REQUIRED
+            PATHS ${LOCAL_GAZEBO_DIR})
+else()
+    find_package(gazebo 6.1 REQUIRED)
+endif()
 include_directories(${GAZEBO_INCLUDE_DIRS})
 
 # Need to include the Gazebo protobuf include path
