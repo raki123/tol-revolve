@@ -87,7 +87,8 @@ def evaluate_pair(world, tree, bbox):
 def evaluate_population(world, trees, bboxes):
     """
     :param world:
-    :param population:
+    :param trees:
+    :param bboxes:
     :return:
     """
     robots = []

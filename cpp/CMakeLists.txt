@@ -105,7 +105,9 @@ endif()
 # LOCAL_GAZEBO_DIR can be set to a path with a gazebo-config.cmake
 if (LOCAL_GAZEBO_DIR)
     find_package(gazebo 6.1 REQUIRED
-            PATHS ${LOCAL_GAZEBO_DIR})
+            PATHS "${LOCAL_GAZEBO_DIR}"
+            NO_DEFAULT_PATH)
+    message(WARNING "Using local Gazebo @ ${gazebo_DIR}")
 else()
     find_package(gazebo 6.1 REQUIRED)
 endif()
