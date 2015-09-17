@@ -28,7 +28,7 @@ output_console()
 logger.setLevel(logging.DEBUG)
 
 # Set command line seed if supplied, otherwise choose a random number
-# Good seeds so far: 642735
+# Good seeds so far: 642735, 241276
 if len(sys.argv) > 1:
     seed = int(sys.argv[1])
 else:
@@ -94,7 +94,7 @@ def remove_highlights(world, counter):
     yield From(fut)
 
 
-def pick_position(conf, z=0):
+def pick_position(conf, z=0.0):
     """
 
     :param conf:
@@ -134,12 +134,45 @@ def sleep_sim_time(world, seconds):
             break
 
 
+def get_insert_position(conf, ra, rb, world):
+    """
+    Tries to find a suitable insert position
+
+    :param conf:
+    :param ra:
+    :param rb:
+    :param world:
+    :return:
+    """
+    good = False
+    new_pos = None
+
+    while not good:
+        # Put new robot somewhere on equilateral triangle
+        new_pos = world.get_equilateral_position(ra, rb, random.uniform(0, 2.5))
+
+        # Add some randomness to the insert position
+        new_pos += 0.1 * pick_position(conf)
+
+        good = True
+        for r in world.robots.values():
+            if not r.last_position:
+                continue
+
+            diff = r.last_position - new_pos
+            if diff.norm() < in_cm(25):
+                good = False
+                break
+
+    return new_pos
+
+
 @trollius.coroutine
 def run_server():
     conf = Config(
         proposal_threshold=0,
         output_directory='output',
-        arena_size=(5, 5)
+        arena_size=(3, 3)
     )
 
     # Height to drop new robots from
@@ -151,7 +184,7 @@ def run_server():
     world = yield From(World.create(conf))
     yield From(world.pause(True))
 
-    start_bots = 2
+    start_bots = 3
     poses = [Pose(position=pick_position(conf, insert_z)) for _ in range(start_bots)]
     trees, bboxes = yield From(world.generate_population(len(poses)))
     fut = yield From(world.insert_population(trees, poses))
@@ -159,7 +192,7 @@ def run_server():
 
     while True:
         logger.debug("Simulating (make sure the world is running)...")
-        yield From(sleep_sim_time(world, 5))
+        yield From(sleep_sim_time(world, 15))
 
         mate = ra = rb = None
         while True:
@@ -176,11 +209,7 @@ def run_server():
 
         logger.debug("Found mates! Highlighting points...")
 
-        # Put new robot somewhere on equilateral triangle
-        new_pos = world.get_equilateral_position(ra, rb, random.uniform(0, 2))
-
-        # Add some randomness to the insert position
-        new_pos += 0.1 * pick_position(conf)
+        new_pos = get_insert_position(conf, ra, rb, world)
         new_pos.z = insert_z
         yield From(create_highlights(world, ra.last_position, rb.last_position,
                                      new_pos, hl_count))
@@ -192,7 +221,7 @@ def run_server():
         future = yield From(world.insert_robot(child, pose, parents=[ra, rb]))
         yield From(future)
 
-        yield From(trollius.sleep(5))
+        yield From(trollius.sleep(3))
 
         logger.debug("Removing highlights...")
         yield From(remove_highlights(world, hl_count))

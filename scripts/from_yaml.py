@@ -29,6 +29,10 @@ body:
     1:
       id: ActiveHinge
       type: ActiveHinge
+      params:
+        red: 1
+        green: 0
+        blue: 0
       children:
         1:
           id: Brick
