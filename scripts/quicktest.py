@@ -40,8 +40,8 @@ body:
 bot_yaml = '''
 ---
 body:
-  id          : Core
-  type        : Core
+  id          : Brick
+  type        : FixedBrick
   children:
     0:
         id: Light

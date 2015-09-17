@@ -1,6 +1,8 @@
-# Revolve imports
+# Revolve / sdfbuilder imports
 from revolve.build.sdf import Box
 from revolve.build.util import in_grams, in_mm
+from sdfbuilder.structure import Box as BoxGeom
+from sdfbuilder.structure import Mesh
 
 # Local imports
 from .util import ColorMixin
@@ -21,5 +23,7 @@ class FixedBrick(Box, ColorMixin):
     MASS = MASS
 
     def _initialize(self, **kwargs):
-        super(FixedBrick, self)._initialize(**kwargs)
+        self.component = self.create_component(
+            BoxGeom(self.x, self.y, self.z, self.mass), "box",
+            visual=Mesh("file://meshes/FixedBrick.dae"))
         self.apply_color()

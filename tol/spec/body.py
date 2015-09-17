@@ -12,7 +12,7 @@ color_params = [channel_func("red"), channel_func("green"), channel_func("blue")
 body_spec = BodyImplementation({
     "Core": PartSpec(
         body_part=CoreComponent,
-        arity=6,
+        arity=4,
         inputs=6,
         params=color_params
     ),
@@ -80,12 +80,12 @@ body_spec = BodyImplementation({
     #     outputs=1,
     #     params=color_params
     # ),
-    # "ActiveWheg": PartSpec(
-    #     body_part=ActiveWheg,
-    #     arity=2,
-    #     outputs=1,
-    #     params=color_params + [ParamSpec("radius", min_value=40, max_value=80, default=60)]
-    # ),
+    "ActiveWheg": PartSpec(
+        body_part=ActiveWheg,
+        arity=2,
+        outputs=1,
+        params=color_params + [ParamSpec("radius", min_value=40, max_value=80, default=60)]
+    ),
     # "LightSensor": PartSpec(
     #     body_part=LightSensor,
     #     arity=1,

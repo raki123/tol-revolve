@@ -649,6 +649,24 @@ class World(object):
         logger.debug("New robot is viable, inserting.")
         child, bbox = ret
 
+        pos = self.get_equilateral_position(ra, rb)
+
+        # TODO Check if the position is within arena bounds
+        future = yield From(self.insert_robot(child, Pose(position=pos), parents=[ra, rb]))
+
+        ra.did_mate_with(rb)
+        rb.did_mate_with(ra)
+
+        raise Return(future)
+
+    def get_equilateral_position(self, ra, rb, mult=1.0):
+        """
+
+        :param ra:
+        :param rb:
+        :param mult: Multiply actual distance vector by this value.
+        :return:
+        """
         # We position the bot such that we get an equilateral
         # triangle `ra`, `rb`, `child`.
         # Get the vector from b to a
@@ -667,14 +685,7 @@ class World(object):
         # the drop line in the equilateral triangle along the
         # normal vector.
         sign = 1 if random.random() < 0.5 else -1
-        drop_length = sign * 0.5 * math.sqrt(3.0) * dist
+        drop_length = mult * sign * 0.5 * math.sqrt(3.0) * dist
         pos = rb.last_position + (0.5 * diff) + drop_length * normal
-        pos.z = bbox[2]
-
-        # TODO Check if the position is within arena bounds
-        future = yield From(self.insert_robot(child, Pose(position=pos), parents=[ra, rb]))
-
-        ra.did_mate_with(rb)
-        rb.did_mate_with(ra)
-
-        raise Return(future)
+        pos.z = 0
+        return pos
