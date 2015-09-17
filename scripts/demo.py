@@ -55,7 +55,7 @@ def run_server():
     future = yield From(world.build_walls(wall_points))
     yield From(future)
 
-    grid_size = (3, 3)
+    grid_size = (1, 2)
     spacing = 3 * conf.mating_distance
     grid_x, grid_y = grid_size
     x_offset = -(grid_x - 1) * spacing * 0.5

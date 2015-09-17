@@ -5,4 +5,4 @@ if [ "$1" == "--visual" ]; then
 else
     CMD=gzserver
 fi
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/elte/gz-install/usr/local/lib/x86_64-linux-gnu GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:`pwd`/../build GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:`pwd`/models /home/elte/gz-install/usr/local/bin/$CMD -u demo.world
+GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:`pwd`/../build GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:`pwd`/models $CMD -u demo.world

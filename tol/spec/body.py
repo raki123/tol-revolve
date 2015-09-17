@@ -86,12 +86,12 @@ body_spec = BodyImplementation({
     #     outputs=1,
     #     params=color_params + [ParamSpec("radius", min_value=40, max_value=80, default=60)]
     # ),
-    "LightSensor": PartSpec(
-        body_part=LightSensor,
-        arity=1,
-        inputs=1,
-        params=color_params
-    ),
+    # "LightSensor": PartSpec(
+    #     body_part=LightSensor,
+    #     arity=1,
+    #     inputs=1,
+    #     params=color_params
+    # ),
     "TouchSensor": PartSpec(
         body_part=TouchSensor,
         arity=1,

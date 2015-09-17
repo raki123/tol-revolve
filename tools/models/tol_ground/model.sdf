@@ -33,8 +33,9 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <uri>model://tol_ground/materials/scripts</uri>
+            <uri>model://tol_ground/materials/textures</uri>
+            <name>Floor/Concrete1</name>
           </script>
         </material>
       </visual>
