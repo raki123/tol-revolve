@@ -18,6 +18,10 @@ bot_yaml = '''
 body:
   id          : Core
   type        : Core
+  children:
+    0:
+      id: PassiveHinge
+      type: Hinge
 '''
 
 conf = Config(visualize_sensors=True)

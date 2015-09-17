@@ -1,11 +1,13 @@
 # Revolve imports
+from __future__ import absolute_import
+import math
 from revolve.build.sdf import BodyPart, ComponentJoint as Joint
 from revolve.build.util import in_grams, in_mm
 
 # SDF builder imports
 from sdfbuilder import Limit
 from sdfbuilder.math import Vector3
-from sdfbuilder.structure import Box
+from sdfbuilder.structure import Box, Mesh, Visual
 
 # Local imports
 from .util import ColorMixin
@@ -34,15 +36,26 @@ class Hinge(BodyPart, ColorMixin):
         :param kwargs:
         :return:
         """
-        # Create components
+        # Create components. Visuals are provided by the conn_a/conn_b meshes
         self.hinge_root = self.create_component(
-            Box(SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH, MASS_SLOT), "slot_a")
+            Box(SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH, MASS_SLOT), "slot_a",
+            visual=False)
         self.hinge_tail = self.create_component(
-            Box(SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH, MASS_SLOT), "slot_b")
+            Box(SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH, MASS_SLOT), "slot_b",
+            visual=False)
+        mesh = Mesh("file://meshes/PassiveHinge.dae")
         conn_a = self.create_component(
-            Box(CONNECTION_PART_LENGTH, CONNECTION_PART_THICKNESS, CONNECTION_PART_HEIGHT, MASS_FRAME), "conn_a")
+            Box(CONNECTION_PART_LENGTH, CONNECTION_PART_THICKNESS, CONNECTION_PART_HEIGHT, MASS_FRAME),
+            "conn_a", visual=mesh)
+
+        # Flip visual along the x-axis by rotating PI degrees over z,
+        # also needs to be
+        visual = Visual("conn_b_visual", mesh.copy())
+        visual.rotate_around(Vector3(0, 0, 1), math.pi)
+        visual.rotate_around(Vector3(1, 0, 0), math.pi)
         conn_b = self.create_component(
-            Box(CONNECTION_PART_LENGTH, CONNECTION_PART_THICKNESS, CONNECTION_PART_HEIGHT, MASS_FRAME), "conn_b")
+            Box(CONNECTION_PART_LENGTH, CONNECTION_PART_THICKNESS, CONNECTION_PART_HEIGHT, MASS_FRAME),
+            "conn_b", visual=visual)
 
         # Shorthand for variables
         # Position connection part a

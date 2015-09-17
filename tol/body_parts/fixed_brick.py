@@ -1,14 +1,15 @@
 # Revolve / sdfbuilder imports
 from revolve.build.sdf import Box
 from revolve.build.util import in_grams, in_mm
-from sdfbuilder.structure import Box as BoxGeom
-from sdfbuilder.structure import Mesh
+from sdfbuilder.structure import Box as BoxGeom, Mesh
+from sdfbuilder.math import Vector3
 
 # Local imports
 from .util import ColorMixin
 
-WIDTH = in_mm(46.5)
-MASS = in_grams(14.9)
+WIDTH = in_mm(41)
+HEIGHT = in_mm(35.5)
+MASS = in_grams(10.2)
 
 
 class FixedBrick(Box, ColorMixin):
@@ -19,7 +20,7 @@ class FixedBrick(Box, ColorMixin):
     """
     X = WIDTH
     Y = WIDTH
-    Z = WIDTH
+    Z = HEIGHT
     MASS = MASS
 
     def _initialize(self, **kwargs):
@@ -27,3 +28,53 @@ class FixedBrick(Box, ColorMixin):
             BoxGeom(self.x, self.y, self.z, self.mass), "box",
             visual=Mesh("file://meshes/FixedBrick.dae"))
         self.apply_color()
+
+    def get_slot(self, slot):
+        """
+        There's only one slot, return the link.
+        """
+        self.check_slot(slot)
+        return self.component
+
+    def get_slot_position(self, slot):
+        """
+        Return slot position
+        """
+        self.check_slot(slot)
+        vmax = WIDTH / 2.0
+        if slot == 0:
+            # Front face
+            return Vector3(0, -vmax, 0)
+        elif slot == 1:
+            # Back face
+            return Vector3(0, vmax, 0)
+        elif slot == 2:
+            # Right face
+            return Vector3(vmax, 0, 0)
+
+        # Left face
+        return Vector3(-vmax, 0, 0)
+
+    def get_slot_normal(self, slot):
+        """
+        Return slot normal.
+        """
+        return self.get_slot_position(slot).normalized()
+
+    def get_slot_tangent(self, slot):
+        """
+        Return slot tangent
+        """
+        self.check_slot(slot)
+        if slot == 0:
+            # Front face tangent: top face
+            return Vector3(0, 0, 1)
+        elif slot == 1:
+            # Back face tangent: top face
+            return Vector3(0, 0, 1)
+        elif slot == 2:
+            # Right face tangent: back face
+            return Vector3(0, 1, 0)
+
+        # Left face tangent: back face
+        return Vector3(0, 1, 0)
