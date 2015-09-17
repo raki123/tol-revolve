@@ -7,7 +7,7 @@ from revolve.build.util import in_grams, in_mm
 # SDF builder imports
 from sdfbuilder.math import Vector3
 from sdfbuilder.joint import Limit
-from sdfbuilder.structure import Box, Mesh
+from sdfbuilder.structure import Box, Mesh, Visual
 
 # Local imports
 from .util import ColorMixin
@@ -48,14 +48,16 @@ class ActiveHinge(BodyPart, ColorMixin):
             Box(SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH, MASS_SLOT), "root")
 
         # Make frame
+        visual1 = Visual("frame_visual", Mesh("file://meshes/ActiveHinge_Frame.dae"))
         frame = self.create_component(Box(FRAME_LENGTH, SLOT_WIDTH, FRAME_HEIGHT, MASS_FRAME),
-                                      "frame", visual=Mesh("file://meshes/ActiveHinge_Frame.dae"))
+                                      "frame", visual=visual1)
         x_frame = SLOT_THICKNESS / 2.0 + SEPARATION + FRAME_LENGTH / 2.0
         frame.set_position(Vector3(x_frame, 0, 0))
 
         # Make servo
+        visual2 = Visual("servo_visual", Mesh("file://meshes/ActiveCardanHinge_Servo_Holder.dae"))
         servo = self.create_component(Box(SERVO_LENGTH, SLOT_WIDTH, SERVO_HEIGHT, MASS_SERVO),
-                                      "servo", visual=Mesh("file://meshes/ActiveCardanHinge_Servo_Holder.dae"))
+                                      "servo", visual=visual2)
         x_servo = x_frame + (FRAME_ROTATION_OFFSET - 0.5 * FRAME_LENGTH) + \
                   (-0.5 * SERVO_LENGTH + SERVO_ROTATION_OFFSET)
         servo.set_position(Vector3(x_servo, 0, 0))

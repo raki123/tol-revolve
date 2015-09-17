@@ -5,7 +5,7 @@ from revolve.build.util import in_grams, in_mm
 # SDF builder imports
 from sdfbuilder.math import Vector3
 from sdfbuilder.sensor import Sensor as SdfSensor
-from sdfbuilder.structure import Box as BoxGeom
+from sdfbuilder.structure import Box as BoxGeom, Mesh, Visual
 
 # Local imports
 from .util import ColorMixin
@@ -35,11 +35,16 @@ class TouchSensor(Box, ColorMixin):
         self.mass = MASS
         self.x = SENSOR_BASE_THICKNESS
         self.y = self.z = SENSOR_BASE_WIDTH
-        super(TouchSensor, self)._initialize(**kwargs)
-
         x_sensors = 0.5 * (SENSOR_BASE_THICKNESS + SENSOR_THICKNESS)
         y_left_sensor = -0.5 * SENSOR_WIDTH - SEPARATION
         y_right_sensor = 0.5 * SENSOR_WIDTH + SEPARATION
+
+        visual = Visual("touch_visual", Mesh("file://meshes/TouchSensor.dae"))
+        visual.translate(Vector3(0.5 * SENSOR_THICKNESS, 0, 0))
+        self.component = self.create_component(
+            BoxGeom(self.x, self.y, self.z, self.mass), "box",
+            visual=visual
+        )
 
         self._sensor_helper("left", x_sensors, y_left_sensor)
         self._sensor_helper("right", x_sensors, y_right_sensor)
@@ -50,8 +55,11 @@ class TouchSensor(Box, ColorMixin):
         """
         :return:
         """
+        # Visual is provided by the mesh in the root
         sensor_link = self.create_component(
-            BoxGeom(SENSOR_THICKNESS, SENSOR_WIDTH, SENSOR_HEIGHT, MASS), label)
+            BoxGeom(SENSOR_THICKNESS, SENSOR_WIDTH, SENSOR_HEIGHT, MASS), label,
+            visual=False
+        )
         sensor_link.set_position(Vector3(x_sensors, y_sensor, 0))
 
         # Anchor and axis are in child frame
@@ -64,7 +72,11 @@ class TouchSensor(Box, ColorMixin):
 
     def get_slot_position(self, slot):
         self.check_slot(slot)
-        return Vector3(-0.5 * SENSOR_BASE_THICKNESS, 0, 0)
+        # TODO Still seem to have some positioning issues
+        return self.component.to_sibling_frame(
+            Vector3(-0.5 * SENSOR_BASE_THICKNESS, 0, 0),
+            self
+        )
 
     def get_slot_tangent(self, slot):
         self.check_slot(slot)

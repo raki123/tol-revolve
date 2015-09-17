@@ -44,18 +44,21 @@ class Hinge(BodyPart, ColorMixin):
             Box(SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH, MASS_SLOT), "slot_b",
             visual=False)
         mesh = Mesh("file://meshes/PassiveHinge.dae")
+        visual_a = Visual("conn_b_visual", mesh)
+        visual_a.translate(Vector3(-0.5 * SLOT_THICKNESS))
         conn_a = self.create_component(
             Box(CONNECTION_PART_LENGTH, CONNECTION_PART_THICKNESS, CONNECTION_PART_HEIGHT, MASS_FRAME),
-            "conn_a", visual=mesh)
+            "conn_a", visual=visual_a)
 
         # Flip visual along the x-axis by rotating PI degrees over z,
         # also needs to be
-        visual = Visual("conn_b_visual", mesh.copy())
-        visual.rotate_around(Vector3(0, 0, 1), math.pi)
-        visual.rotate_around(Vector3(1, 0, 0), math.pi)
+        visual_b = Visual("conn_b_visual", mesh.copy())
+        visual_b.rotate_around(Vector3(0, 0, 1), math.pi)
+        visual_b.rotate_around(Vector3(1, 0, 0), math.pi)
+        visual_b.translate(Vector3(0.5 * SLOT_THICKNESS))
         conn_b = self.create_component(
             Box(CONNECTION_PART_LENGTH, CONNECTION_PART_THICKNESS, CONNECTION_PART_HEIGHT, MASS_FRAME),
-            "conn_b", visual=visual)
+            "conn_b", visual=visual_b)
 
         # Shorthand for variables
         # Position connection part a
@@ -108,7 +111,10 @@ class Hinge(BodyPart, ColorMixin):
         if slot_id == 0:
             # The root slot is positioned half the slot
             # thickness to the left
-            return Vector3(-offset, 0, 0)
+            return self.hinge_root.to_sibling_frame(
+                Vector3(-offset, 0, 0),
+                self
+            )
         else:
             # A `BodyPart` is a PosableGroup, so child positions are
             # similar to sibling positions. We can thus take the position
