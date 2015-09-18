@@ -29,7 +29,7 @@ class CoreComponent(BodyPart, ColorMixin):
         :return:
         """
         self.link = self.create_component(Box(WIDTH, WIDTH, HEIGHT, MASS), "box",
-                                          visual=Mesh("file://meshes/CoreComponent.dae"))
+                                          visual=Mesh("model://tol_robot/meshes/CoreComponent.dae"))
 
         # Now we will add the IMU sensor. First, we must
         # create a sensor in SDF. Be careful to give the

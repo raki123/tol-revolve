@@ -22,10 +22,6 @@ body:
     0:
       id: PassiveHinge
       type: Hinge
-      children:
-        1:
-          id: Touch
-          type: TouchSensor
     1:
       id: ActiveHinge
       type: ActiveHinge
