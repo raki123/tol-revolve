@@ -29,7 +29,8 @@ logger.setLevel(logging.DEBUG)
 
 # Set command line seed if supplied, otherwise choose a random number
 # Good seeds so far: 642735, 241276
-if len(sys.argv) > 1:
+provided_seed = len(sys.argv) > 1
+if provided_seed:
     seed = int(sys.argv[1])
 else:
     seed = random.randint(0, 1000000)
@@ -172,7 +173,9 @@ def run_server():
     conf = Config(
         proposal_threshold=0,
         output_directory='output',
-        arena_size=(3, 3)
+        arena_size=(3, 3),
+        min_parts=5,
+        max_parts=13
     )
 
     # Height to drop new robots from
@@ -192,7 +195,7 @@ def run_server():
 
     while True:
         logger.debug("Simulating (make sure the world is running)...")
-        yield From(sleep_sim_time(world, 15))
+        yield From(sleep_sim_time(world, 15 if provided_seed else 5))
 
         mate = ra = rb = None
         while True:

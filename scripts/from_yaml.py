@@ -37,6 +37,12 @@ body:
         1:
           id: Brick
           type: FixedBrick
+brain:
+  params:
+    ActiveHinge-out-0:
+      type: Oscillator
+      period: 8
+      amplitude: 2
 '''
 
 conf = Config(visualize_sensors=True)

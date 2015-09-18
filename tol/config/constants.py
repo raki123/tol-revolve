@@ -32,11 +32,11 @@ SERVO_VELOCITY_PID = PID(
     integral_gain=0,
     integral_max=0
 )
-""" Default servo velocity PID. Currently unused as velocity is abstractly set
+""" Default servo velocity PID. **Currently unused** as velocity is abstractly set
     on the servo. """
 
 SERVO_POSITION_PID = PID(
-    proportional_gain=0.5,
+    proportional_gain=0.9,
     derivative_gain=0,
     integral_gain=0,
     integral_max=0
