@@ -18,7 +18,7 @@ body_spec = BodyImplementation({
     ),
     "FixedBrick": PartSpec(
         body_part=FixedBrick,
-        arity=6,
+        arity=4,
         params=color_params
     ),
     "ActiveHinge": PartSpec(
@@ -92,12 +92,12 @@ body_spec = BodyImplementation({
     #     inputs=1,
     #     params=color_params
     # ),
-    "TouchSensor": PartSpec(
-        body_part=TouchSensor,
-        arity=1,
-        inputs=2,
-        params=color_params
-    )
+    # "TouchSensor": PartSpec(
+    #     body_part=TouchSensor,
+    #     arity=1,
+    #     inputs=2,
+    #     params=color_params
+    # )
 })
 
 

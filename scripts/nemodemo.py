@@ -28,7 +28,8 @@ output_console()
 logger.setLevel(logging.DEBUG)
 
 # Set command line seed if supplied, otherwise choose a random number
-# Good seeds so far: 642735, 241276
+# Good seeds so far: 642735, 241276,
+# Not recorded: 667758, 989959
 provided_seed = len(sys.argv) > 1
 if provided_seed:
     seed = int(sys.argv[1])
@@ -149,7 +150,7 @@ def get_insert_position(conf, ra, rb, world):
     new_pos = None
 
     while not good:
-        # Put new robot somewhere on equilateral triangle
+        # Get position on the line separating the two robots
         new_pos = world.get_equilateral_position(ra, rb, random.uniform(0, 2.5))
 
         # Add some randomness to the insert position
@@ -160,8 +161,12 @@ def get_insert_position(conf, ra, rb, world):
             if not r.last_position:
                 continue
 
+            # Only choose positions that are more than 25cm
+            # away from the nearest bot but closer than 4m
+            # from the furthest bot.
             diff = r.last_position - new_pos
-            if diff.norm() < in_cm(25):
+            dist = diff.norm()
+            if dist < in_cm(25) or dist > 4:
                 good = False
                 break
 
