@@ -28,13 +28,18 @@ output_console()
 logger.setLevel(logging.DEBUG)
 
 # Set command line seed if supplied, otherwise choose a random number
-# Good seeds so far: 642735, 241276,
-# Not recorded: 667758, 989959
+# Good seeds so far: 642735, 241276, 939768
+# Not recorded:
+# 4974686
+# 4625075
+# 541073
+# 582708
+# 55887, 667758, 989959, 976318
 provided_seed = len(sys.argv) > 1
 if provided_seed:
     seed = int(sys.argv[1])
 else:
-    seed = random.randint(0, 1000000)
+    seed = random.randint(0, 10000000)
 
 random.seed(seed)
 print("Seed: %d" % seed)
@@ -179,8 +184,8 @@ def run_server():
         proposal_threshold=0,
         output_directory='output',
         arena_size=(3, 3),
-        min_parts=5,
-        max_parts=13
+        min_parts=6,
+        max_parts=15
     )
 
     # Height to drop new robots from

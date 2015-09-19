@@ -4,101 +4,119 @@ from revolve.spec import BodyImplementation, PartSpec, ParamSpec
 from ..body_parts import *
 from ..config import Config
 
-# A utility function to generate color property parameters
-channel_func = lambda channel: ParamSpec(channel, min_value=0, max_value=1, default=0.5)
+# A utility function to generate color property parameters. Note that color parameters do not mutate.
+channel_func = lambda channel: ParamSpec(channel, min_value=0, max_value=1, default=0.5, epsilon=0)
 color_params = [channel_func("red"), channel_func("green"), channel_func("blue")]
 
-# Body specification
-body_spec = BodyImplementation({
-    "Core": PartSpec(
-        body_part=CoreComponent,
-        arity=4,
-        inputs=6,
-        params=color_params
-    ),
-    "FixedBrick": PartSpec(
-        body_part=FixedBrick,
-        arity=4,
-        params=color_params
-    ),
-    "ActiveHinge": PartSpec(
-        body_part=ActiveHinge,
-        arity=2,
-        outputs=1,
-        params=color_params
-    ),
-    "Hinge": PartSpec(
-        body_part=Hinge,
-        arity=2,
-        params=color_params
-    ),
-    "ParametricBarJoint": PartSpec(
-        body_part=ParametricBarJoint,
-        arity=2,
-        params=[ParamSpec(
-            "connection_length",
-            default=50,
-            min_value=20,
-            max_value=100
-        ), ParamSpec(
-            "alpha",
-            default=0,
-            min_value=-0.5*math.pi,
-            max_value=0.5*math.pi
-        ), ParamSpec(
-            "beta",
-            default=0,
-            min_value=0,
-            max_value=math.pi
-        )] + color_params
-    ),
-    # "Wheel": PartSpec(
-    #     body_part=Wheel,
-    #     arity=1,
-    #     params=color_params + [ParamSpec("radius", min_value=40, max_value=80, default=60)]
-    # ),
-    # "ActiveWheel": PartSpec(
-    #     body_part=ActiveWheel,
-    #     arity=1,
-    #     outputs=1,
-    #     params=color_params + [ParamSpec("radius", min_value=40, max_value=80, default=60)]
-    # ),
-    # "Cardan": PartSpec(
-    #     body_part=Cardan,
-    #     arity=2,
-    #     params=color_params
-    # ),
-    # "ActiveCardan": PartSpec(
-    #     body_part=ActiveCardan,
-    #     arity=2,
-    #     outputs=2,
-    #     params=color_params
-    # ),
-    # "ActiveRotator": PartSpec(
-    #     body_part=ActiveRotator,
-    #     arity=2,
-    #     outputs=1,
-    #     params=color_params
-    # ),
-    "ActiveWheg": PartSpec(
-        body_part=ActiveWheg,
-        arity=2,
-        outputs=1,
-        params=color_params + [ParamSpec("radius", min_value=40, max_value=80, default=60)]
-    ),
-    # "LightSensor": PartSpec(
-    #     body_part=LightSensor,
-    #     arity=1,
-    #     inputs=1,
-    #     params=color_params
-    # ),
-    # "TouchSensor": PartSpec(
-    #     body_part=TouchSensor,
-    #     arity=1,
-    #     inputs=2,
-    #     params=color_params
-    # )
-})
+
+def get_body_spec(conf):
+    """
+
+    :param conf:
+    :type conf: Config
+    :return:
+    :rtype: BodyImplementation
+    """
+    # Body specification
+    return BodyImplementation({
+        "Core": PartSpec(
+            body_part=CoreComponent,
+            arity=4,
+            inputs=6,
+            params=color_params
+        ),
+        "FixedBrick": PartSpec(
+            body_part=FixedBrick,
+            arity=4,
+            params=color_params
+        ),
+        "ActiveHinge": PartSpec(
+            body_part=ActiveHinge,
+            arity=2,
+            outputs=1,
+            params=color_params
+        ),
+        "Hinge": PartSpec(
+            body_part=Hinge,
+            arity=2,
+            params=color_params
+        ),
+        "ParametricBarJoint": PartSpec(
+            body_part=ParametricBarJoint,
+            arity=2,
+            params=[ParamSpec(
+                "connection_length",
+                default=50,
+                min_value=20,
+                max_value=100,
+                epsilon=conf.body_mutation_epsilon
+            ), ParamSpec(
+                "alpha",
+                default=0,
+                min_value=-0.5*math.pi,
+                max_value=0.5*math.pi,
+                epsilon=conf.body_mutation_epsilon
+            ), ParamSpec(
+                "beta",
+                default=0,
+                min_value=0,
+                max_value=math.pi,
+                epsilon=conf.body_mutation_epsilon
+            )] + color_params
+        ),
+        # "Wheel": PartSpec(
+        #     body_part=Wheel,
+        #     arity=1,
+        #     params=color_params + [
+        #         ParamSpec("radius", min_value=40, max_value=80, default=60, epsilon=conf.mutation_epsilon)
+        #     ]
+        # ),
+        # "ActiveWheel": PartSpec(
+        #     body_part=ActiveWheel,
+        #     arity=1,
+        #     outputs=1,
+        #     params=color_params + [
+        #         ParamSpec("radius", min_value=40, max_value=80, default=60, epsilon=conf.mutation_epsilon)
+        #     ]
+        # ),
+        # "Cardan": PartSpec(
+        #     body_part=Cardan,
+        #     arity=2,
+        #     params=color_params
+        # ),
+        # "ActiveCardan": PartSpec(
+        #     body_part=ActiveCardan,
+        #     arity=2,
+        #     outputs=2,
+        #     params=color_params
+        # ),
+        # "ActiveRotator": PartSpec(
+        #     body_part=ActiveRotator,
+        #     arity=2,
+        #     outputs=1,
+        #     params=color_params
+        # ),
+        "ActiveWheg": PartSpec(
+            body_part=ActiveWheg,
+            arity=2,
+            outputs=1,
+            params=color_params + [
+                ParamSpec("radius", min_value=40, max_value=80, default=60, epsilon=conf.body_mutation_epsilon)
+            ]
+        ),
+        # "LightSensor": PartSpec(
+        #     body_part=LightSensor,
+        #     arity=1,
+        #     inputs=1,
+        #     params=color_params
+        # ),
+        # "TouchSensor": PartSpec(
+        #     body_part=TouchSensor,
+        #     arity=1,
+        #     inputs=2,
+        #     params=color_params
+        # )
+    })
 
 
 class BodyGenerator(FixedOrientationBodyGenerator):
@@ -109,6 +127,7 @@ class BodyGenerator(FixedOrientationBodyGenerator):
     def __init__(self, conf):
         """
         """
+        body_spec = get_body_spec(conf)
         super(BodyGenerator, self).__init__(
             body_spec,
 

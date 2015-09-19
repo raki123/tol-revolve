@@ -40,6 +40,15 @@ class Config(object):
         self.max_inputs = kwargs.get('max_inputs', 8)
         self.max_outputs = kwargs.get('max_outputs', 12)
 
+        # Mutation parameters
+        self.body_mutation_epsilon = kwargs.get('body_mutation_epsilon', 0.05)
+        self.brain_mutation_epsilon = kwargs.get('brain_mutation_epsilon', 0.05)
+        self.p_duplicate_subtree = kwargs.get('p_duplicate_subtree', 0.05)
+        self.p_swap_subtree = kwargs.get('p_swap_subtree', 0.05)
+        self.p_delete_subtree = kwargs.get('p_delete_subtree', 0.05)
+        self.p_remove_brain_connection = kwargs.get('p_remove_brain_connection', 0.05)
+        self.p_delete_hidden_neuron = kwargs.get('p_delete_hidden_neuron', 0.05)
+
         # Connection addresses. The analyzer can be set to any falsy value
         # to not connect to an analyzer.
         self.world_address = kwargs.get('world_address', ("127.0.0.1", 11345))

@@ -78,7 +78,12 @@ class World(object):
         self.builder = get_builder(conf)
         self.generator = get_tree_generator(conf)
         self.crossover = Crossover(self.generator.body_gen, self.generator.brain_gen)
-        self.mutator = Mutator(self.generator.body_gen, self.generator.brain_gen)
+        self.mutator = Mutator(self.generator.body_gen, self.generator.brain_gen,
+                               p_duplicate_subtree=conf.p_duplicate_subtree,
+                               p_swap_subtree=conf.p_swap_subtree,
+                               p_delete_subtree=conf.p_delete_subtree,
+                               p_remove_brain_connection=conf.p_remove_brain_connection,
+                               p_delete_hidden_neuron=conf.p_delete_hidden_neuron)
         self.robots = {}
         self.robot_id = 0
 
