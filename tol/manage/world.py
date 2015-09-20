@@ -20,7 +20,7 @@ from revolve.angle import Tree, Crossover, Mutator
 from revolve.util import Time
 from revolve.spec.msgs import ModelInserted
 from sdfbuilder.math import Vector3
-from sdfbuilder import SDF, Model, Pose
+from sdfbuilder import SDF, Model, Pose, Link
 
 
 # Local
@@ -126,14 +126,6 @@ class World(object):
             self.write_robots.writerow(['id', 'parent1', 'parent2'])
             self.write_poses.writerow(['id', 'sec', 'nsec', 'x', 'y', 'z'])
 
-    def get_robot_id(self):
-        """
-        Robot ID sequencer
-        :return:
-        """
-        self.robot_id += 1
-        return self.robot_id
-
     @trollius.coroutine
     def _init(self):
         """
@@ -165,16 +157,6 @@ class World(object):
         yield From(self.world_control.wait_for_listener())
         yield From(self.pose_subscriber.wait_for_connection())
 
-    @trollius.coroutine
-    def teardown(self):
-        """
-        Finalizes the world, flushes files, etc.
-        :return:
-        """
-        if self.robots_file:
-            self.robots_file.close()
-            self.poses_file.close()
-
     @classmethod
     @trollius.coroutine
     def create(cls, conf):
@@ -194,6 +176,40 @@ class World(object):
         self = cls(conf, cls._PRIVATE)
         yield From(self._init())
         raise Return(self)
+
+    @trollius.coroutine
+    def teardown(self):
+        """
+        Finalizes the world, flushes files, etc.
+        :return:
+        """
+        if self.robots_file:
+            self.robots_file.close()
+            self.poses_file.close()
+
+    @trollius.coroutine
+    def add_highlight(self, position, color):
+        """
+        Adds a circular highlight at the given position.
+        :param position:
+        :param color:
+        :return:
+        """
+        hl = Highlight("highlight_"+str(self.get_robot_id()), color)
+        position = position.copy()
+        position.z = 0
+        hl.set_position(position)
+        sdf = SDF(elements=[hl])
+        fut = yield From(self.insert_model(sdf))
+        raise Return(fut, hl)
+
+    def get_robot_id(self):
+        """
+        Robot ID sequencer
+        :return:
+        """
+        self.robot_id += 1
+        return self.robot_id
 
     @trollius.coroutine
     def generate_valid_robot(self, max_attempts=100):
@@ -694,3 +710,17 @@ class World(object):
         pos = rb.last_position + (0.5 * diff) + drop_length * normal
         pos.z = 0
         return pos
+
+
+class Highlight(Model):
+    """
+    Model to highlight newly inserted robots / selected parents
+    """
+
+    def __init__(self, name, color, **kwargs):
+        super(Highlight, self).__init__(name, static=True, **kwargs)
+        self.highlight = Link("hl_link")
+        self.highlight.make_cylinder(10e10, 0.4, 0.001, collision=False)
+        r, g, b, a = color
+        self.highlight.make_color(r, g, b, a)
+        self.add_element(self.highlight)

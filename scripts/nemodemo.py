@@ -6,6 +6,7 @@ from revolve.util import Time
 import os
 import sys
 import logging
+import argparse
 
 # Add "tol" directory to Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
@@ -13,6 +14,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 # Trollius / Pygazebo
 import trollius
 from trollius import From
+from trollius.coroutines import Return
+from pygazebo.msg.request_pb2 import Request
 
 # Revolve / sdfbuilder
 from sdfbuilder.math import Vector3
@@ -22,12 +25,12 @@ from sdfbuilder import Pose, Model, Link, SDF
 from tol.config import Config, constants
 from tol.manage import World
 from tol.logging import logger, output_console
+from tol.util import multi_future
 
 # Log output to console
 output_console()
 logger.setLevel(logging.DEBUG)
 
-# Set command line seed if supplied, otherwise choose a random number
 # Good seeds so far: 642735, 241276, 939768
 # Not recorded:
 # 4974686
@@ -35,30 +38,18 @@ logger.setLevel(logging.DEBUG)
 # 541073
 # 582708
 # 55887, 667758, 989959, 976318
-provided_seed = len(sys.argv) > 1
-if provided_seed:
-    seed = int(sys.argv[1])
-else:
-    seed = random.randint(0, 10000000)
 
-random.seed(seed)
-print("Seed: %d" % seed)
+parser = argparse.ArgumentParser(description="Run the Nemo Demo")
+parser.add_argument("-s", "--seed", default=-1, help="Supply a random seed", type=int)
+parser.add_argument("-i", "--interactive", action="store_true",
+                    help="Enable interactive mode (no automatic reproduction)")
 
-
-class Highlight(Link):
-    """
-    Model to highlight newly inserted robots / selected parents
-    """
-
-    def __init__(self, name, color, **kwargs):
-        super(Highlight, self).__init__(name, **kwargs)
-        self.make_cylinder(10e10, in_cm(40), in_mm(1), collision=False)
-        r, g, b, a = color
-        self.make_color(r, g, b, a)
+parent_color = (1, 0, 0, 0.5)
+child_color = (0, 1, 0, 0.5)
 
 
 @trollius.coroutine
-def create_highlights(world, pa, pb, pc, counter):
+def create_highlights(world, pa, pb, pc):
     """
 
     :param world:
@@ -71,34 +62,27 @@ def create_highlights(world, pa, pb, pc, counter):
     :param counter:
     :return:
     """
-    parent_color = (1, 0, 0, 0.5)
-    child_color = (0, 1, 0, 0.5)
-    ha = Highlight("pa", parent_color)
-    hb = Highlight("pb", parent_color)
-    hc = Highlight("pc", child_color)
+    fut1, ha = yield From(world.add_highlight(pa, parent_color))
+    fut2, hb = yield From(world.add_highlight(pb, parent_color))
+    fut3, hc = yield From(world.add_highlight(pc, child_color))
 
-    pa, pb, pc = pa.copy(), pb.copy(), pc.copy()
-    pa.z = pb.z = pc.z = 0
-    ha.set_position(pa)
-    hb.set_position(pb)
-    hc.set_position(pc)
-
-    model = Model(name="highlights_%d" % counter, static=True, elements=[ha, hb, hc])
-    sdf = SDF(elements=[model])
-    fut = yield From(world.insert_model(sdf))
-    yield From(fut)
+    yield From(multi_future([fut1, fut2, fut3]))
+    raise Return(ha, hb, hc)
 
 
 @trollius.coroutine
-def remove_highlights(world, counter):
+def remove_highlights(world, hls):
     """
 
     :param world:
-    :param counter:
     :return:
     """
-    fut = yield From(world.delete_model("highlights_%d" % counter))
-    yield From(fut)
+    futures = []
+    for hl in hls:
+        fut = yield From(world.delete_model(hl.name))
+        futures.append(fut)
+
+    yield From(multi_future(futures))
 
 
 def pick_position(conf, z=0.0):
@@ -179,29 +163,119 @@ def get_insert_position(conf, ra, rb, world):
 
 
 @trollius.coroutine
-def run_server():
-    conf = Config(
-        proposal_threshold=0,
-        output_directory='output',
-        arena_size=(3, 3),
-        min_parts=6,
-        max_parts=15
-    )
+def interactive_mode(args, world, insert_z):
+    """
 
-    # Height to drop new robots from
-    insert_z = 0.5
+    :param args:
+    :param world:
+    :type world: World
+    :return:
+    """
+    parent_reqs = []
+    parents = [(None, None), (None, None)]
+    idx = 0
+    reproduce = [False]
 
-    # Highlight counter
-    hl_count = 0
+    def select_parent(robot):
+        print("Toggle evolution parent: "+robot.name)
+        parent_reqs.append(robot)
 
-    world = yield From(World.create(conf))
-    yield From(world.pause(True))
+    @trollius.coroutine
+    def remove_parent(idx):
+        name, hl = parents[idx]
+        if name is None:
+            return
 
-    start_bots = 3
-    poses = [Pose(position=pick_position(conf, insert_z)) for _ in range(start_bots)]
-    trees, bboxes = yield From(world.generate_population(len(poses)))
-    fut = yield From(world.insert_population(trees, poses))
-    yield From(fut)
+        yield From(remove_highlights(world, [hl]))
+        parents[idx] = (None, None)
+
+    def find_robot(name):
+        for robot in world.robots.values():
+            if robot.name == name:
+                return robot
+        return None
+
+    def callback(data):
+        req = Request()
+        req.ParseFromString(data)
+        if req.request == "set_evolution_parent":
+            robot = find_robot(req.data)
+            if robot:
+                select_parent(robot)
+        elif req.request == "produce_offspring":
+            print("Produce offspring.")
+            reproduce[0] = True
+
+    subscriber = world.manager.subscribe('/gazebo/default/request', 'gazebo.msgs.Request',
+                                         callback)
+    yield From(subscriber.wait_for_connection())
+    while True:
+        yield From(trollius.sleep(0.1))
+        for req in parent_reqs:
+            removed = False
+            for i in [0, 1]:
+                if parents[i][0] == req:
+                    removed = True
+                    yield From(remove_parent(i))
+
+            if removed:
+                continue
+
+            # Remove current parent at insert index
+            yield From(remove_parent(idx))
+
+            # Store and highlight the new parent
+            fut, hl = yield From(world.add_highlight(req.last_position, parent_color))
+            yield From(fut)
+            parents[idx] = (req, hl)
+            idx = 0 if idx else 1
+
+        parent_reqs = []
+
+        if reproduce[0]:
+            reproduce[0] = False
+            (ra, hla), (rb, hlb) = parents
+            if not ra or not rb:
+                logger.debug("Not enough parents")
+                continue
+
+            mate = None
+            for i in range(20):
+                mate = yield From(world.attempt_mate(ra, rb))
+                if mate:
+                    break
+
+            if not mate:
+                logger.debug("Could not produce viable offspring after 20 attempts.")
+
+            new_pos = get_insert_position(world.conf, ra, rb, world)
+            new_pos.z = insert_z
+            fut, hlc = yield From(world.add_highlight(new_pos, child_color))
+            yield From(fut)
+            yield From(trollius.sleep(2))
+
+            logger.debug("Inserting child...")
+            child, bbox = mate
+            pose = Pose(position=new_pos)
+            future = yield From(world.insert_robot(child, pose, parents=[ra, rb]))
+            yield From(future)
+
+            yield From(trollius.sleep(3))
+
+            logger.debug("Removing highlights...")
+            yield From(remove_highlights(world, [hla, hlb, hlc]))
+            parents = [(None, None), (None, None)]
+
+
+@trollius.coroutine
+def automatic_mode(args, world, insert_z):
+    """
+
+    :param args:
+    :param world:
+    :return:
+    """
+    provided_seed = args.seed >= 0
 
     while True:
         logger.debug("Simulating (make sure the world is running)...")
@@ -222,10 +296,10 @@ def run_server():
 
         logger.debug("Found mates! Highlighting points...")
 
-        new_pos = get_insert_position(conf, ra, rb, world)
+        new_pos = get_insert_position(world.conf, ra, rb, world)
         new_pos.z = insert_z
-        yield From(create_highlights(world, ra.last_position, rb.last_position,
-                                     new_pos, hl_count))
+        hls = yield From(create_highlights(
+            world, ra.last_position, rb.last_position, new_pos))
         yield From(trollius.sleep(2.0))
 
         logger.debug("Inserting child...")
@@ -237,14 +311,53 @@ def run_server():
         yield From(trollius.sleep(3))
 
         logger.debug("Removing highlights...")
-        yield From(remove_highlights(world, hl_count))
-        hl_count += 1
+        yield From(remove_highlights(world, hls))
+
+
+@trollius.coroutine
+def run_server(args):
+    """
+
+    :param args:
+    :return:
+    """
+    conf = Config(
+        proposal_threshold=0,
+        output_directory='output',
+        arena_size=(3, 3),
+        min_parts=6,
+        max_parts=15
+    )
+
+    # Height to drop new robots from
+    insert_z = 0.5
+
+    world = yield From(World.create(conf))
+    yield From(world.pause(True))
+
+    start_bots = 3
+    poses = [Pose(position=pick_position(conf, insert_z)) for _ in range(start_bots)]
+    trees, bboxes = yield From(world.generate_population(len(poses)))
+    fut = yield From(world.insert_population(trees, poses))
+    yield From(fut)
+
+    # --- Manual (interactive) reproduction
+    if args.interactive:
+        print("Interactive mode enabled.")
+        yield From(interactive_mode(args, world, insert_z))
+    else:
+        yield From(automatic_mode(args, world, insert_z))
 
 
 def main():
+    args = parser.parse_args()
+    seed = random.randint(1, 1000000) if args.seed < 0 else args.seed
+    random.seed(seed)
+    print("Seed: %d" % seed)
+
     try:
         loop = trollius.get_event_loop()
-        loop.run_until_complete(run_server())
+        loop.run_until_complete(run_server(args))
     except KeyboardInterrupt:
         print("Got Ctrl+C, shutting down.")
 

@@ -1,6 +1,10 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
     <world name="default">
+
+    <gui>
+        <plugin name="evokeys" filename="libtolevokeys.so" />
+    </gui>
     <physics type="ode">
       <!--<max_contacts>32</max_contacts>-->
       <ode>

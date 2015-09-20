@@ -130,4 +130,12 @@ set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES} ${GAZEB
 target_link_libraries(tolworldcontrol ${TOL_DEPS})
 target_link_libraries(tolrobotcontrol ${TOL_DEPS})
 
+# Evolution keys library
+find_package(Qt4)
+find_package(Protobuf REQUIRED)
+include(${QT_USE_FILE})
+add_definitions(${QT_DEFINITIONS})
+QT4_WRAP_CPP(headers_MOC tol/plugin/EvolutionKeys.h)
+add_library(tolevokeys SHARED ${headers_MOC} tol/plugin/EvolutionKeys.cpp)
 
+target_link_libraries(tolevokeys ${GAZEBO_LIBRARIES} ${QT_LIBRARIES} ${PROTOBUF_LIBRARIES})
