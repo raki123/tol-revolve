@@ -187,6 +187,26 @@ class World(object):
             self.robots_file.close()
             self.poses_file.close()
 
+    def robot_list(self):
+        """
+
+        :return:
+        :rtype: list[Robot]
+        """
+        return self.robots.values()
+
+    def get_robot_by_name(self, name):
+        """
+        :param name:
+        :return:
+        :rtype: Robot|None
+        """
+        for r in self.robots:
+            if self.robots[r].name == name:
+                return self.robots[r]
+
+        return None
+
     @trollius.coroutine
     def add_highlight(self, position, color):
         """
