@@ -16,8 +16,7 @@ namespace tol {
 InteractiveEvolutionPlugin::InteractiveEvolutionPlugin():
 GUIPlugin() {
 	// Make the widget invisible - only listening to key events.
-	std::cout << "Evolution key plugin loaded. Ctrl + Shift + Left click to select"
-						 " parents, then click the button to produce offspring." << std::endl;
+	std::cout << "Interactive evolution enabled. Select bots using the GUI and press the button." << std::endl;
 	node_.reset(new gz::transport::Node());
 	node_->Init();
 

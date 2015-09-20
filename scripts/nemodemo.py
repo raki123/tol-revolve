@@ -9,12 +9,14 @@ import logging
 import argparse
 
 # Add "tol" directory to Python path
+from pygazebo.pygazebo import DisconnectError
+from trollius.py33_exceptions import ConnectionResetError, ConnectionRefusedError
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 
 # Trollius / Pygazebo
 import trollius
-from trollius import From
-from trollius.coroutines import Return
+from trollius import From, Return, Future
 from pygazebo.msg.request_pb2 import Request
 
 # Revolve / sdfbuilder
@@ -42,7 +44,7 @@ logger.setLevel(logging.DEBUG)
 
 parser = argparse.ArgumentParser(description="Run the Nemo Demo")
 parser.add_argument("-s", "--seed", default=-1, help="Supply a random seed", type=int)
-parser.add_argument("-f", "--fast", default=-1, help="Short reproduction wait (default when no seed)",
+parser.add_argument("-f", "--fast", default=-1, help="Short reproduction wait.",
                     action="store_true")
 parser.add_argument("-i", "--interactive", action="store_true",
                     help="Enable interactive mode (no automatic reproduction)")
@@ -246,11 +248,9 @@ def automatic_mode(args, world):
     :param world:
     :return:
     """
-    long_repr = args.seed >= 0 and not args.fast
-
     while True:
         logger.debug("Simulating (make sure the world is running)...")
-        yield From(sleep_sim_time(world, 15 if long_repr else 5))
+        yield From(sleep_sim_time(world, 5 if args.fast else 15))
 
         robots = world.robot_list()
         ra, rb = random.sample(robots, 2)
@@ -266,7 +266,7 @@ def run_server(args):
     """
     conf = Config(
         proposal_threshold=0,
-        output_directory='output',
+        output_directory=None,
         arena_size=(3, 3),
         min_parts=6,
         max_parts=15
@@ -295,11 +295,20 @@ def main():
     random.seed(seed)
     print("Seed: %d" % seed)
 
+    def handler(loop, context):
+        exc = context['exception']
+        if isinstance(exc, DisconnectError) or isinstance(exc, ConnectionResetError):
+            print("Got disconnect / connection reset - shutting down.")
+            sys.exit(0)
+
     try:
         loop = trollius.get_event_loop()
+        loop.set_exception_handler(handler)
         loop.run_until_complete(run_server(args))
     except KeyboardInterrupt:
         print("Got Ctrl+C, shutting down.")
+    except ConnectionRefusedError:
+        print("Connection refused, are the world and the analyzer loaded?")
 
 if __name__ == '__main__':
     main()
