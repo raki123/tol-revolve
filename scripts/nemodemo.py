@@ -33,9 +33,9 @@ from tol.util import multi_future
 output_console()
 logger.setLevel(logging.DEBUG)
 
-# Good seeds so far: 642735, 241276, 939768
+# Good seeds so far: 642735, 241276, 939768, 872168
 # Not recorded:
-# !! 872168
+# 247934
 # 4974686
 # 4625075
 # 541073
@@ -44,7 +44,7 @@ logger.setLevel(logging.DEBUG)
 
 parser = argparse.ArgumentParser(description="Run the Nemo Demo")
 parser.add_argument("-s", "--seed", default=-1, help="Supply a random seed", type=int)
-parser.add_argument("-f", "--fast", default=-1, help="Short reproduction wait.",
+parser.add_argument("-f", "--fast", help="Short reproduction wait.",
                     action="store_true")
 parser.add_argument("-i", "--interactive", action="store_true",
                     help="Enable interactive mode (no automatic reproduction)")
