@@ -650,24 +650,13 @@ class World(object):
         logger.debug("Crossover succeeded, applying mutation...")
         self.mutator.mutate(child, in_place=True)
 
-        logger.debug("Attempting mating between `%s` and `%s`..." % (ra.name, rb.name))
-
-        # Attempt to create a child through crossover
-        success, child = self.crossover.crossover(ra.tree, rb.tree)
-        if not success:
-            logger.debug("Crossover failed.")
-            raise Return(False)
-
-        # Apply mutation
-        logger.debug("Crossover succeeded, applying mutation...")
-        self.mutator.mutate(child, in_place=True)
-
         # Check if the robot is valid
         ret = yield From(self.analyze_tree(child))
         if ret is None or ret[0]:
             logger.debug("Intersecting body parts: Miscarriage.")
             raise Return(False)
 
+        logger.debug("Viable child created.")
         raise Return(child, ret[1])
 
     @trollius.coroutine

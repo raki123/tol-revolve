@@ -300,6 +300,8 @@ def main():
             print("Got disconnect / connection reset - shutting down.")
             sys.exit(0)
 
+        raise context['exception']
+
     try:
         loop = trollius.get_event_loop()
         loop.set_exception_handler(handler)
