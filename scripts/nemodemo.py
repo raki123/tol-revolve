@@ -65,7 +65,6 @@ def create_highlights(world, pa, pb, pc):
     :type pb: Vector3
     :param pc:
     :type pc: Vector3
-    :param counter:
     :return:
     """
     fut1, ha = yield From(world.add_highlight(pa, parent_color))
