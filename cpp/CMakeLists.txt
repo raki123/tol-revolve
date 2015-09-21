@@ -21,10 +21,10 @@ add_definitions(-pedantic -Wno-long-long -Wall -Wextra -Wformat=2
                 -Wswitch-enum -Wuninitialized 
                 -Wswitch-default -Winit-self -Wfloat-equal -fPIC )
 
-# Use C++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# Use C++11 (removed, this is added below by the Gazebo flags)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-# Debug Flags 
+# Debug Flags
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb3 -DDEBUG")
 
 # Release flags
@@ -112,6 +112,9 @@ else()
     find_package(gazebo 6.1 REQUIRED)
 endif()
 include_directories(${GAZEBO_INCLUDE_DIRS})
+
+# Add Gazebo's C++ flags
+list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
 # Need to include the Gazebo protobuf include path
 set(GAZEBO_PROTOBUF_DIR)

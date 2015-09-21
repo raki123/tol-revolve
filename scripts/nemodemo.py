@@ -35,6 +35,7 @@ logger.setLevel(logging.DEBUG)
 
 # Good seeds so far: 642735, 241276, 939768, 872168
 # Not recorded:
+# !320135
 # 247934
 # 4974686
 # 4625075
@@ -44,6 +45,8 @@ logger.setLevel(logging.DEBUG)
 
 parser = argparse.ArgumentParser(description="Run the Nemo Demo")
 parser.add_argument("-s", "--seed", default=-1, help="Supply a random seed", type=int)
+parser.add_argument("-n", "--num-initial-bots", default=3,
+                    help="Number of initial bots", type=int)
 parser.add_argument("-f", "--fast", help="Short reproduction wait.",
                     action="store_true")
 parser.add_argument("-i", "--interactive", action="store_true",
@@ -274,7 +277,7 @@ def run_server(args):
     world = yield From(World.create(conf))
     yield From(world.pause(True))
 
-    start_bots = 3
+    start_bots = args.num_initial_bots
     poses = [Pose(position=pick_position(conf)) for _ in range(start_bots)]
     trees, bboxes = yield From(world.generate_population(len(poses)))
     fut = yield From(world.insert_population(trees, poses))
