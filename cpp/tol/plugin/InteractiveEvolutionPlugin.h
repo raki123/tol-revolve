@@ -22,6 +22,8 @@ public:
 	InteractiveEvolutionPlugin();
 	~InteractiveEvolutionPlugin();
 
+	virtual void Load(sdf::ElementPtr /*_sdf*/);
+
 protected slots:
 	void OnButton();
 

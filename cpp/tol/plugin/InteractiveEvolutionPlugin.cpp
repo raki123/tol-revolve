@@ -89,6 +89,11 @@ void InteractiveEvolutionPlugin::OnButton() {
 	keyPub_->Publish(req);
 }
 
+void InteractiveEvolutionPlugin::Load(sdf::ElementPtr /*ptr*/) {
+	// Make sure this widget is displayed at the front
+	this->raise();
+}
+
 }
 
 GZ_REGISTER_GUI_PLUGIN(tol::InteractiveEvolutionPlugin)
