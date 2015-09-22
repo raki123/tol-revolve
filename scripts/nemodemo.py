@@ -234,11 +234,11 @@ def automatic_mode(args, world, state):
     logger.debug("Simulating (make sure the world is running)...")
     yield From(sleep_sim_time(world, 5 if args.fast else 15, state))
 
-    robots = world.robot_list()
-
-    logger.debug("Selecting robots to reproduce...")
-    ra, rb = random.sample(robots, 2)
-    yield From(do_mate(world, ra, rb))
+    if not state[0]:
+        logger.debug("Selecting robots to reproduce...")
+        robots = world.robot_list()
+        ra, rb = random.sample(robots, 2)
+        yield From(do_mate(world, ra, rb))
 
 
 @trollius.coroutine

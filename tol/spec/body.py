@@ -177,6 +177,12 @@ class BodyGenerator(FixedOrientationBodyGenerator):
         self.last_parameters = None
         return result
 
+    def choose_orientation(self, part, root=False):
+        """
+        Orientation override that always returns 0 for the root orientation.
+        """
+        return 0 if root else super(BodyGenerator, self).choose_orientation(part, root)
+
 
 def get_body_generator(conf):
     """
