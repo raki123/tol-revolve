@@ -11,6 +11,7 @@
 # include <gazebo/gui/GuiPlugin.hh>
 # include <gazebo/transport/transport.hh>
 # include <gazebo/gui/gui.hh>
+# include <gazebo/common/KeyEvent.hh>
 #endif
 
 namespace tol {
@@ -22,12 +23,12 @@ public:
 	InteractiveEvolutionPlugin();
 	~InteractiveEvolutionPlugin();
 
-	virtual void Load(sdf::ElementPtr /*_sdf*/);
-
 protected slots:
-	void OnButton();
+	void OnReproduceButton();
 
 private:
+	bool OnKeyDown(const ::gazebo::common::KeyEvent _event);
+
 	// Transport nodes for the contact messages
 	::gazebo::transport::NodePtr node_;
 

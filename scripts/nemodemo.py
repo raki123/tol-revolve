@@ -49,8 +49,6 @@ parser.add_argument("-n", "--num-initial-bots", default=3,
                     help="Number of initial bots", type=int)
 parser.add_argument("-f", "--fast", help="Short reproduction wait.",
                     action="store_true")
-parser.add_argument("-i", "--interactive", action="store_true",
-                    help="Enable interactive mode (no automatic reproduction)")
 
 parent_color = (1, 0, 0, 0.5)
 child_color = (0, 1, 0, 0.5)
@@ -110,27 +108,26 @@ def pick_position(conf):
 
 
 @trollius.coroutine
-def sleep_sim_time(world, seconds):
+def sleep_sim_time(world, seconds, state_break=[False]):
     """
     Sleeps for a certain number of simulation seconds,
     note that this is always approximate as it relies
     on real world sleeping.
     :param world:
     :param seconds:
+    :param state_break: List containing one boolean, the
+                        wait will be terminated if this
+                        is set to True (basically a hack
+                        to break out of automatic mode early).
     :return:
     """
     start = world.last_time if world.last_time else Time()
     remain = seconds
 
-    while True:
-        # Sleep for 0.1 seconds, but never less than 0.05
-        yield_for = max(0.05, 0.1 * remain)
-        yield From(trollius.sleep(yield_for))
+    while remain > 0 and not state_break[0]:
+        yield From(trollius.sleep(0.1))
         now = world.last_time if world.last_time else Time()
         remain = seconds - float(now - start)
-
-        if remain <= 0:
-            break
 
 
 def get_insert_position(conf, ra, rb, world):
@@ -201,62 +198,78 @@ def do_mate(world, ra, rb):
     future = yield From(world.insert_robot(child, pose, parents=[ra, rb]))
     yield From(future)
 
-    yield From(trollius.sleep(2))
+    yield From(sleep_sim_time(world, 1.8))
 
     logger.debug("Removing highlights...")
     yield From(remove_highlights(world, hls))
 
 
 @trollius.coroutine
-def interactive_mode(args, world):
+def interactive_mode(world, reproduce):
     """
-
-    :param args:
     :param world:
     :type world: World
     :return:
     """
-    reproduce = []
+    while len(reproduce):
+        p1, p2 = reproduce.pop(0)
+        ra = world.get_robot_by_name(p1)
+        rb = world.get_robot_by_name(p2)
 
-    def callback(data):
-        req = Request()
-        req.ParseFromString(data)
-        if req.request == "produce_offspring":
-            reproduce.append(req.data.split("+++"))
+        if not ra or not rb:
+            print("Cannot find both parent robots `%s` and `%s`, skipping." % (p1, p2))
+            continue
 
-    subscriber = world.manager.subscribe(
-        '/gazebo/default/request', 'gazebo.msgs.Request', callback)
-    yield From(subscriber.wait_for_connection())
-
-    while True:
-        yield From(trollius.sleep(0.1))
-        while len(reproduce):
-            p1, p2 = reproduce.pop(0)
-            ra = world.get_robot_by_name(p1)
-            rb = world.get_robot_by_name(p2)
-
-            if not ra or not rb:
-                print("Cannot find both parent robots `%s` and `%s`, skipping." % (p1, p2))
-                continue
-
-            yield From(do_mate(world, ra, rb))
+        yield From(do_mate(world, ra, rb))
 
 
 @trollius.coroutine
-def automatic_mode(args, world):
+def automatic_mode(args, world, state):
     """
 
     :param args:
     :param world:
     :return:
     """
-    while True:
-        logger.debug("Simulating (make sure the world is running)...")
-        yield From(sleep_sim_time(world, 5 if args.fast else 15))
+    logger.debug("Simulating (make sure the world is running)...")
+    yield From(sleep_sim_time(world, 5 if args.fast else 15, state))
 
-        robots = world.robot_list()
-        ra, rb = random.sample(robots, 2)
-        yield From(do_mate(world, ra, rb))
+    robots = world.robot_list()
+
+    logger.debug("Selecting robots to reproduce...")
+    ra, rb = random.sample(robots, 2)
+    yield From(do_mate(world, ra, rb))
+
+
+@trollius.coroutine
+def cleanup(world, max_bots=10, remove_from=5):
+    """
+    Removes the slowest of the oldest `remove_from` robots from
+    the world if there are more than `max_bots`
+    :param world:
+    :type world: World
+    :return:
+    """
+    if len(world.robots) <= max_bots:
+        return
+
+    logger.debug("Automatically removing the slowest of the oldest %d robots..." % remove_from)
+
+    # Get the oldest `num` robots
+    robots = sorted(world.robot_list(), key=lambda r: r.age(), reverse=True)[:remove_from]
+
+    # Get the slowest robot
+    slowest = sorted(robots, key=lambda r: r.velocity())[0]
+
+    fut, hl = yield From(world.add_highlight(slowest.last_position, (50, 50, 50, 50)))
+    yield From(fut)
+    yield From(trollius.sleep(1))
+
+    # Delete it from the world
+    fut = yield From(world.delete_robot(slowest))
+    yield From(trollius.sleep(1))
+    yield From(remove_highlights(world, [hl]))
+    yield From(fut)
 
 
 @trollius.coroutine
@@ -274,6 +287,7 @@ def run_server(args):
         max_parts=15
     )
 
+    interactive = [True]
     world = yield From(World.create(conf))
     yield From(world.pause(True))
 
@@ -283,12 +297,42 @@ def run_server(args):
     fut = yield From(world.insert_population(trees, poses))
     yield From(fut)
 
-    # --- Manual (interactive) reproduction
-    if args.interactive:
-        print("Interactive mode enabled.")
-        yield From(interactive_mode(args, world))
-    else:
-        yield From(automatic_mode(args, world))
+    # List of reproduction requests
+    reproduce = []
+
+    # Request callback for the subscriber
+    def callback(data):
+        req = Request()
+        req.ParseFromString(data)
+        imode_value = None
+
+        if req.request == "produce_offspring":
+            reproduce.append(req.data.split("+++"))
+            imode_value = True
+        elif req.request == "enable_interaction":
+            imode_value = True
+        elif req.request == "disable_interaction":
+            imode_value = False
+
+        if imode_value is not None:
+            interactive[0] = imode_value
+            print("Interactive mode is now %s" % ("ON" if interactive[0] else "OFF"))
+
+            if not interactive[0]:
+                reproduce[:] = []
+
+    subscriber = world.manager.subscribe(
+        '/gazebo/default/request', 'gazebo.msgs.Request', callback)
+    yield From(subscriber.wait_for_connection())
+
+    while True:
+        if interactive[0]:
+            yield From(interactive_mode(world, reproduce))
+        else:
+            yield From(automatic_mode(args, world, interactive))
+
+        yield From(trollius.sleep(0.1))
+        yield From(cleanup(world))
 
 
 def main():

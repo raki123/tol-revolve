@@ -8,6 +8,7 @@
 //#include <gazebo/gui/GLWidget.hh>
 #include <gazebo/rendering/Visual.hh>
 #include <gazebo/msgs/msgs.hh>
+#include <gazebo/gui/KeyEventHandler.hh>
 
 namespace gz = gazebo;
 
@@ -16,11 +17,19 @@ namespace tol {
 InteractiveEvolutionPlugin::InteractiveEvolutionPlugin():
 GUIPlugin() {
 	// Make the widget invisible - only listening to key events.
-	std::cout << "Interactive evolution enabled. Select bots using the GUI and press the button." << std::endl;
 	node_.reset(new gz::transport::Node());
 	node_->Init();
 
+	std::cout << "Interaction plugin loaded. Press `i` to disable interactive mode,"
+						 " I (Shift + i) to enable it, and `o` to create offspring "
+						 "from selected robots. Requesting offspring will enable "
+						 "interactive mode." << std::endl;
+
 	keyPub_ = node_->Advertise<gz::msgs::Request>("~/request");
+
+	// Register key event handler
+	gz::gui::KeyEventHandler::Instance()->AddPressFilter("building_maker",
+				boost::bind(&InteractiveEvolutionPlugin::OnKeyDown, this, _1));
 
 	// Set the frame background and foreground colors
 	this->setStyleSheet(
@@ -37,7 +46,7 @@ GUIPlugin() {
 
 	// Create a push button, and connect it to the OnButton function
 	QPushButton *button = new QPushButton(tr("Reproduce"));
-	connect(button, SIGNAL(clicked()), this, SLOT(OnButton()));
+	connect(button, SIGNAL(clicked()), this, SLOT(OnReproduceButton()));
 
 	// Add the button to the frame's layout
 	frameLayout->addWidget(button);
@@ -62,7 +71,7 @@ GUIPlugin() {
 InteractiveEvolutionPlugin::~InteractiveEvolutionPlugin() {
 }
 
-void InteractiveEvolutionPlugin::OnButton() {
+void InteractiveEvolutionPlugin::OnReproduceButton() {
 	gz::gui::MainWindow *mainWindow = gz::gui::get_main_window();
 	gz::gui::GLWidget *glWidget = mainWindow->findChild<gz::gui::GLWidget *>("GLWidget");
 
@@ -85,15 +94,30 @@ void InteractiveEvolutionPlugin::OnButton() {
 	req.set_id(ignition::math::Rand::IntUniform(1, 100000));
 	req.set_request("produce_offspring");
 	req.set_data(modelVis1->GetName() + "+++" + modelVis2->GetName());
-	std::cout << req.data() << std::endl;
 	keyPub_->Publish(req);
 }
 
-void InteractiveEvolutionPlugin::Load(sdf::ElementPtr /*ptr*/) {
-	// Make sure this widget is displayed at the front
-	this->raise();
-}
+bool InteractiveEvolutionPlugin::OnKeyDown(const ::gazebo::common::KeyEvent _event) {
+	if (_event.text == "i" || _event.text == "I") {
+		gz::msgs::Request req;
+		req.set_id(ignition::math::Rand::IntUniform(1, 100000));
+		if (_event.shift) {
+			std::cout << "Enabling interaction..." << std::endl;
+			req.set_request("enable_interaction");
+		} else {
+			std::cout << "Disabling interaction..." << std::endl;
+			req.set_request("disable_interaction");
+		}
 
+		keyPub_->Publish(req);
+		return true;
+	} else if (_event.text == "o" || _event.text == "O") {
+		OnReproduceButton();
+		return true;
+	}
+
+	return false;
+}
 }
 
 GZ_REGISTER_GUI_PLUGIN(tol::InteractiveEvolutionPlugin)

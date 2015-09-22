@@ -1,16 +1,9 @@
 #!/bin/bash
 # Runs gazebo with the correct plugin path
-WORLD=demo.world
+WORLD=idemo.world
 CMD=gazebo
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 MODE=$NEMODEMO
-
-if [ "$1" == "--interactive" ]; then
-    CMD=gazebo
-    WORLD=idemo.world
-    MODE="--interactive ${MODE}"
-fi
-
 GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:`pwd`/../build GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:`pwd`/models $CMD -u $WORLD &
 GZ_PID=$!
 ../../revolve/tools/analyzer/run-analyzer &
