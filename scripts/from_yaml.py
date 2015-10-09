@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 # util.size_scale_factor = 10
 
 from revolve.convert.yaml import yaml_to_robot
-from tol.spec import body_spec, brain_spec
+from tol.spec import get_body_spec, get_brain_spec
 from tol.config import Config
 from tol.build import get_builder, get_simulation_robot
 
@@ -42,6 +42,8 @@ brain:
 '''
 
 conf = Config(visualize_sensors=True)
+body_spec = get_body_spec(conf)
+brain_spec = get_brain_spec(conf)
 bot = yaml_to_robot(body_spec, brain_spec, bot_yaml)
 builder = get_builder(conf)
 sdf = get_simulation_robot(bot, "test_bot", builder, conf)

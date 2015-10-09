@@ -12,7 +12,7 @@ import os
 from datetime import datetime
 
 # Pygazebo
-from pygazebo.msg import model_pb2, world_control_pb2, poses_stamped_pb2, world_reset_pb2
+from pygazebo.msg import world_control_pb2, poses_stamped_pb2, world_stats_pb2
 
 # Revolve / sdfbuilder
 from revolve.gazebo import connect, RequestHandler, BodyAnalyzer
@@ -151,7 +151,18 @@ class World(object):
 
         # Subscribe to pose updates
         self.pose_subscriber = self.manager.subscribe(
-            '/gazebo/default/pose/info', 'gazebo.msgs.PosesStamped', self._update_poses)
+            '/gazebo/default/pose/info',
+            'gazebo.msgs.PosesStamped',
+            self._update_poses
+        )
+
+        if self.conf.subscribe_stats:
+            self.stats_subscriber = self.manager.subscribe(
+                '/gazebo/default/world_stats',
+                'gazebo.msgs.WorldStatistics',
+                self._update_stats
+            )
+            yield From(self.stats_subscriber.wait_for_connection())
 
         # Wait for connections
         yield From(self.world_control.wait_for_listener())
@@ -486,6 +497,16 @@ class World(object):
             robot.update_position(t, position, self.write_poses)
 
         self.call_update_triggers()
+
+    def _update_stats(self, msg):
+        """
+        Handles the WorldStatistics message if subscribed to it.
+        :param msg:
+        :return:
+        """
+        stats = world_stats_pb2.WorldStatistics()
+        stats.ParseFromString(msg)
+        self.last_time = Time(msg=stats.sim_time)
 
     def add_update_trigger(self, callback):
         """
