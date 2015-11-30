@@ -52,14 +52,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -funroll-loops -finl
 # Find Boost and add to include dirs
 find_package(Boost REQUIRED COMPONENTS system)
 
-# Gazebo control plugins
-# Find and include Gazebo
-include (FindPkgConfig)
-if (PKG_CONFIG_FOUND)
-  pkg_check_modules(GAZEBO gazebo)
-endif()
-include_directories(${GAZEBO_INCLUDE_DIRS})
-
 # Plugin CPP files
 file(GLOB_RECURSE
 	 TOL_WORLD_SRC
@@ -104,12 +96,12 @@ endif()
 # Find and include Gazebo
 # LOCAL_GAZEBO_DIR can be set to a path with a gazebo-config.cmake
 if (LOCAL_GAZEBO_DIR)
-    find_package(gazebo 6.1 REQUIRED
+    find_package(gazebo 6.5 REQUIRED
             PATHS "${LOCAL_GAZEBO_DIR}"
             NO_DEFAULT_PATH)
     message(WARNING "Using local Gazebo @ ${gazebo_DIR}")
 else()
-    find_package(gazebo 6.1 REQUIRED)
+    find_package(gazebo 6.5 REQUIRED)
 endif()
 include_directories(${GAZEBO_INCLUDE_DIRS})
 

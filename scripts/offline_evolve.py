@@ -45,7 +45,7 @@ KEEP_PARENTS = True
 NUM_GENERATIONS = 100
 
 # Number of simulation seconds each individual is evaluated
-EVALUATION_TIME = 20
+EVALUATION_TIME = 8
 
 # Maximum number of mating attempts between two parents
 MAX_MATING_ATTEMPTS = 5
@@ -157,6 +157,7 @@ def produce_generation(world, parents):
 
 def log_generation(gen_out, generation, robots):
     """
+    :param generation:
     :param gen_out:
     :param robots:
     :return:
