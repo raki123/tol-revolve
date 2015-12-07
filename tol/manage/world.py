@@ -15,10 +15,10 @@ from datetime import datetime
 from pygazebo.msg import world_control_pb2, poses_stamped_pb2, world_stats_pb2
 
 # Revolve / sdfbuilder
-from revolve.gazebo import connect, RequestHandler, BodyAnalyzer
 from revolve.angle import Tree, Crossover, Mutator
 from revolve.util import Time
 from revolve.spec.msgs import ModelInserted
+from revolve.gazebo.manage import WorldManager
 from sdfbuilder.math import Vector3
 from sdfbuilder import SDF, Model, Pose, Link
 
@@ -42,7 +42,7 @@ MSG_BASE = int(_a - 14e8 + (_a - int(_a)) * 1e5)
 ANSWER_SLEEP = 0.05
 
 
-class World(object):
+class World(WorldManager):
     """
     A class that is used to manage the world, meaning it provides
     methods to insert / remove robots and request information
@@ -57,8 +57,6 @@ class World(object):
     is always sent until completion. The methods then return the
     future that resolves when the response is delivered.
     """
-    # Object used to make constructor private
-    _PRIVATE = object()
 
     def __init__(self, conf, _private):
         """
@@ -67,14 +65,11 @@ class World(object):
         :type conf: Config
         :return:
         """
-        if _private is not self._PRIVATE:
-            raise ValueError("The world cannot be directly constructed,"
-                             "rather the `create` coroutine should be used.")
+        super(World, self).__init__(_private=_private,
+                                    world_address=conf.world_address,
+                                    analyzer_address=conf.analyzer_address)
 
         self.conf = conf
-        self.manager = None
-        self.analyzer = None
-        self.request_handler = None
         self.builder = get_builder(conf)
         self.generator = get_tree_generator(conf)
         self.crossover = Crossover(self.generator.body_gen, self.generator.brain_gen)
@@ -135,19 +130,7 @@ class World(object):
         if self.manager is not None:
             return
 
-        # Initialize the manager / analyzer connections as well as
-        # the general request handler
-        self.manager = yield From(connect(self.conf.world_address))
-
-        if self.conf.analyzer_address:
-            self.analyzer = yield From(BodyAnalyzer.create(self.conf.analyzer_address))
-
-        self.world_control = yield From(self.manager.advertise(
-            '/gazebo/default/world_control', 'gazebo.msgs.WorldControl'
-        ))
-
-        self.request_handler = yield From(RequestHandler.create(
-            self.manager, msg_id_base=MSG_BASE))
+        yield From(super(World, self)._init())
 
         # Subscribe to pose updates
         self.pose_subscriber = self.manager.subscribe(
@@ -165,7 +148,6 @@ class World(object):
             yield From(self.stats_subscriber.wait_for_connection())
 
         # Wait for connections
-        yield From(self.world_control.wait_for_listener())
         yield From(self.pose_subscriber.wait_for_connection())
 
     @classmethod
@@ -231,7 +213,7 @@ class World(object):
         position.z = 0
         hl.set_position(position)
         sdf = SDF(elements=[hl])
-        fut = yield From(self.insert_model(sdf))
+        fut = yield From(self.wm.insert_model(sdf))
         raise Return(fut, hl)
 
     def get_robot_id(self):
@@ -392,35 +374,6 @@ class World(object):
 
         raise Return(multi_future(futures))
 
-    @trollius.coroutine
-    def pause(self, pause=True):
-        """
-        Pause / unpause the world
-        :param pause:
-        :return: Future for the published message
-        """
-        if pause:
-            logger.debug("Pausing the world.")
-        else:
-            logger.debug("Resuming the world.")
-
-        msg = world_control_pb2.WorldControl()
-        msg.pause = pause
-        yield From(self.world_control.publish(msg))
-
-    @trollius.coroutine
-    def reset(self):
-        """
-        Reset the world
-        :return:
-        """
-        logger.debug("Resetting the world state.")
-        msg = world_control_pb2.WorldControl()
-        msg.reset.all = True
-        yield From(self.world_control.publish(msg))
-        self.last_time = None
-        self.start_time = None
-
     def _robot_inserted(self, robot_name, tree, robot, parents, msg, return_future):
         """
         Registers a newly inserted robot and marks the insertion
@@ -534,37 +487,6 @@ class World(object):
         """
         for callback in self.update_triggers:
             callback(self)
-
-    @trollius.coroutine
-    def insert_model(self, sdf):
-        """
-        Insert a model wrapped in an SDF tag into the world. Make
-        sure it has a unique name, as it will be literally inserted into the world.
-
-        This coroutine yields until the request has been successfully sent.
-        It returns a future that resolves when a response has been received. The
-        optional given callback is added to this future.
-
-        :param sdf:
-        :type sdf: SDF
-        :return:
-        """
-        future = yield From(self.request_handler.do_gazebo_request("insert_sdf", data=str(sdf)))
-        raise Return(future)
-
-    @trollius.coroutine
-    def delete_model(self, name, req="entity_delete"):
-        """
-        Deletes the model with the given name from the world.
-        :param name:
-        :param req: Type of request to use. If you are going to
-        delete a robot, I suggest using `delete_robot` rather than `entity_delete`
-        because this attempts to prevent some issues with segmentation faults
-        occurring from deleting sensors.
-        :return:
-        """
-        future = yield From(self.request_handler.do_gazebo_request(req, data=name))
-        raise Return(future)
 
     @trollius.coroutine
     def build_walls(self, points):
