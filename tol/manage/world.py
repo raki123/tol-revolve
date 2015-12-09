@@ -15,10 +15,7 @@ from datetime import datetime
 from pygazebo.msg import world_control_pb2, poses_stamped_pb2, world_stats_pb2
 
 # Revolve / sdfbuilder
-from revolve.angle import Tree, Crossover, Mutator
-from revolve.util import Time
-from revolve.spec.msgs import ModelInserted
-from revolve.gazebo.manage import WorldManager
+from revolve.angle import Tree, Crossover, Mutator, WorldManager
 from sdfbuilder.math import Vector3
 from sdfbuilder import SDF, Model, Pose, Link
 
@@ -27,7 +24,7 @@ from sdfbuilder import SDF, Model, Pose, Link
 from ..config import Config, constants
 from ..build import get_builder, get_simulation_robot
 from ..spec import get_tree_generator
-from ..util import multi_future
+from revolve.util import multi_future
 from .robot import Robot
 from ..scenery import Wall
 from ..logging import logger
@@ -67,11 +64,13 @@ class World(WorldManager):
         """
         super(World, self).__init__(_private=_private,
                                     world_address=conf.world_address,
-                                    analyzer_address=conf.analyzer_address)
+                                    analyzer_address=conf.analyzer_address,
+                                    output_directory=conf.output_directory,
+                                    builder=get_builder(conf),
+                                    subscribe_stats=conf.subscribe_stats,
+                                    generator=get_tree_generator(conf))
 
         self.conf = conf
-        self.builder = get_builder(conf)
-        self.generator = get_tree_generator(conf)
         self.crossover = Crossover(self.generator.body_gen, self.generator.brain_gen)
         self.mutator = Mutator(self.generator.body_gen, self.generator.brain_gen,
                                p_duplicate_subtree=conf.p_duplicate_subtree,
@@ -79,126 +78,38 @@ class World(WorldManager):
                                p_delete_subtree=conf.p_delete_subtree,
                                p_remove_brain_connection=conf.p_remove_brain_connection,
                                p_delete_hidden_neuron=conf.p_delete_hidden_neuron)
-        self.robots = {}
-        self.robot_id = 0
-
-        self.start_time = None
-        self.last_time = None
 
         # Set to true whenever a reproduction sequence is going on
         # to prevent another one from starting (which cannot happen now
         # but might in a more complicated yielding structure).
         self._reproducing = False
 
-        # List of functions called when the local state updates
-        self.update_triggers = []
-
-        # Output files for robot CSV data
-        self.robots_file = None
-        self.poses_file = None
-        self.write_robots = None
-        self.write_poses = None
-        self.output_directory = None
-
-        if self.conf.output_directory:
-            self.output_directory = os.path.join(self.conf.output_directory,
-                                                 datetime.now().strftime('%Y%m%d%H%M%S'))
-
-            # These all raise exceptions on failure, no need to further check
-
-            # Create timestamped directory within output directory
-            os.mkdir(self.output_directory)
-
-            # Open poses file, this is written *a lot* so use default OS buffering
-            self.poses_file = open('%s/poses.csv' % self.output_directory, 'wb')
-
-            # Open robots file line buffered so we can see it on the fly, isn't written
-            # too often.
-            self.robots_file = open('%s/robots.csv' % self.output_directory, 'wb', buffering=1)
-            self.write_robots = csv.writer(self.robots_file, delimiter=',')
-            self.write_poses = csv.writer(self.poses_file, delimiter=',')
-
-            self.write_robots.writerow(['id', 'parent1', 'parent2'])
-            self.write_poses.writerow(['id', 'sec', 'nsec', 'x', 'y', 'z'])
-
-    @trollius.coroutine
-    def _init(self):
-        """
-        Initializes the world
-        :return:
-        """
-        if self.manager is not None:
-            return
-
-        yield From(super(World, self)._init())
-
-        # Subscribe to pose updates
-        self.pose_subscriber = self.manager.subscribe(
-            '/gazebo/default/pose/info',
-            'gazebo.msgs.PosesStamped',
-            self._update_poses
-        )
-
-        if self.conf.subscribe_stats:
-            self.stats_subscriber = self.manager.subscribe(
-                '/gazebo/default/world_stats',
-                'gazebo.msgs.WorldStatistics',
-                self._update_stats
-            )
-            yield From(self.stats_subscriber.wait_for_connection())
-
-        # Wait for connections
-        yield From(self.pose_subscriber.wait_for_connection())
-
     @classmethod
     @trollius.coroutine
     def create(cls, conf):
         """
-        Coroutine to create a world including connection
-        operations. Use as:
-
-        ```
-        world = yield From(World.create(conf))
-        ```
-
+        Coroutine to instantiate a Revolve.Angle WorldManager
         :param conf:
-        :type conf: Config
+        :type: conf: Config
         :return:
-        :rtype: World
         """
-        self = cls(conf, cls._PRIVATE)
+        self = cls(_private=cls._PRIVATE, conf=conf)
         yield From(self._init())
         raise Return(self)
 
-    @trollius.coroutine
-    def teardown(self):
+    def create_robot_manager(self, gazebo_id, robot_name, tree, robot, position, time, parents):
         """
-        Finalizes the world, flushes files, etc.
+        Overriding with robot manager with more capabilities.
+        :param gazebo_id:
+        :param robot_name:
+        :param tree:
+        :param robot:
+        :param position:
+        :param time:
+        :param parents:
         :return:
         """
-        if self.robots_file:
-            self.robots_file.close()
-            self.poses_file.close()
-
-    def robot_list(self):
-        """
-
-        :return:
-        :rtype: list[Robot]
-        """
-        return self.robots.values()
-
-    def get_robot_by_name(self, name):
-        """
-        :param name:
-        :return:
-        :rtype: Robot|None
-        """
-        for r in self.robots:
-            if self.robots[r].name == name:
-                return self.robots[r]
-
-        return None
+        return Robot(self.conf, gazebo_id, robot_name, tree, robot, position, time, parents)
 
     @trollius.coroutine
     def add_highlight(self, position, color):
@@ -213,60 +124,8 @@ class World(WorldManager):
         position.z = 0
         hl.set_position(position)
         sdf = SDF(elements=[hl])
-        fut = yield From(self.wm.insert_model(sdf))
+        fut = yield From(self.insert_model(sdf))
         raise Return(fut, hl)
-
-    def get_robot_id(self):
-        """
-        Robot ID sequencer
-        :return:
-        """
-        self.robot_id += 1
-        return self.robot_id
-
-    @trollius.coroutine
-    def generate_valid_robot(self, max_attempts=100):
-        """
-        Uses tree generation in conjuction with the analyzer
-        to generate a valid new robot.
-
-        :param max_attempts:  Maximum number of tries before giving up.
-        :type max_attempts: int
-        :return:
-        """
-        for i in xrange(max_attempts):
-            tree = self.generator.generate_tree()
-
-            ret = yield From(self.analyze_tree(tree))
-            if ret is None:
-                # Error already shown
-                continue
-
-            coll, bbox, robot = ret
-            if not coll:
-                raise Return(tree, robot, bbox)
-
-        logger.error("Failed to produce a valid robot in %d attempts." % max_attempts)
-        raise Return(None)
-
-    @trollius.coroutine
-    def analyze_tree(self, tree):
-        """
-        Calls the body analyzer on a robot tree.
-        :param tree:
-        :return:
-        """
-        if not self.analyzer:
-            raise RuntimeError("World.analyze_tree(): No analyzer configured.")
-
-        robot = tree.to_robot(self.get_robot_id())
-        ret = yield From(self.analyzer.analyze_robot(robot, builder=self.builder))
-        if ret is None:
-            logger.error("Error in robot analysis, skipping.")
-            raise Return(None)
-
-        coll, bbox = ret
-        raise Return(coll, bbox, robot)
 
     @trollius.coroutine
     def generate_population(self, n):
@@ -308,185 +167,13 @@ class World(WorldManager):
         future.add_done_callback(lambda _: logger.debug("Done inserting population."))
         raise Return(future)
 
-    @trollius.coroutine
-    def insert_robot(self, tree, pose, parents=None):
-        """
-        Inserts a robot into the world. This consists of two steps:
-
-        - Sending the insert request message
-        - Receiving a ModelInfo response
-
-        This method is a coroutine because of the first step, writing
-        the message must be yielded since PyGazebo doesn't appear to
-        support writing multiple messages simultaneously. For the response,
-        i.e. the message that confirms the robot has been inserted, a
-        future is returned.
-
-        :param tree:
-        :type tree: Tree
-        :param pose:
-        :type pose: Pose
-        :return: A future that resolves with the created `Robot` object.
-        """
-        robot_id = self.get_robot_id()
-        robot_name = "gen__"+str(robot_id)
-
-        robot = tree.to_robot(robot_id)
-        sdf = get_simulation_robot(robot, robot_name, self.builder, self.conf)
-
-        if self.output_directory:
-            with open(os.path.join(self.output_directory, 'robot_%d.sdf' % robot_id), 'w') as f:
-                f.write(str(sdf))
-
-        sdf.elements[0].set_pose(pose)
-
-        return_future = Future()
-        insert_future = yield From(self.insert_model(sdf))
-        insert_future.add_done_callback(lambda fut: self._robot_inserted(
-            robot_name, tree, robot, parents, fut.result(), return_future
-        ))
-        raise Return(return_future)
-
-    @trollius.coroutine
-    def delete_robot(self, robot):
+    def get_simulation_sdf(self, robot, robot_name):
         """
         :param robot:
-        :type robot: Robot
-        :return:
-        """
-        # Immediately unregister the robot so no it won't be used
-        # for anything else while it is being deleted.
-        self.unregister_robot(robot)
-        future = yield From(self.delete_model(robot.name, req="delete_robot"))
-        raise Return(future)
-
-    @trollius.coroutine
-    def delete_all_robots(self):
-        """
-        Deletes all robots from the world. Returns a future that resolves
-        when all responses have been received.
-        :return:
-        """
-        futures = []
-        for bot in self.robots.values():
-            future = yield From(self.delete_robot(bot))
-            futures.append(future)
-
-        raise Return(multi_future(futures))
-
-    def _robot_inserted(self, robot_name, tree, robot, parents, msg, return_future):
-        """
-        Registers a newly inserted robot and marks the insertion
-        message response as handled.
-
-        :param tree:
         :param robot_name:
-        :param tree:
-        :param robot:
-        :param parents:
-        :param msg:
-        :type msg: pygazebo.msgs.response_pb2.Response
-        :param return_future: Future to resolve with the created robot object.
-        :type return_future: Future
         :return:
         """
-        inserted = ModelInserted()
-        inserted.ParseFromString(msg.serialized_data)
-        model = inserted.model
-        gazebo_id = model.id
-        time = Time(msg=inserted.time)
-        p = model.pose.position
-        position = Vector3(p.x, p.y, p.z)
-
-        robot = Robot(self.conf, gazebo_id, robot_name, tree, robot,
-                      position, time, parents)
-        self.register_robot(robot)
-        return_future.set_result(robot)
-
-    def register_robot(self, robot):
-        """
-        Registers a robot with its Gazebo ID in the local array.
-        :param robot:
-        :type robot: Robot
-        :return:
-        """
-        logger.debug("Registering robot %s." % robot.name)
-        self.robots[robot.gazebo_id] = robot
-        if self.output_directory:
-            # Write robot details and CSV row to files
-            robot.write_robot('%s/robot_%d.pb' % (self.output_directory, robot.robot.id),
-                              self.write_robots)
-
-    def unregister_robot(self, robot):
-        """
-        Unregisters the robot with the given ID, usually happens when
-        it is deleted.
-        :param robot:
-        :type robot: Robot
-        :return:
-        """
-        logger.debug("Unregistering robot %s." % robot.name)
-        del self.robots[robot.gazebo_id]
-
-    def _update_poses(self, msg):
-        """
-        Handles the pose info message by updating robot positions.
-        :param msg:
-        :return:
-        """
-        poses = poses_stamped_pb2.PosesStamped()
-        poses.ParseFromString(msg)
-
-        self.last_time = t = Time(msg=poses.time)
-        if self.start_time is None:
-            self.start_time = t
-
-        for pose in poses.pose:
-            robot = self.robots.get(pose.id, None)
-            if not robot:
-                continue
-
-            position = Vector3(pose.position.x, pose.position.y, pose.position.z)
-            robot.update_position(t, position, self.write_poses)
-
-        self.call_update_triggers()
-
-    def _update_stats(self, msg):
-        """
-        Handles the WorldStatistics message if subscribed to it.
-        :param msg:
-        :return:
-        """
-        stats = world_stats_pb2.WorldStatistics()
-        stats.ParseFromString(msg)
-        self.last_time = Time(msg=stats.sim_time)
-
-    def add_update_trigger(self, callback):
-        """
-        Adds an update trigger, a function called every time the local
-        state is updated.
-        :param callback:
-        :type callback: callable
-        :return:
-        """
-        self.update_triggers.append(callback)
-
-    def remove_update_trigger(self, callback):
-        """
-        Removes a previously installed update trigger.
-        :param callback:
-        :type callback: callable
-        :return:
-        """
-        self.update_triggers.remove(callback)
-
-    def call_update_triggers(self):
-        """
-        Calls all update triggers.
-        :return:
-        """
-        for callback in self.update_triggers:
-            callback(self)
+        return get_simulation_robot(robot, robot_name, self.builder, self.conf)
 
     @trollius.coroutine
     def build_walls(self, points):
