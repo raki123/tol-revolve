@@ -42,7 +42,7 @@ NUM_CHILDREN = 10
 KEEP_PARENTS = True
 
 # Number of generations to produce
-NUM_GENERATIONS = 100
+NUM_GENERATIONS = 80
 
 # Number of simulation seconds each individual is evaluated
 EVALUATION_TIME = 8
@@ -155,8 +155,9 @@ def produce_generation(world, parents):
     raise Return(trees, bboxes)
 
 
-def log_generation(gen_out, generation, robots):
+def log_generation(gen_out, evo, generation, robots):
     """
+    :param evo: The evolution run
     :param generation:
     :param gen_out:
     :param robots:
@@ -164,14 +165,21 @@ def log_generation(gen_out, generation, robots):
     """
     print("================== GENERATION %d ==================" % generation)
     for robot in robots:
-        gen_out.writerow([generation, robot.robot.id, robot.velocity()])
+        gen_out.writerow([evo, generation, robot.robot.id, robot.velocity()])
 
 
 @trollius.coroutine
-def run():
+def run(num_evolutions=10):
+    """
+
+    :param num_evolutions: The number of times to run the entire evolution
+    :return:
+    """
     conf = Config(
         output_directory='output',
-        speed_window=1200
+        speed_window=1200,
+        enable_touch_sensor=True,
+        enable_light_sensor=False
     )
 
     world = yield From(World.create(conf))
@@ -179,27 +187,29 @@ def run():
     # Open generations file line buffered
     gen_file = open(os.path.join(world.output_directory, 'generations.csv'), 'wb', buffering=1)
     gen_out = csv.writer(gen_file, delimiter=',')
-    gen_out.writerow(['gen', 'robot_id', 'vel'])
+    gen_out.writerow(['run', 'gen', 'robot_id', 'vel'])
 
-    trees, bboxes = yield From(world.generate_population(POPULATION_SIZE))
-    robots = yield From(evaluate_population(world, trees, bboxes))
-    log_generation(gen_out, 0, robots)
+    for evo in range(1, num_evolutions + 1):
+        trees, bboxes = yield From(world.generate_population(POPULATION_SIZE))
+        robots = yield From(evaluate_population(world, trees, bboxes))
+        log_generation(gen_out, evo, 0, robots)
 
-    for generation in xrange(1, NUM_GENERATIONS):
-        # Produce the next generation and evaluate them
-        child_trees, child_bboxes = yield From(produce_generation(world, robots))
-        children = yield From(evaluate_population(world, child_trees, child_bboxes))
+        for generation in xrange(1, NUM_GENERATIONS):
+            # Produce the next generation and evaluate them
+            child_trees, child_bboxes = yield From(produce_generation(world, robots))
+            children = yield From(evaluate_population(world, child_trees, child_bboxes))
 
-        if KEEP_PARENTS:
-            robots = children + robots
-        else:
-            robots = children
+            if KEEP_PARENTS:
+                robots = children + robots
+            else:
+                robots = children
 
-        # Sort the bots and reduce to population size
-        robots = sorted(robots, key=lambda r: r.velocity(), reverse=True)[:POPULATION_SIZE]
-        log_generation(gen_out, generation, robots)
+            # Sort the bots and reduce to population size
+            robots = sorted(robots, key=lambda r: r.velocity(), reverse=True)[:POPULATION_SIZE]
+            log_generation(gen_out, evo, generation, robots)
 
     gen_file.close()
+    yield From(world.teardown())
 
 
 def main():

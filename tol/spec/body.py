@@ -11,14 +11,13 @@ color_params = [channel_func("red"), channel_func("green"), channel_func("blue")
 
 def get_body_spec(conf):
     """
-
     :param conf:
     :type conf: Config
     :return:
     :rtype: BodyImplementation
     """
     # Body specification
-    return BodyImplementation({
+    parts = {
         "Core": PartSpec(
             body_part=CoreComponent,
             arity=4,
@@ -53,8 +52,8 @@ def get_body_spec(conf):
             ), ParamSpec(
                 "alpha",
                 default=0,
-                min_value=-0.5*math.pi,
-                max_value=0.5*math.pi,
+                min_value=-0.5 * math.pi,
+                max_value=0.5 * math.pi,
                 epsilon=conf.body_mutation_epsilon
             ), ParamSpec(
                 "beta",
@@ -96,27 +95,33 @@ def get_body_spec(conf):
         #     outputs=1,
         #     params=color_params
         # ),
-        "ActiveWheg": PartSpec(
-            body_part=ActiveWheg,
-            arity=2,
-            outputs=1,
-            params=color_params + [
-                ParamSpec("radius", min_value=40, max_value=80, default=60, epsilon=conf.body_mutation_epsilon)
-            ]
-        ),
-        # "LightSensor": PartSpec(
-        #     body_part=LightSensor,
-        #     arity=1,
-        #     inputs=1,
-        #     params=color_params
-        # ),
-        # "TouchSensor": PartSpec(
-        #     body_part=TouchSensor,
-        #     arity=1,
-        #     inputs=2,
-        #     params=color_params
+        # "ActiveWheg": PartSpec(
+        #     body_part=ActiveWheg,
+        #     arity=2,
+        #     outputs=1,
+        #     params=color_params + [
+        #         ParamSpec("radius", min_value=40, max_value=80, default=60, epsilon=conf.body_mutation_epsilon)
+        #     ]
         # )
-    })
+    }
+
+    if conf.enable_touch_sensor:
+        parts['TouchSensor'] = PartSpec(
+            body_part=TouchSensor,
+            arity=1,
+            inputs=2,
+            params=color_params
+        )
+
+    if conf.enable_light_sensor:
+        parts['LightSensor'] = PartSpec(
+            body_part=LightSensor,
+            arity=1,
+            inputs=1,
+            params=color_params
+        )
+
+    return BodyImplementation(parts)
 
 
 class BodyGenerator(FixedOrientationBodyGenerator):

@@ -74,3 +74,7 @@ class Config(object):
         # specified output directory.
         self.output_directory = kwargs.get('output_directory', None)
 
+        # Whether or not to enable these sensors
+        self.enable_touch_sensor = kwargs.get('enable_touch_sensor', True)
+        self.enable_light_sensor = kwargs.get('enable_light_sensor', True)
+
