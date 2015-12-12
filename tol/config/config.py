@@ -15,11 +15,6 @@ class Config(object):
         self.update_rate = kwargs.get('update_rate', 10)
         self.visualize_sensors = kwargs.get('visualize_sensors', False)
 
-        # If true, subscribes to world statistics for updating world time
-        # This requires some extra I/O, but may be helpful if there is
-        # no robot movement otherwise.
-        self.subscribe_stats = kwargs.get('subscribe_stats', True)
-
         # Arena size, tuple of meters, meters
         self.arena_size = kwargs.get('arena_size', (30, 30))
 

@@ -67,7 +67,6 @@ class World(WorldManager):
                                     analyzer_address=conf.analyzer_address,
                                     output_directory=conf.output_directory,
                                     builder=get_builder(conf),
-                                    subscribe_stats=conf.subscribe_stats,
                                     generator=get_tree_generator(conf))
 
         self.conf = conf

@@ -8,11 +8,13 @@
     <gui />
     <physics type="ode">
       <!--<max_contacts>32</max_contacts>-->
+      <real_time_factor>1.0</real_time_factor>
+      <max_step_size>0.001</max_step_size>
       <ode>
         <constraints>
           <!-- Simulator.cpp -->
-          <erp>0.5</erp> 
-          <cfm>10e-6</cfm>
+            <cfm>10e-6</cfm>
+            <erp>0.1</erp>
         </constraints>
       </ode>
     </physics>
