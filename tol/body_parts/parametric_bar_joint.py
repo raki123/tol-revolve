@@ -32,7 +32,7 @@ class ParametricBarJoint(BodyPart, ColorMixin):
     SLOT_THICKNESS = in_mm(1.5)
     CONNECTION_PART_WIDTH = in_mm(20)
     CONNECTION_PART_THICKNESS = in_mm(2)
-    SEPARATION = in_mm(1)
+    SEPARATION = in_mm(0)
 
     def _initialize(self, **kwargs):
         """

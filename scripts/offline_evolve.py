@@ -45,7 +45,9 @@ KEEP_PARENTS = True
 NUM_GENERATIONS = 80
 
 # Number of simulation seconds each individual is evaluated
-EVALUATION_TIME = 8
+# Note that the actual velocity will depend on the configuration
+# speed window, which allows for a few "initialisation" seconds here.
+EVALUATION_TIME = 12
 
 # Maximum number of mating attempts between two parents
 MAX_MATING_ATTEMPTS = 5
@@ -64,7 +66,7 @@ def evaluate_pair(world, tree, bbox):
     # Pause the world just in case it wasn't already
     yield From(world.pause(True))
 
-    pose = Pose(position=Vector3(0, 0, 0.5 * bbox[2] + 0.25))
+    pose = Pose(position=Vector3(0, 0, -bbox.min.z))
     fut = yield From(world.insert_robot(tree, pose))
     robot = yield From(fut)
 

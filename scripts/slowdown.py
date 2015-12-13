@@ -24,7 +24,17 @@ bot_yaml = '''
 ---
 body:
   id          : Core
-  type        : FixedBrick
+  type        : Core
+  children:
+    0:
+      id: child1
+      type: Hinge
+    1:
+      id: child2
+      type: ParametricBarJoint
+    2:
+      id: child3
+      type: Hinge
 '''
 
 
@@ -48,15 +58,19 @@ def run_server():
     world = yield From(World.create(conf))
     yield From(world.pause(True))
 
-    diffs = collections.deque(maxlen=10)
-    sim_time_sec = 5.0
+    diffs = collections.deque(maxlen=20)
+    mdiffs = collections.deque(maxlen=20)
+    ref = -1
+    mref = -1
+    sim_time_sec = 0.1
 
     while True:
         tree = Tree.from_body_brain(bot.body, bot.brain, body_spec)
+        before = time.time()
         fut = yield From(world.insert_robot(tree, Pose(position=Vector3(z=1.0))))
         robot = yield From(fut)
         yield From(world.pause(False))
-        before = time.time()
+        middle = time.time()
         yield From(sleep_sim_time(world, sim_time_sec))
         after = time.time()
         yield From(world.delete_robot(robot))
@@ -64,11 +78,21 @@ def run_server():
 
         diff = after - before
         diffs.append(diff)
-        fac = sim_time_sec / diff
-        avg = sum(diffs) / len(diffs)
-        avg_fac = sim_time_sec / avg
+        mdiff = after - middle
+        mdiffs.append(mdiff)
 
-        print("%f\t%f\t%f\t%f" % (diff, avg, fac, avg_fac))
+        # fac = sim_time_sec / diff
+        avg = sum(diffs) / len(diffs)
+        mavg = sum(mdiffs) / len(mdiffs)
+        if ref < 0 and len(diffs) == 10:
+            ref = avg
+            mref = mavg
+
+        ref_diff = avg - ref
+        mref_diff = mavg - mref
+        # avg_fac = sim_time_sec / avg
+
+        print("%f\t%f\t%f\t%f\t%f\t%f" % (diff, avg, ref_diff, mdiff, mavg, mref_diff))
 
 
 def main():
