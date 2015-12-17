@@ -45,9 +45,15 @@ KEEP_PARENTS = True
 NUM_GENERATIONS = 80
 
 # Number of simulation seconds each individual is evaluated
-# Note that the actual velocity will depend on the configuration
-# speed window, which allows for a few "initialisation" seconds here.
-EVALUATION_TIME = 12
+EVALUATION_TIME = 8
+
+# The number of seconds we ignore the robot initially, this allows it
+# to i.e. topple over when put down without that being counted as movement
+WARMUP_TIME = 3
+
+# Number of times per second we request the world to give
+# us a model pose update
+POSE_UPDATE_FREQUENCY = 50
 
 # Maximum number of mating attempts between two parents
 MAX_MATING_ATTEMPTS = 5
@@ -74,7 +80,7 @@ def evaluate_pair(world, tree, bbox):
     yield From(world.pause(False))
 
     while True:
-        if robot.age() >= EVALUATION_TIME:
+        if robot.age() >= (EVALUATION_TIME + WARMUP_TIME):
             break
 
         yield From(trollius.sleep(0.01))
@@ -179,12 +185,19 @@ def run(num_evolutions=10):
     """
     conf = Config(
         output_directory='output',
-        speed_window=1200,
+
+        # A convenient way to take only the eval time seconds
+        # into account is by making that the size of the
+        # speed window.
+        speed_window=EVALUATION_TIME * POSE_UPDATE_FREQUENCY,
         enable_touch_sensor=True,
         enable_light_sensor=False
     )
 
     world = yield From(World.create(conf))
+
+    fut = yield From(world.set_pose_update_frequency(POSE_UPDATE_FREQUENCY))
+    yield From(fut)
 
     # Open generations file line buffered
     gen_file = open(os.path.join(world.output_directory, 'generations.csv'), 'wb', buffering=1)
