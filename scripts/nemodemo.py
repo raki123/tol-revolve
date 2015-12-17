@@ -27,7 +27,7 @@ from sdfbuilder import Pose, Model, Link, SDF
 from tol.config import Config, constants
 from tol.manage import World
 from tol.logging import logger, output_console
-from tol.util import multi_future
+from revolve.util import multi_future
 
 # Log output to console
 output_console()
