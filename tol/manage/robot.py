@@ -1,5 +1,4 @@
 from sdfbuilder.math import Vector3
-from ..config import Config
 from revolve.util import Time
 from revolve.angle import Robot as RvRobot
 
@@ -12,7 +11,6 @@ class Robot(RvRobot):
     def __init__(self, conf, gazebo_id, name, tree, robot, position, time, parents=None):
         """
         :param conf:
-        :type conf: Config
         :param gazebo_id:
         :param name:
         :param tree:
@@ -32,6 +30,7 @@ class Robot(RvRobot):
         # Set of robots this bot has mated with
         self.mated_with = set()
         self.last_mate = None
+        self.conf = conf
 
     def will_mate_with(self, other):
         """

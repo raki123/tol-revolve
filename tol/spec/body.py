@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from revolve.generate import FixedOrientationBodyGenerator
 from revolve.spec import BodyImplementation, PartSpec, ParamSpec
 from ..body_parts import *
-from ..config import Config
 
 # A utility function to generate color property parameters. Note that color parameters do not mutate.
 channel_func = lambda channel: ParamSpec(channel, min_value=0, max_value=1, default=0.5, epsilon=0)
@@ -12,7 +11,6 @@ color_params = [channel_func("red"), channel_func("green"), channel_func("blue")
 def get_body_spec(conf):
     """
     :param conf:
-    :type conf: Config
     :return:
     :rtype: BodyImplementation
     """
@@ -194,7 +192,6 @@ def get_body_generator(conf):
     Returns a body generator.
 
     :param conf:
-    :type conf: Config
     :return:
     """
     return BodyGenerator(conf)

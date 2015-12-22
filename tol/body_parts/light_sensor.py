@@ -36,7 +36,7 @@ class LightSensor(Box, ColorMixin):
 
         # Add the SDF camera sensor
         camera = SdfSensor("%s_light_sensor" % self.id, "camera",
-                           update_rate=self.conf.update_rate)
+                           update_rate=self.conf.sensor_update_rate)
 
         # TODO Set field of view
         cam_details = "<camera>" \

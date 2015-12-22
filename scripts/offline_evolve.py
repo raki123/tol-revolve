@@ -17,7 +17,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 
 import trollius
 from trollius import From, Return
-from tol.config import Config
+from tol.config import parser
 from tol.manage import World
 from sdfbuilder import Pose
 from sdfbuilder.math import Vector3
@@ -31,32 +31,49 @@ import logging
 output_console()
 logger.setLevel(logging.DEBUG)
 
-# Script configuration
-# Number of individuals in the population
-POPULATION_SIZE = 10
+# Add offline evolve arguments
+parser.add_argument(
+    '--population-size',
+    default=10, type=int,
+    help="Population size in each generation."
+)
 
-# Number of children created in each generation
-NUM_CHILDREN = 10
+parser.add_argument(
+    '--num-children',
+    default=10, type=int,
+    help="The number of children produced in each generation."
+)
 
-# Keep the parents or only use children
-KEEP_PARENTS = True
+parser.add_argument(
+    '--keep-parents',
+    default=True, type=lambda v: v.lower() == "true" or v == "1",
+    help="The number of children produced in each generation."
+)
 
-# Number of generations to produce
-NUM_GENERATIONS = 80
+parser.add_argument(
+    '--num-generations',
+    default=80, type=int,
+    help="The number of generations to simulate."
+)
 
-# Number of simulation seconds each individual is evaluated
-EVALUATION_TIME = 8
+parser.add_argument(
+    '--evaluation-time',
+    default=8, type=float,
+    help="The number of simulation seconds each individual is evaluated."
+)
 
-# The number of seconds we ignore the robot initially, this allows it
-# to i.e. topple over when put down without that being counted as movement
-WARMUP_TIME = 3
+parser.add_argument(
+    '--warmup-time',
+    default=3, type=float,
+    help="The number of seconds the robot is initially ignored, allows it to e.g. topple over"
+         " when put down without that being counted as movement."
+)
 
-# Number of times per second we request the world to give
-# us a model pose update
-POSE_UPDATE_FREQUENCY = 50
-
-# Maximum number of mating attempts between two parents
-MAX_MATING_ATTEMPTS = 5
+parser.add_argument(
+    '--max-mating-attempts',
+    default=5, type=int,
+    help="Maximum number of mating attempts between two parents."
+)
 
 
 @trollius.coroutine
@@ -76,11 +93,13 @@ def evaluate_pair(world, tree, bbox):
     fut = yield From(world.insert_robot(tree, pose))
     robot = yield From(fut)
 
+    max_age = world.conf.evaluation_time + world.conf.warmup_time
+
     # Unpause the world to start evaluation
     yield From(world.pause(False))
 
     while True:
-        if robot.age() >= (EVALUATION_TIME + WARMUP_TIME):
+        if robot.age() >= max_age:
             break
 
         yield From(trollius.sleep(0.01))
@@ -147,11 +166,11 @@ def produce_generation(world, parents):
     trees = []
     bboxes = []
 
-    while len(trees) < NUM_CHILDREN:
+    while len(trees) < world.conf.num_children:
         print("Producing individual...")
         p1, p2 = select_parents(parents)
 
-        for j in xrange(MAX_MATING_ATTEMPTS):
+        for j in xrange(world.conf.max_mating_attempts):
             pair = yield From(world.attempt_mate(p1, p2))
             if pair:
                 trees.append(pair[0])
@@ -183,21 +202,8 @@ def run(num_evolutions=10):
     :param num_evolutions: The number of times to run the entire evolution
     :return:
     """
-    conf = Config(
-        output_directory='output',
-
-        # A convenient way to take only the eval time seconds
-        # into account is by making that the size of the
-        # speed window.
-        speed_window=EVALUATION_TIME * POSE_UPDATE_FREQUENCY,
-        enable_touch_sensor=True,
-        enable_light_sensor=False
-    )
-
+    conf = parser.parse_args()
     world = yield From(World.create(conf))
-
-    fut = yield From(world.set_pose_update_frequency(POSE_UPDATE_FREQUENCY))
-    yield From(fut)
 
     # Open generations file line buffered
     gen_file = open(os.path.join(world.output_directory, 'generations.csv'), 'wb', buffering=1)
@@ -205,22 +211,22 @@ def run(num_evolutions=10):
     gen_out.writerow(['run', 'gen', 'robot_id', 'vel'])
 
     for evo in range(1, num_evolutions + 1):
-        trees, bboxes = yield From(world.generate_population(POPULATION_SIZE))
+        trees, bboxes = yield From(world.generate_population(conf.population_size))
         robots = yield From(evaluate_population(world, trees, bboxes))
         log_generation(gen_out, evo, 0, robots)
 
-        for generation in xrange(1, NUM_GENERATIONS):
+        for generation in xrange(1, conf.num_generations):
             # Produce the next generation and evaluate them
             child_trees, child_bboxes = yield From(produce_generation(world, robots))
             children = yield From(evaluate_population(world, child_trees, child_bboxes))
 
-            if KEEP_PARENTS:
+            if conf.keep_parents:
                 robots = children + robots
             else:
                 robots = children
 
             # Sort the bots and reduce to population size
-            robots = sorted(robots, key=lambda r: r.velocity(), reverse=True)[:POPULATION_SIZE]
+            robots = sorted(robots, key=lambda r: r.velocity(), reverse=True)[:conf.population_size]
             log_generation(gen_out, evo, generation, robots)
 
     gen_file.close()

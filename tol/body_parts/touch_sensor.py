@@ -67,7 +67,7 @@ class TouchSensor(Box, ColorMixin):
 
         # Create and add the SDF sensor
         contact = SdfSensor(label+"_sensor", "contact",
-                            update_rate=self.conf.update_rate)
+                            update_rate=self.conf.sensor_update_rate)
         sensor_link.add_sensor(contact, "touch")
 
     def get_slot_position(self, slot):

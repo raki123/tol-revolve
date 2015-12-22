@@ -4,7 +4,7 @@ from sdfbuilder.physics import Friction
 from sdfbuilder.structure import Collision
 from sdfbuilder.util import number_format as nf
 from ..spec import get_body_spec, get_brain_spec
-from ..config import Config, constants
+from ..config import constants
 
 
 def get_builder(conf):
@@ -23,11 +23,10 @@ def get_simulation_robot(robot, name, builder, conf):
     :param name:
     :param builder:
     :param conf: Config
-    :type conf: Config
     :return:
     """
     model = builder.get_sdf_model(robot, controller_plugin="libtolrobotcontrol.so",
-                                  update_rate=conf.update_rate, name=name)
+                                  update_rate=conf.controller_update_rate, name=name)
 
     # Add friction surfaces to all body parts
     surf = Element(tag_name="surface")

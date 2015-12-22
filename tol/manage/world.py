@@ -21,7 +21,7 @@ from sdfbuilder import SDF, Model, Pose, Link
 
 
 # Local
-from ..config import Config, constants
+from ..config import constants, parser, str_to_address
 from ..build import get_builder, get_simulation_robot
 from ..spec import get_tree_generator
 from revolve.util import multi_future
@@ -59,14 +59,14 @@ class World(WorldManager):
         """
 
         :param conf:
-        :type conf: Config
         :return:
         """
         super(World, self).__init__(_private=_private,
-                                    world_address=conf.world_address,
-                                    analyzer_address=conf.analyzer_address,
+                                    world_address=str_to_address(conf.world_address),
+                                    analyzer_address=str_to_address(conf.analyzer_address),
                                     output_directory=conf.output_directory,
                                     builder=get_builder(conf),
+                                    pose_update_frequency=conf.pose_update_frequency,
                                     generator=get_tree_generator(conf))
 
         self.conf = conf
@@ -83,13 +83,17 @@ class World(WorldManager):
         # but might in a more complicated yielding structure).
         self._reproducing = False
 
+        # Write settings to config file
+        if self.output_directory:
+            parser.write_to_file(conf, os.path.join(self.output_directory, "settings.conf"))
+
+
     @classmethod
     @trollius.coroutine
     def create(cls, conf):
         """
         Coroutine to instantiate a Revolve.Angle WorldManager
         :param conf:
-        :type: conf: Config
         :return:
         """
         self = cls(_private=cls._PRIVATE, conf=conf)

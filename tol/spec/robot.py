@@ -6,7 +6,6 @@ from ..spec.brain import get_brain_generator
 def get_tree_generator(conf):
     """
     :param conf:
-    :type conf: Config
     :return:
     :rtype: TreeGenerator
     """
