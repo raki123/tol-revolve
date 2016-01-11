@@ -24,7 +24,7 @@ from sdfbuilder.math import Vector3
 from sdfbuilder import Pose, Model, Link, SDF
 
 # ToL
-from tol.config import Config, constants
+from tol.config import parser
 from tol.manage import World
 from tol.logging import logger, output_console
 from revolve.util import multi_future
@@ -42,8 +42,6 @@ logger.setLevel(logging.DEBUG)
 # 541073
 # 582708
 # 55887, 667758, 989959, 976318
-
-parser = argparse.ArgumentParser(description="Run the Nemo Demo")
 parser.add_argument("-s", "--seed", default=-1, help="Supply a random seed", type=int)
 parser.add_argument("-n", "--num-initial-bots", default=3,
                     help="Number of initial bots", type=int)
@@ -273,25 +271,23 @@ def cleanup(world, max_bots=10, remove_from=5):
 
 
 @trollius.coroutine
-def run_server(args):
+def run_server(conf):
     """
 
     :param args:
     :return:
     """
-    conf = Config(
-        proposal_threshold=0,
-        output_directory=None,
-        arena_size=(3, 3),
-        min_parts=6,
-        max_parts=15
-    )
+    conf.proposal_threshold = 0
+    conf.output_directory = None
+    conf.min_parts = 6
+    conf.max_parts = 15
+    conf.arena_size = (3, 3)
 
     interactive = [True]
     world = yield From(World.create(conf))
     yield From(world.pause(True))
 
-    start_bots = args.num_initial_bots
+    start_bots = conf.num_initial_bots
     poses = [Pose(position=pick_position(conf)) for _ in range(start_bots)]
     trees, bboxes = yield From(world.generate_population(len(poses)))
     fut = yield From(world.insert_population(trees, poses))
@@ -329,7 +325,7 @@ def run_server(args):
         if interactive[0]:
             yield From(interactive_mode(world, reproduce))
         else:
-            yield From(automatic_mode(args, world, interactive))
+            yield From(automatic_mode(conf, world, interactive))
 
         yield From(trollius.sleep(0.1))
         yield From(cleanup(world))

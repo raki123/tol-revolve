@@ -16,7 +16,7 @@ from trollius import ConnectionRefusedError, ConnectionResetError, From, Return
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 
 from tol.spec import get_body_spec, get_brain_spec
-from tol.config import Config
+from tol.config import parser
 from tol.manage import World
 
 
@@ -24,17 +24,11 @@ bot_yaml = '''
 ---
 body:
   id          : Core
-  type        : Core
+  type        : Hinge
   children:
-    0:
-      id: child1
-      type: Hinge
     1:
-      id: child2
-      type: ParametricBarJoint
-    2:
-      id: child3
-      type: Hinge
+      id: Cam
+      type: LightSensor
 '''
 
 
@@ -51,7 +45,11 @@ def sleep_sim_time(world, seconds):
 
 @trollius.coroutine
 def run_server():
-    conf = Config(analyzer_address=False)
+    conf = parser.parse_args()
+    conf.enable_light_sensor = True
+    conf.output_directory = None
+    conf.analyzer_address = ""
+
     body_spec = get_body_spec(conf)
     brain_spec = get_brain_spec(conf)
     bot = yaml_to_robot(body_spec, brain_spec, bot_yaml)
@@ -62,7 +60,7 @@ def run_server():
     mdiffs = collections.deque(maxlen=20)
     ref = -1
     mref = -1
-    sim_time_sec = 0.1
+    sim_time_sec = 2.5
 
     while True:
         tree = Tree.from_body_brain(bot.body, bot.brain, body_spec)

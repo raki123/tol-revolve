@@ -47,7 +47,7 @@ parser.add_argument(
 parser.add_argument(
     '--keep-parents',
     default=True, type=lambda v: v.lower() == "true" or v == "1",
-    help="The number of children produced in each generation."
+    help="Whether or not to discard the parents after each generation. This determines the strategy, + or ,."
 )
 
 parser.add_argument(
