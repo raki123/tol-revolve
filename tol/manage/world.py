@@ -67,7 +67,8 @@ class World(WorldManager):
                                     output_directory=conf.output_directory,
                                     builder=get_builder(conf),
                                     pose_update_frequency=conf.pose_update_frequency,
-                                    generator=get_tree_generator(conf))
+                                    generator=get_tree_generator(conf),
+                                    restore=conf.restore_dir)
 
         self.conf = conf
         self.crossover = Crossover(self.generator.body_gen, self.generator.brain_gen)
@@ -87,7 +88,6 @@ class World(WorldManager):
         if self.output_directory:
             parser.write_to_file(conf, os.path.join(self.output_directory, "settings.conf"))
 
-
     @classmethod
     @trollius.coroutine
     def create(cls, conf):
@@ -100,10 +100,9 @@ class World(WorldManager):
         yield From(self._init())
         raise Return(self)
 
-    def create_robot_manager(self, gazebo_id, robot_name, tree, robot, position, time, parents):
+    def create_robot_manager(self, robot_name, tree, robot, position, time, parents):
         """
         Overriding with robot manager with more capabilities.
-        :param gazebo_id:
         :param robot_name:
         :param tree:
         :param robot:
@@ -112,7 +111,7 @@ class World(WorldManager):
         :param parents:
         :return:
         """
-        return Robot(self.conf, gazebo_id, robot_name, tree, robot, position, time, parents)
+        return Robot(self.conf, robot_name, tree, robot, position, time, parents)
 
     @trollius.coroutine
     def add_highlight(self, position, color):
@@ -135,7 +134,9 @@ class World(WorldManager):
         """
         Generates population of `n` valid robots robots.
 
-        :return: Future that resolves when all robots have been inserted.
+        :param n: Number of robots
+        :return: Future with a list of valid robot trees and corresponding
+                 bounding boxes.
         """
         logger.debug("Generating population...")
         trees = []

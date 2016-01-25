@@ -8,10 +8,9 @@ class Robot(RvRobot):
     Class to manage a single robot
     """
 
-    def __init__(self, conf, gazebo_id, name, tree, robot, position, time, parents=None):
+    def __init__(self, conf, name, tree, robot, position, time, parents=None):
         """
         :param conf:
-        :param gazebo_id:
         :param name:
         :param tree:
         :param robot: Protobuf robot
@@ -23,7 +22,7 @@ class Robot(RvRobot):
         :type parents: set
         :return:
         """
-        super(Robot, self).__init__(gazebo_id=gazebo_id, name=name, tree=tree, robot=robot,
+        super(Robot, self).__init__(name=name, tree=tree, robot=robot,
                                     position=position, time=time, speed_window=conf.speed_window,
                                     parents=parents)
 

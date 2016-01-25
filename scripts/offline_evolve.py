@@ -11,21 +11,22 @@
 from __future__ import absolute_import
 import sys
 import os
-
-# Add "tol" directory to Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
-
+from revolve.util import wait_for
 import trollius
 from trollius import From, Return
-from tol.config import parser
-from tol.manage import World
 from sdfbuilder import Pose
 from sdfbuilder.math import Vector3
 import random
 import csv
 import itertools
-from tol.logging import logger, output_console
 import logging
+
+# Add "tol" directory to Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
+
+from tol.config import parser
+from tol.manage import World
+from tol.logging import logger, output_console
 
 # Log output to console
 output_console()
@@ -102,11 +103,12 @@ def evaluate_pair(world, tree, bbox):
         if robot.age() >= max_age:
             break
 
-        yield From(trollius.sleep(0.01))
+        # Sleep for the pose update frequency, which is about when
+        # we expect a new age update.
+        yield From(trollius.sleep(1.0 / world.pose_update_frequency))
 
-    fut = yield From(world.delete_robot(robot))
-    yield From(world.pause(True))
-    yield From(fut)
+    yield From(wait_for(world.delete_robot(robot)))
+    yield From(wait_for(world.pause(True)))
     raise Return(robot)
 
 

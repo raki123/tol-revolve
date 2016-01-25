@@ -1,82 +1,71 @@
 from __future__ import print_function
+
+from revolve.angle import Tree
+from revolve.spec.msgs import Robot
+from revolve.util import wait_for
+
 import os
 import sys
-import random
+import glob
+import time
+from revolve.util import Time
+from sdfbuilder import Pose
+from sdfbuilder.math import Vector3
+import itertools
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 
 import trollius
 from trollius import From
-
 from tol.manage import World
-from revolve.convert.yaml import yaml_to_robot
-from tol.spec import body_spec, brain_spec
-from tol.config import Config
-from tol.build import get_builder, get_simulation_robot
+from tol.config import parser
+from tol.logging import logger
+import logging
 
-bot_yaml = '''
----
-body:
-  id          : Core
-  type        : Core
-  children:
-    0:
-        id: Light
-        type: LightSensor
-    1:
-        id: Touch
-        type: TouchSensor
-    2:
-        id: Brick
-        type: FixedBrick
-        children:
-            1:
-                id: ParametricBarJoint
-                type: ParametricBarJoint
-    3:
-        id: AHinge
-        type: ActiveHinge
-'''
 
-bot_yaml = '''
----
-body:
-  id          : Brick
-  type        : FixedBrick
-  children:
-    0:
-        id: Light
-        type: LightSensor
-    1:
-        id: Touch
-        type: TouchSensor
-'''
+logger.setLevel(logging.DEBUG)
+
+
+@trollius.coroutine
+def sleep_sim_time(robot, seconds):
+    while robot.age() < seconds:
+        yield From(trollius.sleep(0.01))
 
 
 @trollius.coroutine
 def run():
-    conf = Config(analyzer_address=None)
-    bot = yaml_to_robot(body_spec, brain_spec, bot_yaml)
-    builder = get_builder(conf)
-    counter = 0
+    conf = parser.parse_args()
+    conf.enable_light_sensor = False
+    conf.output_directory = 'debug-output'
+    conf.restore_dir = 'restore-test'
+
     world = yield From(World.create(conf))
-    yield From(world.pause())
 
-    for _ in range(2):
-        name = "test_bot_%d" % counter
-        sdf = get_simulation_robot(bot, name, builder, conf)
-        fut = yield From(world.insert_model(sdf))
-        yield From(fut)
-        print("Inserted #%d" % counter)
-        yield From(world.pause(False))
-        yield From(trollius.sleep(0.1))
+    if world.do_restore:
+        print("Restored world manager state.")
+        yield From(wait_for(world.pause(False)))
+        for robot in world.robot_list():
+            print("%s: %f" % (robot.name, robot.velocity()))
 
-        fut = yield From(world.delete_model(name, "delete_robot"))
-        yield From(fut)
-        print("Deleted #%d" % counter)
-        yield From(trollius.sleep(0.1))
-        yield From(world.pause(True))
-        counter += 1
+        yield From(trollius.sleep(10.0))
+        print("==============================")
 
+        for robot in world.robot_list():
+            print("%s: %f" % (robot.name, robot.velocity()))
+
+    else:
+        yield From(wait_for(world.pause()))
+        trees, bboxes = yield From(world.generate_population(9))
+        positions = itertools.product(range(3), repeat=2)
+
+        for tree, bbox, position in itertools.izip(trees, bboxes, positions):
+            x, y = position
+            pos = Vector3(x, y, -bbox.min.z)
+            yield From(wait_for(world.insert_robot(tree, Pose(position=pos))))
+
+        yield From(wait_for(world.pause(False)))
+        yield From(trollius.sleep(10.0))
+        yield From(world.create_snapshot())
 
 if __name__ == '__main__':
     try:

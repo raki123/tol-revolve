@@ -82,14 +82,14 @@ parser.add_argument(
 
 parser.add_argument(
     '--pose-update-frequency',
-    default=50, type=int,
+    default=10, type=int,
     help="The frequency at which the world is requested to send robot pose"
          " updates (in number of times per *simulation* second)."
 )
 
 parser.add_argument(
     '--speed-window',
-    default=600, type=int,
+    default=80, type=int,
     help="Number of position entries considered to calculate robot speed. "
          "The world's pose update rate will determine the number of seconds this entails."
 )
@@ -184,11 +184,19 @@ parser.add_argument(
 # a file called `robot_[ID].pb` when the robot is first registered.
 #
 # The files are written to a new YYYYMMDDHHIISS directory within the
-# specified output directory.
+# specified output directory, unless a subdirectory is explicitly
+# provided with `--restore-dir`
 parser.add_argument(
     '--output-directory',
     default=None, type=str,
     help="Directory where robot statistics are written."
+)
+
+parser.add_argument(
+    '--restore-dir',
+    default=None, type=str,
+    help="Explicit subdirectory of the output directory, if a world "
+         "state is present in this directory it will be restored."
 )
 
 parser.add_argument(
