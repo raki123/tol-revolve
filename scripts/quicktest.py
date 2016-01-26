@@ -2,7 +2,6 @@ from __future__ import print_function
 
 from revolve.angle import Tree
 from revolve.spec.msgs import Robot
-from revolve.util import wait_for
 
 import os
 import sys
@@ -12,6 +11,7 @@ from revolve.util import Time
 from sdfbuilder import Pose
 from sdfbuilder.math import Vector3
 import itertools
+import logging
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
 
@@ -37,7 +37,7 @@ def run():
     conf = parser.parse_args()
     conf.enable_light_sensor = False
     conf.output_directory = 'debug-output'
-    conf.restore_dir = 'restore-test'
+    conf.restore_directory = 'restore-test'
 
     world = yield From(World.create(conf))
 

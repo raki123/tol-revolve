@@ -185,7 +185,7 @@ parser.add_argument(
 #
 # The files are written to a new YYYYMMDDHHIISS directory within the
 # specified output directory, unless a subdirectory is explicitly
-# provided with `--restore-dir`
+# provided with `--restore-directory`
 parser.add_argument(
     '--output-directory',
     default=None, type=str,
@@ -193,7 +193,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--restore-dir',
+    '--restore-directory',
     default=None, type=str,
     help="Explicit subdirectory of the output directory, if a world "
          "state is present in this directory it will be restored."

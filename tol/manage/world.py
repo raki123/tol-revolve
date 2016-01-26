@@ -68,7 +68,7 @@ class World(WorldManager):
                                     builder=get_builder(conf),
                                     pose_update_frequency=conf.pose_update_frequency,
                                     generator=get_tree_generator(conf),
-                                    restore=conf.restore_dir)
+                                    restore=conf.restore_directory)
 
         self.conf = conf
         self.crossover = Crossover(self.generator.body_gen, self.generator.brain_gen)
