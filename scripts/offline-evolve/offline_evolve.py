@@ -124,7 +124,7 @@ class OfflineEvoManager(World):
             else:
                 self.generations_file = open(self.generations_filename, 'wb', buffering=1)
                 self.write_generations = csv.writer(self.generations_file, delimiter=',')
-                self.write_generations.writerow(['run', 'gen', 'robot_id', 'vel'])
+                self.write_generations.writerow(['run', 'gen', 'robot_id', 'vel', 'dvel', 'fitness'])
 
     @classmethod
     @trollius.coroutine
@@ -257,7 +257,8 @@ class OfflineEvoManager(World):
             return
 
         for robot in robots:
-            self.write_generations.writerow([evo, generation, robot.robot.id, robot.velocity()])
+            self.write_generations.writerow([evo, generation, robot.robot.id, robot.velocity(),
+                                             robot.displacement_velocity(), robot.fitness()])
 
     @trollius.coroutine
     def run(self):

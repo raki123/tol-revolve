@@ -48,8 +48,11 @@ SURFACE_FRICTION1 = 1.0
 SURFACE_FRICTION2 = 1.0
 SURFACE_SLIP1 = 0.01
 SURFACE_SLIP2 = 0.01
-SURFACE_SOFT_CFM = 0.01
-SURFACE_SOFT_ERP = 0.2
+
+# Setting a min depth seems to greatly improve the stability,
+# especially the "sliding" of robots. This is less of a problem
+# with a smaller timestep, but larger timesteps simulate a lot faster!
+SURFACE_MIN_DEPTH = 1e-7
 
 # Thickness and height of the arena walls in meters
 WALL_THICKNESS = 0.05

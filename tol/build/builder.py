@@ -38,16 +38,13 @@ def get_simulation_robot(robot, name, builder, conf):
     )
     contact = "<contact>" \
               "<ode>" \
-              "<soft_cfm>%s</soft_cfm>" \
-              "<soft_erp>%s</soft_erp>" \
+              "<min_depth>%s</min_depth>" \
               "</ode>" \
               "<bullet>" \
-              "<soft_cfm>%s</soft_cfm>" \
-              "<soft_erp>%s</soft_erp>" \
+              "<split_impulse_penetration_threshold>%s</split_impulse_penetration_threshold>" \
               "</bullet>" \
               "</contact>" % (
-                  nf(constants.SURFACE_SOFT_CFM), nf(constants.SURFACE_SOFT_ERP),
-                  nf(constants.SURFACE_SOFT_CFM), nf(constants.SURFACE_SOFT_ERP)
+                  nf(constants.SURFACE_MIN_DEPTH), nf(constants.SURFACE_MIN_DEPTH)
               )
 
     surf.add_element(contact)
