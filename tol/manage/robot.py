@@ -22,9 +22,9 @@ class Robot(RvRobot):
         :type parents: set
         :return:
         """
-        super(Robot, self).__init__(name=name, tree=tree, robot=robot,
-                                    position=position, time=time, speed_window=conf.speed_window,
-                                    parents=parents)
+        speed_window = int(conf.evaluation_time * conf.pose_update_frequency)
+        super(Robot, self).__init__(name=name, tree=tree, robot=robot, position=position,
+                                    time=time, speed_window=speed_window, parents=parents)
 
         # Set of robots this bot has mated with
         self.mated_with = set()
@@ -60,6 +60,23 @@ class Robot(RvRobot):
         other_vel = other.velocity()
 
         return my_vel == 0 or (other_vel / my_vel) > self.conf.proposal_threshold
+
+    def fitness(self):
+        """
+        Fitness is proportional to both the displacement and absolute
+        velocity of the center of mass of the robot, in the formula:
+
+        5 dS + S
+
+        Where dS is the displacement over a direct line between the
+        start and end points of the robot, and S is the distance that
+        the robot has moved.
+
+        Since we use an active speed window, we use this formula
+        in context of velocities instead.
+        :return:
+        """
+        return 5 * self.displacement_velocity() + self.velocity()
 
     def did_mate_with(self, other):
         """

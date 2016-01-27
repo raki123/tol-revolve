@@ -10,6 +10,9 @@
 # -- Comma scheme, get rid of the parents and continue with children only
 from __future__ import absolute_import
 import sys
+
+import time
+
 import os
 import shutil
 from revolve.util import wait_for
@@ -60,7 +63,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--num-evolutions',
-    default=80, type=int,
+    default=10, type=int,
     help="The number of times to repeat the experiment."
 )
 
@@ -81,6 +84,14 @@ parser.add_argument(
     '--max-mating-attempts',
     default=5, type=int,
     help="Maximum number of mating attempts between two parents."
+)
+
+parser.add_argument(
+    '--evaluation-threshold',
+    default=5.0, type=float,
+    help="Maximum number of seconds one evaluation can take before the "
+         "decision is made to restart from snapshot. The assumption is "
+         "that the world may have become slow and restarting will help."
 )
 
 
@@ -158,7 +169,7 @@ class OfflineEvoManager(World):
         :return: Evaluated Robot object
         """
         # Pause the world just in case it wasn't already
-        yield From(self.pause(True))
+        yield From(wait_for(self.pause(True)))
 
         pose = Pose(position=Vector3(0, 0, -bbox.min.z))
         fut = yield From(self.insert_robot(tree, pose))
@@ -167,7 +178,9 @@ class OfflineEvoManager(World):
         max_age = self.conf.evaluation_time + self.conf.warmup_time
 
         # Unpause the world to start evaluation
-        yield From(self.pause(False))
+        yield From(wait_for(self.pause(False)))
+
+        before = time.time()
 
         while True:
             if robot.age() >= max_age:
@@ -179,6 +192,12 @@ class OfflineEvoManager(World):
 
         yield From(wait_for(self.delete_robot(robot)))
         yield From(wait_for(self.pause(True)))
+
+        diff = time.time() - before
+        if diff > self.conf.evaluation_threshold:
+            sys.stderr.write("Evaluation threshold exceeded, shutting down with nonzero status code.\n")
+            sys.exit(1)
+
         raise Return(robot)
 
     @trollius.coroutine
@@ -276,6 +295,7 @@ class OfflineEvoManager(World):
                         "evo_start": evo
                     }
                     yield From(self.create_snapshot())
+                    print("Created snapshot of experiment state.")
 
                 # Produce the next generation and evaluate them
                 child_trees, child_bboxes = yield From(self.produce_generation(robots))
@@ -287,7 +307,7 @@ class OfflineEvoManager(World):
                     robots = children
 
                 # Sort the bots and reduce to population size
-                robots = sorted(robots, key=lambda r: r.velocity(), reverse=True)[:conf.population_size]
+                robots = sorted(robots, key=lambda r: r.fitness(), reverse=True)[:conf.population_size]
                 self.log_generation(evo, generation, robots)
 
             # Clear "restore" parameters
