@@ -21,6 +21,11 @@
               <slip2>0.01</slip2>
             </ode>
           </friction>
+          <contact>
+            <ode>
+              <min_depth>1e-7</min_depth>
+            </ode>
+          </contact>
         </surface>
       </collision>
       <visual name="visual">

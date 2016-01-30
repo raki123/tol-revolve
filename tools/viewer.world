@@ -1,19 +1,13 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
   <world name="default">
-    <scene>
-        <origin_visual>0</origin_visual>
-        <grid>0</grid>
-    </scene>
     <physics type="ode">
-      <max_step_size>0.001</max_step_size>
-    
-      <!-- Run as fast as possible -->
-      <real_time_update_rate>0.0</real_time_update_rate>
+      <max_step_size>0.0025</max_step_size>
+      <real_time_update_rate>400</real_time_update_rate>
       <ode>
         <constraints>
-          <!-- Simulator.cpp -->
-          <erp>0.1</erp> 
+          <!-- In Robogen: Simulator.cpp -->
+          <erp>0.1</erp>
           <cfm>10e-6</cfm>
 
           <!-- Making this smaller seems to decrease rather than increase stability. -->
@@ -21,7 +15,7 @@
           <contact_surface_layer>1e-6</contact_surface_layer>
         </constraints>
         <solver>
-          <type>quick</type>
+          <type>world</type>
         </solver>
       </ode>
     </physics>
@@ -32,6 +26,9 @@
     </include>
     <include>
       <uri>model://tol_ground</uri>
+    </include>
+    <include>
+        <uri>model://test_bot</uri>
     </include>
 
     <plugin name="tol-control" filename="libtolworldcontrol.so" />

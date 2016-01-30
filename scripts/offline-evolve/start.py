@@ -1,7 +1,7 @@
 import os
 import sys
 from revolve.util import Supervisor
-from tol.config import parser
+from offline_evolve import parser
 
 here = os.path.dirname(os.path.abspath(__file__))
 tol_path = os.path.abspath(os.path.join(here, '..', '..'))

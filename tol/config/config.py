@@ -89,67 +89,79 @@ parser.add_argument(
 
 parser.add_argument(
     '--min-parts',
-    default=3, type=int,
+    default=4, type=int,
     help="Minimum number of parts in a robot."
 )
 
 parser.add_argument(
     '--max-parts',
-    default=10, type=int,
+    default=12, type=int,
     help="Maximum number of parts in a robot."
 )
 
 parser.add_argument(
     '--max-inputs',
-    default=8, type=int,
+    default=10, type=int,
     help="Maximum number of inputs (i.e. sensors) in a robot."
 )
 
 parser.add_argument(
     '--max-outputs',
-    default=8, type=int,
+    default=10, type=int,
     help="Maximum number of outputs (i.e. sensors) in a robot."
 )
 
 parser.add_argument(
+    '--enforce-planarity',
+    default=True, type=str_to_bool,
+    help="Force bricks to be in default orientation and disable parametric bar joint rotation."
+)
+
+parser.add_argument(
     '--body-mutation-epsilon',
-    default=0.05, type=float,
-    help="Mutation epsilon for robot bodies."
+    default=0.1, type=float,
+    help="Mutation epsilon for robot body parameters."
 )
 
 parser.add_argument(
     '--brain-mutation-epsilon',
-    default=0.05, type=float,
-    help="Mutation epsilon for robot neural nets."
+    default=0.2, type=float,
+    help="Mutation epsilon for robot neural net parameters."
 )
 
 parser.add_argument(
     '--p-duplicate-subtree',
-    default=0.05, type=float,
+    default=0.1, type=float,
     help="Probability of duplicating a subtree."
 )
 
 parser.add_argument(
+    '--p-connect-neurons',
+    default=0.1, type=float,
+    help="Initial connection probability."
+)
+
+parser.add_argument(
     '--p-swap-subtree',
-    default=0.05, type=float,
+    default=0.1, type=float,
     help="Probability of swapping two subtrees."
 )
 
 parser.add_argument(
     '--p-delete-subtree',
-    default=0.05, type=float,
+    default=0.1, type=float,
     help="Probability of deleting a subtree."
 )
 
 parser.add_argument(
     '--p-remove-brain-connection',
-    default=0.05, type=float,
+    default=0.1, type=float,
     help="Probability of removing a neural network connection."
 )
 
 parser.add_argument(
     '--p-delete-hidden-neuron',
-    default=0.05, type=float,
+    default=0.1, type=float,
     help="Probability of deleting a random hidden neuron."
 )
 

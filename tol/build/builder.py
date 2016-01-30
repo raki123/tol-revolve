@@ -28,6 +28,20 @@ def get_simulation_robot(robot, name, builder, conf):
     model = builder.get_sdf_model(robot, controller_plugin="libtolrobotcontrol.so",
                                   update_rate=conf.controller_update_rate, name=name)
 
+    apply_surface_parameters(model)
+
+    sdf = SDF()
+    sdf.add_element(model)
+    return sdf
+
+
+def apply_surface_parameters(model):
+    """
+    Applies surface parameters to all collisions in the given model.
+    :param model:
+    :type model: Model
+    :return:
+    """
     # Add friction surfaces to all body parts
     surf = Element(tag_name="surface")
     friction = Friction(
@@ -53,7 +67,3 @@ def get_simulation_robot(robot, name, builder, conf):
     collisions = model.get_elements_of_type(Collision, recursive=True)
     for collision in collisions:
         collision.add_element(surf)
-
-    sdf = SDF()
-    sdf.add_element(model)
-    return sdf
