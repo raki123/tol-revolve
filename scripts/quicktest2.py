@@ -15,24 +15,25 @@ def run(conf):
     :return:
     """
     conf.evaluation_time = 5.0
+    conf.output_directory = 'output'
     world = yield From(World.create(conf))
     yield From(world.pause(True))
 
-    for i in range(2):
+    for i in range(3):
         ta, _, _ = yield From(world.generate_valid_robot())
         tb, _, _ = yield From(world.generate_valid_robot())
         ra = yield From(wait_for(world.insert_robot(ta, pose=Pose(position=Vector3(0, 3*i, 0.5)))))
         rb = yield From(wait_for(world.insert_robot(tb, pose=Pose(position=Vector3(0, 3*i + 1, 0.5)))))
 
-        # while True:
-        #     # Attempt reproduction
-        #     mate = yield From(world.attempt_mate(ra, rb))
-        #
-        #     if mate:
-        #         break
-        #
-        # tree, bbox = mate
-        # yield From(wait_for(world.insert_robot(tree, pose=Pose(position=Vector3(0, 3*i + 2, 0.5)))))
+        while True:
+            # Attempt reproduction
+            mate = yield From(world.attempt_mate(ra, rb))
+
+            if mate:
+                break
+
+        tree, bbox = mate
+        yield From(wait_for(world.insert_robot(tree, pose=Pose(position=Vector3(0, 3*i + 2, 0.5)))))
 
 
 def main():

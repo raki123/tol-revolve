@@ -52,13 +52,11 @@ def apply_surface_parameters(model):
     )
     contact = "<contact>" \
               "<ode>" \
-              "<min_depth>%s</min_depth>" \
+              "<kd>%s</kd>" \
+              "<kp>%s</kp>" \
               "</ode>" \
-              "<bullet>" \
-              "<split_impulse_penetration_threshold>%s</split_impulse_penetration_threshold>" \
-              "</bullet>" \
               "</contact>" % (
-                  nf(constants.SURFACE_MIN_DEPTH), nf(constants.SURFACE_MIN_DEPTH)
+                  nf(constants.SURFACE_KD), nf(constants.SURFACE_KP)
               )
 
     surf.add_element(contact)

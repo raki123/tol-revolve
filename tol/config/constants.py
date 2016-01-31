@@ -49,10 +49,11 @@ SURFACE_FRICTION2 = 1.0
 SURFACE_SLIP1 = 0.01
 SURFACE_SLIP2 = 0.01
 
-# Setting a min depth seems to greatly improve the stability,
-# especially the "sliding" of robots. This is less of a problem
-# with a smaller timestep, but larger timesteps simulate a lot faster!
-SURFACE_MIN_DEPTH = 1e-6
+# I calculated these parameters to match the soft_erp / soft_cfm
+# values used in Robogen (they cannot be set directly in Gazebo
+# it seems). The division in `kp` is the intended time step length.
+SURFACE_KD = 4
+SURFACE_KP = 96 / 0.005
 
 # Thickness and height of the arena walls in meters
 WALL_THICKNESS = 0.05

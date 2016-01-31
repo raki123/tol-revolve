@@ -40,32 +40,7 @@ bot_yaml = '''
 ---
 body:
   id          : Core
-  type        : Core
-  children:
-    0:
-      id: T1
-      type: ParametricBarJoint
-      children:
-        1:
-          id: C3
-          type: FixedBrick
-    1:
-      id: T2
-      type: ActiveHinge
-      children:
-        1:
-          id: C1
-          type: FixedBrick
-    2:
-      id: T3
-      type: Hinge
-      children:
-        1:
-          id: C2
-          type: FixedBrick
-    3:
-      id: T4
-      type: FixedBrick
+  type        : TouchSensor
 '''
 conf = parser.parse_args()
 body_spec = get_body_spec(conf)
@@ -73,7 +48,7 @@ brain_spec = get_brain_spec(conf)
 bot = yaml_to_robot(body_spec, brain_spec, bot_yaml)
 builder = get_builder(conf)
 sdf = get_simulation_robot(bot, "test_bot", builder, conf)
-sdf.elements[0].set_position(Vector3(0, 0, 0.05))
+sdf.elements[0].set_position(Vector3(0, 0, 0.1))
 
 with open("/home/elte/.gazebo/models/test_bot/model.sdf", "w") as f:
     f.write(str(sdf))
