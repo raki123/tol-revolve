@@ -23,7 +23,7 @@ from sdfbuilder import SDF, Model, Pose, Link
 # Local
 from ..config import constants, parser, str_to_address
 from ..build import get_builder, get_simulation_robot
-from ..spec import get_tree_generator
+from ..spec import get_tree_generator, make_planar
 from revolve.util import multi_future
 from .robot import Robot
 from ..scenery import Wall
@@ -283,6 +283,9 @@ class World(WorldManager):
         # Apply mutation
         logger.debug("Crossover succeeded, applying mutation...")
         self.mutator.mutate(child, in_place=True)
+
+        if self.conf.enforce_planarity:
+            make_planar(child.root)
 
         # Check if the robot is valid
         ret = yield From(self.analyze_tree(child))

@@ -125,29 +125,9 @@ def get_body_spec(conf):
     return BodyImplementation(parts)
 
 
-def _get_absolute_orientation(root, part, orientation=0):
-    """
-    Helper method to get the current absolute orientation of a part. Uses
-    the fact that all our
-    :param root:
-    :param part:
-    :param orientation:
-    :return:
-    """
-    if root == part:
-        return (part.orientation + orientation) % 360
-
-    for conn in root.child:
-        sub = _get_absolute_orientation(conn.part, part, orientation + conn.part.orientation)
-        if sub is not False:
-            return sub
-
-    return False
-
-
 class BodyGenerator(FixedOrientationBodyGenerator):
     """
-
+    Body generator for ToL with some additions
     """
 
     def __init__(self, conf):
@@ -226,28 +206,6 @@ class BodyGenerator(FixedOrientationBodyGenerator):
             parts = [p for p in parts if p != "ParametricBarJoint"]
 
         return False if not parts else random.choice(parts)
-
-    def choose_orientation(self, new_part, parent_part, root_part, root=False):
-        """
-        Orientation override that always returns 0 for the root orientation.
-        In addition, if planarity is enforced, bricks are oriented such that
-        they lie in the root plane and thus don't initiate appendages pointing
-        up or down. To do this we use the convenient fact that all our connection
-        slots actually lie in a plane, if this were not the case it would not work.
-        """
-        if root:
-            return 0
-
-        if self.conf.enforce_planarity and new_part.type in ("FixedBrick", "ParametricBarJoint"):
-            cur = _get_absolute_orientation(root_part, parent_part)
-            assert cur is not False, "Cannot find part orientation, must be an error."
-
-            print(cur)
-
-            # Make sure the absolute orientation of the part is going to be zero
-            return (360 - cur) % 360
-
-        return super(BodyGenerator, self).choose_orientation(new_part, root_part, root)
 
 
 def get_body_generator(conf):

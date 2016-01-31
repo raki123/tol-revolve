@@ -13,6 +13,29 @@ from tol.spec import get_body_spec, get_brain_spec
 from tol.config import parser
 from tol.build import get_builder, get_simulation_robot
 
+# bot_yaml = '''
+# ---
+# body:
+#   id          : Core
+#   type        : Core
+#   children:
+#     0:
+#       id: Brick1
+#       type: FixedBrick
+#       orientation: 90
+#       children:
+#         2:
+#           id: Sensor
+#           type: TouchSensor
+#     1:
+#       id: Hinge
+#       type: Hinge
+#       orientation: 90
+#     2:
+#       id: Tc1
+#       type: TouchSensor
+#
+# '''
 bot_yaml = '''
 ---
 body:
@@ -20,28 +43,30 @@ body:
   type        : Core
   children:
     0:
-      id: Brick1
-      type: FixedBrick
-      orientation: 90
+      id: T1
+      type: ParametricBarJoint
       children:
-        2:
-          id: Sensor
-          type: TouchSensor
+        1:
+          id: C3
+          type: FixedBrick
     1:
-      id: Hinge
-      type: Hinge
-      orientation: 90
+      id: T2
+      type: ActiveHinge
+      children:
+        1:
+          id: C1
+          type: FixedBrick
     2:
-      id: Tc1
-      type: TouchSensor
-
+      id: T3
+      type: Hinge
+      children:
+        1:
+          id: C2
+          type: FixedBrick
+    3:
+      id: T4
+      type: FixedBrick
 '''
-# bot_yaml = '''
-# ---
-# body:
-#   id          : Core
-#   type        : TouchSensor
-# '''
 conf = parser.parse_args()
 body_spec = get_body_spec(conf)
 brain_spec = get_brain_spec(conf)
