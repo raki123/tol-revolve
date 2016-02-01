@@ -57,25 +57,26 @@ parser.add_argument(
 
 parser.add_argument(
     '--num-generations',
-    default=80, type=int,
+    default=60, type=int,
     help="The number of generations to simulate."
 )
 
 parser.add_argument(
+    '--disable-evolution',
+    default=False, type=lambda v: v.lower() == "true" or v == "1",
+    help="Useful as a baseline test - if set to true, new robots are generated"
+         " every time rather than evolving them."
+)
+
+parser.add_argument(
     '--num-evolutions',
-    default=10, type=int,
+    default=8, type=int,
     help="The number of times to repeat the experiment."
 )
 
 parser.add_argument(
-    '--evaluation-time',
-    default=10, type=float,
-    help="The number of simulation seconds each individual is evaluated."
-)
-
-parser.add_argument(
     '--warmup-time',
-    default=4, type=float,
+    default=1, type=float,
     help="The number of seconds the robot is initially ignored, allows it to e.g. topple over"
          " when put down without that being counted as movement."
 )
@@ -301,7 +302,12 @@ class OfflineEvoManager(World):
 
                 # Produce the next generation and evaluate them
                 robots = [p[0] for p in pairs]
-                child_trees, child_bboxes = yield From(self.produce_generation(robots))
+                if conf.disable_evolution:
+                    child_trees, child_bboxes = yield From(
+                        self.generate_population(conf.population_size))
+                else:
+                    child_trees, child_bboxes = yield From(self.produce_generation(robots))
+
                 child_pairs = yield From(self.evaluate_population(child_trees, child_bboxes))
 
                 if conf.keep_parents:
