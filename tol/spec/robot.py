@@ -5,8 +5,9 @@ from ..spec.brain import get_brain_generator
 
 class TolTreeGenerator(TreeGenerator):
     """
-
+    Tree generator with some additions.
     """
+
     def __init__(self, conf):
         """
         :param conf:
@@ -19,10 +20,17 @@ class TolTreeGenerator(TreeGenerator):
 
     def generate_tree(self):
         """
-        Overrides `generate_tree` to fix
+        Overrides `generate_tree` to force robot planarity. Robots
+        without output neurons are also discarded because we can be
+        certain they will not be able to move.
         :return:
         """
-        tree = super(TolTreeGenerator, self).generate_tree()
+        outputs = -1
+        tree = None
+        while outputs <= 0:
+            tree = super(TolTreeGenerator, self).generate_tree()
+            _, outputs, _ = tree.root.io_count(recursive=True)
+
         if self.conf.enforce_planarity:
             make_planar(tree.root)
 

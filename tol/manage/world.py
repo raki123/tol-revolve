@@ -287,7 +287,12 @@ class World(WorldManager):
         if self.conf.enforce_planarity:
             make_planar(child.root)
 
-        # Check if the robot is valid
+        _, outputs, _ = child.root.io_count(recursive=True)
+        if not outputs:
+            logger.debug("Evolution resulted in child without motors.")
+            raise Return(False)
+
+        # Check if the robot body is valid
         ret = yield From(self.analyze_tree(child))
         if ret is None or ret[0]:
             logger.debug("Intersecting body parts: Miscarriage.")
