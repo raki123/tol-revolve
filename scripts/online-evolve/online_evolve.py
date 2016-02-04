@@ -240,7 +240,7 @@ class OnlineEvoManager(World):
 
         for robot in self.robot_list():
             self.write_fitness.writerow([float(self.last_time), robot.robot.id,
-                                         robot.age(), robot.displacement(), robot.velocity(),
+                                         robot.age(), robot.displacement().norm(), robot.velocity(),
                                          robot.displacement_velocity(), robot.fitness()])
 
     @trollius.coroutine
