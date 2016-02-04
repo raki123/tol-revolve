@@ -180,9 +180,9 @@ class OnlineEvoManager(World):
         logger.debug("Building the arena...")
         n = self.conf.num_wall_segments
 
-        # Radius is half diameter * 2 pi = diameter * pi
-        frac = self.conf.world_diameter * math.pi / n
-        points = [Vector3(math.cos(i * frac), math.sin(i * frac), 0) for i in range(n - 1)]
+        r = self.conf.world_diameter * 0.5
+        frac = 2 * math.pi / n
+        points = [Vector3(r * math.cos(i * frac), r * math.sin(i * frac), 0) for i in range(n)]
         fut = yield From(self.build_walls(points))
         raise Return(fut)
 
@@ -206,6 +206,7 @@ class OnlineEvoManager(World):
         :return:
         """
         angle = random.random() * 2 * math.pi
+        print("Angle: %f" % angle)
         r = self.conf.birth_clinic_diameter / 2.0
 
         # Drop height is 20cm here
@@ -256,7 +257,7 @@ class OnlineEvoManager(World):
 
             # Generate a starting population
             trees, bboxes = yield From(self.generate_population(conf.initial_population_size))
-            insert_queue.append(zip(trees, bboxes, [None for _ in range(len(trees))]))
+            insert_queue = zip(trees, bboxes, [None for _ in range(len(trees))])
 
         # Simple loop timing mechanism
         timers = {
@@ -283,6 +284,7 @@ class OnlineEvoManager(World):
         yield From(wait_for(self.pause(False)))
         while True:
             if insert_queue:
+                print(insert_queue[0])
                 tree, bbox, parents = insert_queue.pop()
                 yield From(wait_for(self.birth(tree, bbox, parents)))
 
@@ -337,3 +339,6 @@ def main():
         loop.run_until_complete(run())
     except KeyboardInterrupt:
         print("Got Ctrl+C, shutting down.")
+
+if __name__ == '__main__':
+    main()

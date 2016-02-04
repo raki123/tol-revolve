@@ -1,7 +1,7 @@
 import os
 import sys
 from revolve.util import Supervisor
-from offline_evolve import parser
+from online_evolve import parser
 
 here = os.path.dirname(os.path.abspath(__file__))
 tol_path = os.path.abspath(os.path.join(here, '..', '..'))
@@ -14,8 +14,9 @@ os.environ['GAZEBO_MODEL_PATH'] = os.path.join(tol_path, 'tools', 'models')
 
 supervisor = Supervisor(
     manager_cmd=[sys.executable, "online_evolve.py"],
+    gazebo_cmd="gazebo",
     analyzer_cmd=os.path.join(rv_path, 'tools', 'analyzer', 'run-analyzer'),
-    world_file=os.path.join(here, 'offline-evolve.world'),
+    world_file=os.path.join(here, 'online-evolve.world'),
     output_directory=args.output_directory,
     manager_args=sys.argv[1:],
     restore_directory=args.restore_directory
