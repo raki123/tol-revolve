@@ -162,18 +162,19 @@ class OfflineEvoManager(World):
         raise Return(data)
 
     @trollius.coroutine
-    def evaluate_pair(self, tree, bbox):
+    def evaluate_pair(self, tree, bbox, parents=None):
         """
         Evaluates a single robot tree.
         :param tree:
         :param bbox:
+        :param parents:
         :return: Evaluated Robot object
         """
         # Pause the world just in case it wasn't already
         yield From(wait_for(self.pause(True)))
 
         pose = Pose(position=Vector3(0, 0, -bbox.min.z))
-        fut = yield From(self.insert_robot(tree, pose))
+        fut = yield From(self.insert_robot(tree, pose, parents))
         robot = yield From(fut)
 
         max_age = self.conf.evaluation_time + self.conf.warmup_time
@@ -202,18 +203,22 @@ class OfflineEvoManager(World):
         raise Return(robot)
 
     @trollius.coroutine
-    def evaluate_population(self, trees, bboxes):
+    def evaluate_population(self, trees, bboxes, parents=None):
         """
         :param trees:
         :param bboxes:
+        :param parents:
         :return:
         """
+        if parents is None:
+            parents = [None for _ in trees]
+
         pairs = []
         print("Evaluating population...")
-        for tree, bbox in itertools.izip(trees, bboxes):
+        for tree, bbox, par in itertools.izip(trees, bboxes, parents):
             print("Evaluating individual...")
             before = time.time()
-            robot = yield From(self.evaluate_pair(tree, bbox))
+            robot = yield From(self.evaluate_pair(tree, bbox, par))
             pairs.append((robot, time.time() - before))
             print("Done.")
 
@@ -231,6 +236,7 @@ class OfflineEvoManager(World):
         print("Producing generation...")
         trees = []
         bboxes = []
+        parent_pairs = []
 
         while len(trees) < self.conf.num_children:
             print("Producing individual...")
@@ -241,11 +247,13 @@ class OfflineEvoManager(World):
                 if pair:
                     trees.append(pair[0])
                     bboxes.append(pair[1])
+                    parent_pairs.append((p1, p2))
                     break
+
             print("Done.")
 
         print("Done producing generation.")
-        raise Return(trees, bboxes)
+        raise Return(trees, bboxes, parent_pairs)
 
     def log_generation(self, evo, generation, pairs):
         """
@@ -305,10 +313,11 @@ class OfflineEvoManager(World):
                 if conf.disable_evolution:
                     child_trees, child_bboxes = yield From(
                         self.generate_population(conf.population_size))
+                    parent_pairs = None
                 else:
-                    child_trees, child_bboxes = yield From(self.produce_generation(robots))
+                    child_trees, child_bboxes, parent_pairs = yield From(self.produce_generation(robots))
 
-                child_pairs = yield From(self.evaluate_population(child_trees, child_bboxes))
+                child_pairs = yield From(self.evaluate_population(child_trees, child_bboxes, parent_pairs))
 
                 if conf.keep_parents:
                     pairs += child_pairs

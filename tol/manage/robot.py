@@ -27,7 +27,7 @@ class Robot(RvRobot):
                                     time=time, speed_window=speed_window, parents=parents)
 
         # Set of robots this bot has mated with
-        self.mated_with = set()
+        self.mated_with = {}
         self.last_mate = None
         self.conf = conf
 
@@ -39,27 +39,26 @@ class Robot(RvRobot):
         :type other: Robot
         :return:
         """
-        if other in self.mated_with:
-            # Don't mate with the same bot twice
+        mate_count = self.mated_with.get(other.name, 0)
+        if mate_count > self.conf.max_pair_children:
+            # Maximum number of children with this other parent
+            # has been reached
             return False
 
         if self.last_mate is not None and \
-           float(self.last_update - self.last_mate) < self.conf.mating_cooldown:
+           float(self.last_update - self.last_mate) < self.conf.gestation_period:
             # Don't mate within the cooldown window
-            return False
-
-        if not self.last_position or not other.last_position:
             return False
 
         dist = other.last_position - self.last_position
         dist.z = 0
-        if dist.norm() > self.conf.mating_distance:
+        if dist.norm() > self.conf.mating_distance_threshold:
             return False
 
-        my_vel = self.velocity()
-        other_vel = other.velocity()
+        my_fitness = self.fitness()
+        other_fitness = other.fitness()
 
-        return my_vel == 0 or (other_vel / my_vel) > self.conf.proposal_threshold
+        return my_fitness == 0 or (other_fitness / my_fitness) >= self.conf.mating_fitness_threshold
 
     def fitness(self):
         """
@@ -76,13 +75,29 @@ class Robot(RvRobot):
         in context of velocities instead.
         :return:
         """
-        return 5 * self.displacement_velocity() + self.velocity()
+        return 5.0 * self.displacement_velocity() + self.velocity()
+
+    def age_of_death(self):
+        """
+        Returns the age at which this robot is supposed to die.
+
+        :return:
+        """
+        c = self.conf.age_cutoff
+        f = self.fitness()
+        ma = self.conf.max_lifetime * min(f, c) / c
+        return max(self.conf.min_lifetime, ma)
 
     def did_mate_with(self, other):
         """
         Called when this robot mated with another robot successfully.
         :param other:
+        :type other: Robot
         :return:
         """
         self.last_mate = self.last_update
-        self.mated_with.add(other)
+
+        if other.name in self.mated_with:
+            self.mated_with[other.name] += 1
+        else:
+            self.mated_with[other.name] = 1
