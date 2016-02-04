@@ -226,7 +226,7 @@ class OnlineEvoManager(World):
         futs = []
         for robot in self.robot_list():
             if robot.age() > robot.age_of_death():
-                fut = yield From(self.delete_robot())
+                fut = yield From(self.delete_robot(robot))
                 futs.append(fut)
 
         raise Return(futs)
@@ -284,7 +284,6 @@ class OnlineEvoManager(World):
         yield From(wait_for(self.pause(False)))
         while True:
             if insert_queue:
-                print(insert_queue[0])
                 tree, bbox, parents = insert_queue.pop()
                 yield From(wait_for(self.birth(tree, bbox, parents)))
 
