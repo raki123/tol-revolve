@@ -309,6 +309,8 @@ class OnlineEvoManager(World):
                     result = yield From(self.attempt_mate(ra, rb))
 
                     if result:
+                        ra.did_mate_with(rb)
+                        rb.did_mate_with(ra)
                         child, bbox = result
                         insert_queue.append((child, bbox, (ra, rb)))
 
