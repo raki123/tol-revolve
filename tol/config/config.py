@@ -82,7 +82,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--pose-update-frequency',
-    default=10, type=int,
+    default=8, type=int,
     help="The frequency at which the world is requested to send robot pose"
          " updates (in number of times per *simulation* second)."
 )
@@ -222,4 +222,12 @@ parser.add_argument(
     '--enable-light-sensor',
     default=True, type=str_to_bool,
     help="Enable / disable the light sensor in robots."
+)
+
+parser.add_argument(
+    '--warmup-time',
+    default=1, type=float,
+    help="The number of seconds the robot is initially ignored, allows it to e.g. topple over"
+         " when put down without that being counted as movement. Especially helps when dropping"
+         " robots from the sky at the start."
 )

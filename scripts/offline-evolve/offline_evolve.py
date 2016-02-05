@@ -75,13 +75,6 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--warmup-time',
-    default=1, type=float,
-    help="The number of seconds the robot is initially ignored, allows it to e.g. topple over"
-         " when put down without that being counted as movement."
-)
-
-parser.add_argument(
     '--max-mating-attempts',
     default=5, type=int,
     help="Maximum number of mating attempts between two parents."

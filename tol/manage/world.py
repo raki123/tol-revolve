@@ -19,7 +19,6 @@ from revolve.angle import Tree, Crossover, Mutator, WorldManager
 from sdfbuilder.math import Vector3
 from sdfbuilder import SDF, Model, Pose, Link
 
-
 # Local
 from ..config import constants, parser, str_to_address
 from ..build import get_builder, get_simulation_robot
@@ -34,9 +33,6 @@ from ..logging import logger
 # is restarted.
 _a = time.time()
 MSG_BASE = int(_a - 14e8 + (_a - int(_a)) * 1e5)
-
-# Seconds to wait between checking for answers in waiting loops
-ANSWER_SLEEP = 0.05
 
 
 class World(WorldManager):
@@ -99,6 +95,13 @@ class World(WorldManager):
         self = cls(_private=cls._PRIVATE, conf=conf)
         yield From(self._init())
         raise Return(self)
+
+    def robots_header(self):
+        """
+        Extends the robots header with a max age
+        :return:
+        """
+        return super(World, self).robots_header() + ['max_age']
 
     def create_robot_manager(self, robot_name, tree, robot, position, time, parents):
         """

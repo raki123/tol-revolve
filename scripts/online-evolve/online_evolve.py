@@ -14,6 +14,7 @@ import itertools
 import math
 import random
 
+import time
 from sdfbuilder import Pose
 from sdfbuilder.math import Vector3
 
@@ -31,7 +32,6 @@ from tol.logging import logger, output_console
 output_console()
 logger.setLevel(logging.DEBUG)
 
-
 # Environment parameters
 parser.add_argument(
     '--world-diameter',
@@ -41,13 +41,13 @@ parser.add_argument(
 
 parser.add_argument(
     '--num-wall-segments',
-    default=10, type=int,
+    default=12, type=int,
     help="The number of segments the arena wall will consist off."
 )
 
 parser.add_argument(
     '--birth-clinic-diameter',
-    default=2, type=float,
+    default=4, type=float,
     help="The diameter of the birth clinic in meters."
 )
 
@@ -72,18 +72,12 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--min-lifetime',
-    default=30, type=float,
-    help="The minimum lifetime of a robot in seconds, prevents it from "
-         "being killed off before it has had the chance to move."
-)
-
-parser.add_argument(
     '--age-cutoff',
     default=0.15, type=float,
     help="A robot's age of death is determined by the formula "
-         "`Ml * min(f, c)/c`, where `Ml` is the maximum lifetime, "
-         "`f` is the fitness of the robot and `c` is this cutoff value. "
+         "`Ml * min(0.5 * (f1 + f2), c)/c`, where `Ml` is the maximum lifetime, "
+         "`f1` and `f2` are the robot parents' fitness values and"
+         " `c` is this cutoff value. "
          "This results in a linear increase between zero and the maximum "
          "age."
 )
@@ -91,7 +85,7 @@ parser.add_argument(
 # Mating parameters
 parser.add_argument(
     '--mating-distance-threshold',
-    default=1, type=float,
+    default=1.0, type=float,
     help="The mating distance threshold in meters."
 )
 
@@ -120,6 +114,7 @@ class OnlineEvoManager(World):
     """
 
     """
+
     def __init__(self, conf, _private):
         """
 
@@ -169,7 +164,7 @@ class OnlineEvoManager(World):
             raise Return(ret)
 
         self.fitness_file.flush()
-        shutil.copy(self.fitness_filename, self.fitness_filename+'.snapshot')
+        shutil.copy(self.fitness_filename, self.fitness_filename + '.snapshot')
 
     @trollius.coroutine
     def build_arena(self):
@@ -206,7 +201,6 @@ class OnlineEvoManager(World):
         :return:
         """
         angle = random.random() * 2 * math.pi
-        print("Angle: %f" % angle)
         r = self.conf.birth_clinic_diameter / 2.0
 
         # Drop height is 20cm here
@@ -225,7 +219,7 @@ class OnlineEvoManager(World):
         """
         futs = []
         for robot in self.robot_list():
-            if robot.age() > robot.age_of_death():
+            if robot.age() > robot.age_of_death:
                 fut = yield From(self.delete_robot(robot))
                 futs.append(fut)
 
@@ -238,9 +232,11 @@ class OnlineEvoManager(World):
         if not self.write_fitness:
             return
 
+        t = float(self.last_time)
         for robot in self.robot_list():
-            self.write_fitness.writerow([float(self.last_time), robot.robot.id,
-                                         robot.age(), robot.displacement().norm(), robot.velocity(),
+            ds, dt = robot.displacement()
+            self.write_fitness.writerow([t, robot.robot.id,
+                                         robot.age(), ds.norm(), robot.velocity(),
                                          robot.displacement_velocity(), robot.fitness()])
 
     @trollius.coroutine
@@ -260,12 +256,8 @@ class OnlineEvoManager(World):
             insert_queue = zip(trees, bboxes, [None for _ in range(len(trees))])
 
         # Simple loop timing mechanism
-        timers = {
-            'reproduce': Time(),
-            'death': Time(),
-            'snapshot': Time(),
-            'log_fitness': Time()
-        }
+        timers = {k: Time() for k in ['reproduce', 'death', 'snapshot',
+                                      'log_fitness', 'rtf']}
         this = self
 
         def timer(name, t):
@@ -281,6 +273,7 @@ class OnlineEvoManager(World):
             return False
 
         # Start the world
+        real_time = time.time()
         yield From(wait_for(self.pause(False)))
         while True:
             if insert_queue:
@@ -293,16 +286,20 @@ class OnlineEvoManager(World):
                 yield From(trollius.sleep(0.2))
                 continue
 
-            if timer('snapshot', 20.0):
-                # Snapshot the world every 20 simulation seconds
+            if timer('snapshot', 10.0):
+                # Snapshot the world every 10 simulation seconds
                 yield From(self.create_snapshot())
                 yield From(wait_for(self.pause(False)))
 
-            if timer('death', 3.0):
-                # Kill off robots over their age every simulation second
+            if timer('death', 5.0):
+                # Kill off robots over their age every 5 simulation seconds
                 futs = yield From(self.kill_old_robots())
                 if futs:
                     yield From(multi_future(futs))
+
+            if not len(self.robots):
+                print("Population has died out.")
+                break
 
             if timer('reproduce', 3.0) and len(self.robots) < conf.max_population_size:
                 # Attempt a reproduction every 3 simulation seconds
@@ -315,9 +312,16 @@ class OnlineEvoManager(World):
                         child, bbox = result
                         insert_queue.append((child, bbox, (ra, rb)))
 
-            if timer('log_fitness', 5.0):
-                # Log overall fitness every 5 simulation seconds
+            if timer('log_fitness', 2.0):
+                # Log overall fitness every 2 simulation seconds
                 self.log_fitness()
+
+            if timer('rtf', 1.0):
+                # Print RTF to screen every second
+                nw = time.time()
+                diff = nw - real_time
+                real_time = nw
+                print("RTF: %f" % (1.0 / diff))
 
             yield From(trollius.sleep(0.2))
 
@@ -338,6 +342,7 @@ def main():
         loop.run_until_complete(run())
     except KeyboardInterrupt:
         print("Got Ctrl+C, shutting down.")
+
 
 if __name__ == '__main__':
     main()

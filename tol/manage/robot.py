@@ -1,3 +1,5 @@
+import random
+
 from sdfbuilder.math import Vector3
 from revolve.util import Time
 from revolve.angle import Robot as RvRobot
@@ -19,17 +21,27 @@ class Robot(RvRobot):
         :param time:
         :type time: Time
         :param parents:
-        :type parents: set
+        :type parents: tuple(Robot, Robot)
         :return:
         """
         speed_window = int(conf.evaluation_time * conf.pose_update_frequency)
-        super(Robot, self).__init__(name=name, tree=tree, robot=robot, position=position,
-                                    time=time, speed_window=speed_window, parents=parents)
+        super(Robot, self).__init__(name=name, tree=tree, robot=robot, position=position, time=time,
+                                    speed_window=speed_window, warmup_time=conf.warmup_time, parents=parents)
 
         # Set of robots this bot has mated with
         self.mated_with = {}
         self.last_mate = None
         self.conf = conf
+
+        # Set the age of death
+        max_l = conf.max_lifetime
+        if parents:
+            pa, pb = parents
+            f = 0.5 * (pa.fitness() + pb.fitness())
+            c = conf.age_cutoff
+            self.age_of_death = max_l * min(f, c) / c
+        else:
+            self.age_of_death = max(0, random.gauss(0.5 * max_l, 0.25 * max_l))
 
     def will_mate_with(self, other):
         """
@@ -39,6 +51,10 @@ class Robot(RvRobot):
         :type other: Robot
         :return:
         """
+        if self.age() < self.conf.warmup_time:
+            # Don't mate within the warmup time
+            return False
+
         mate_count = self.mated_with.get(other.name, 0)
         if mate_count > self.conf.max_pair_children:
             # Maximum number of children with this other parent
@@ -60,6 +76,21 @@ class Robot(RvRobot):
 
         return my_fitness == 0 or (other_fitness / my_fitness) >= self.conf.mating_fitness_threshold
 
+    def write_robot(self, details_file, csv_writer):
+        """
+
+        :param details_file:
+        :param csv_writer:
+        :return:
+        """
+        with open(details_file, 'w') as f:
+            f.write(self.robot.SerializeToString())
+
+        row = [self.robot.id]
+        row += [parent.robot.id for parent in self.parents] if self.parents else ['', '']
+        row += [self.age_of_death]
+        csv_writer.writerow(row)
+
     def fitness(self):
         """
         Fitness is proportional to both the displacement and absolute
@@ -76,17 +107,6 @@ class Robot(RvRobot):
         :return:
         """
         return 5.0 * self.displacement_velocity() + self.velocity()
-
-    def age_of_death(self):
-        """
-        Returns the age at which this robot is supposed to die.
-
-        :return:
-        """
-        c = self.conf.age_cutoff
-        f = self.fitness()
-        ma = self.conf.max_lifetime * min(f, c) / c
-        return max(self.conf.min_lifetime, ma)
 
     def did_mate_with(self, other):
         """
