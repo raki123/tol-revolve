@@ -41,7 +41,9 @@ class Robot(RvRobot):
             c = conf.age_cutoff
             self.age_of_death = max_l * min(f, c) / c
         else:
-            self.age_of_death = max(0, random.gauss(0.1 * max_l, 0.05 * max_l))
+            mu = self.conf.initial_age_mu
+            sigma = self.conf.initial_age_sigma
+            self.age_of_death = max(0, random.gauss(mu, sigma))
 
     def will_mate_with(self, other):
         """
