@@ -118,7 +118,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--max-pair-children',
-    default=2, type=int,
+    default=3, type=int,
     help="The maximum number of children one pair of robots is allowed to have."
 )
 
