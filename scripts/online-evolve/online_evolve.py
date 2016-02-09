@@ -47,8 +47,16 @@ parser.add_argument(
 
 parser.add_argument(
     '--birth-clinic-diameter',
-    default=2.5, type=float,
+    default=3.0, type=float,
     help="The diameter of the birth clinic in meters."
+)
+
+parser.add_argument(
+    '--min-drop-distance',
+    default=0.25, type=float,
+    help="Minimum distance in meters to the other robots when being dropped "
+         "into the world. This cannot always be guaranteed, so a number of "
+         "attempts is made."
 )
 
 # General population parameters
@@ -60,7 +68,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--max-population-size',
-    default=50, type=int,
+    default=75, type=int,
     help="The maximum size of the population."
 )
 
@@ -73,20 +81,20 @@ parser.add_argument(
 
 parser.add_argument(
     '--initial-age-mu',
-    default=36000 / 8.0, type=float,
+    default=36000 / 5.0, type=float,
     help="Gaussian mean for the age distribution of the initial population."
 )
 
 parser.add_argument(
     '--initial-age-sigma',
-    default=36000 / 16.0, type=float,
+    default=36000 / 10.0, type=float,
     help="Gaussian standard deviation for age distribution of "
          "the initial population."
 )
 
 parser.add_argument(
     '--age-cutoff',
-    default=0.12, type=float,
+    default=0.025, type=float,
     help="A robot's age of death is determined by the formula "
          "`Ml * min(0.5 * (f1 + f2), c)/c`, where `Ml` is the maximum lifetime, "
          "`f1` and `f2` are the robot parents' fitness values and"
@@ -104,7 +112,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--mating-fitness-threshold',
-    default=0.5, type=float,
+    default=0.3, type=float,
     help="The maximum fractional fitness difference between two robots that "
          "will allow a mate. E.g. for a fraction of 0.5, two robots will not mate"
          " if one is 50% less fit than the other."
@@ -112,13 +120,13 @@ parser.add_argument(
 
 parser.add_argument(
     '--gestation-period',
-    default=36000 / 50.0, type=float,
+    default=36000 / 100.0, type=float,
     help="The minimum time a robot has to wait between matings."
 )
 
 parser.add_argument(
     '--max-pair-children',
-    default=3, type=int,
+    default=6, type=int,
     help="The maximum number of children one pair of robots is allowed to have."
 )
 
@@ -167,6 +175,16 @@ class OnlineEvoManager(World):
         raise Return(self)
 
     @trollius.coroutine
+    def teardown(self):
+        """
+
+        :return:
+        """
+        yield From(super(OnlineEvoManager, self).teardown())
+        if self.fitness_file:
+            self.fitness_file.close()
+
+    @trollius.coroutine
     def create_snapshot(self):
         """
         Copy the fitness file in the snapshot
@@ -213,12 +231,30 @@ class OnlineEvoManager(World):
         :param parents:
         :return:
         """
-        angle = random.random() * 2 * math.pi
         r = self.conf.birth_clinic_diameter / 2.0
 
         # Drop height is 20cm here
-        # TODO Should we check whether other robots are not too close?
-        pos = Vector3(r * math.cos(angle), r * math.sin(angle), -bbox.min.z + 0.2)
+        pos = None
+        done = False
+        z = -bbox.min.z + 0.2
+        for _ in xrange(5):
+            # Make 5 attempts, if we still don't have a satisfactory position
+            # just use the last one.
+            angle = random.random() * 2 * math.pi
+            pos = Vector3(r * math.cos(angle), r * math.sin(angle), z)
+            done = True
+
+            for bot in self.robots.values():
+                if bot.distance_to(pos) < self.conf.min_drop_distance:
+                    done = False
+                    break
+
+            if done:
+                break
+
+        if not done:
+            logger.warning("Warning: could not satisfy minimal drop distance.")
+
         fut = yield From(self.insert_robot(tree, Pose(position=pos), parents))
         raise Return(fut)
 
@@ -287,6 +323,7 @@ class OnlineEvoManager(World):
 
         # Start the world
         real_time = time.time()
+        sleep_time = 0.1
         yield From(wait_for(self.pause(False)))
         while True:
             if insert_queue:
@@ -296,11 +333,11 @@ class OnlineEvoManager(World):
             # Perform operations only if there are no items
             # in the insert queue, makes snapshotting easier.
             if insert_queue:
-                yield From(trollius.sleep(0.2))
+                yield From(trollius.sleep(sleep_time))
                 continue
 
-            if timer('snapshot', 10.0):
-                # Snapshot the world every 10 simulation seconds
+            if timer('snapshot', 100.0):
+                # Snapshot the world every 100 simulation seconds
                 yield From(self.create_snapshot())
                 yield From(wait_for(self.pause(False)))
 
@@ -311,7 +348,7 @@ class OnlineEvoManager(World):
                     yield From(multi_future(futs))
 
             if len(self.robots) <= 1:
-                print("Less than two robots left in population - extinction.")
+                print("Fewer than two robots left in population - extinction.")
                 break
 
             if timer('reproduce', 3.0) and len(self.robots) < conf.max_population_size:
@@ -331,14 +368,16 @@ class OnlineEvoManager(World):
                 # Log overall fitness every 2 simulation seconds
                 self.log_fitness()
 
-            if timer('rtf', 1.0):
-                # Print RTF to screen every second
+            if timer('rtf', 5.0):
+                # Print RTF to screen every 5 simulation seconds
                 nw = time.time()
                 diff = nw - real_time
                 real_time = nw
                 print("RTF: %f" % (1.0 / diff))
 
-            yield From(trollius.sleep(0.2))
+            yield From(trollius.sleep(sleep_time))
+
+        yield From(self.teardown())
 
 
 @trollius.coroutine

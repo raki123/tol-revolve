@@ -12,7 +12,32 @@ args = parser.parse_args()
 os.environ['GAZEBO_PLUGIN_PATH'] = os.path.join(tol_path, 'build')
 os.environ['GAZEBO_MODEL_PATH'] = os.path.join(tol_path, 'tools', 'models')
 
-supervisor = Supervisor(
+
+class OESupervisor(Supervisor):
+    """
+    Supervisor class that adds some output filtering for ODE errors
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(OESupervisor, self).__init__(*args, **kwargs)
+        self.ode_errors = 0
+
+    def write_stderr(self, data):
+        """
+        :param data:
+        :return:
+        """
+        if 'ODE Message 3' in data:
+            self.ode_errors += 1
+        elif data.strip():
+            sys.stderr.write(data)
+
+        if self.ode_errors >= 100:
+            self.ode_errors = 0
+            sys.stderr.write('ODE Message 3 (100)\n')
+
+
+supervisor = OESupervisor(
     manager_cmd=[sys.executable, "online_evolve.py"],
     analyzer_cmd=os.path.join(rv_path, 'tools', 'analyzer', 'run-analyzer'),
     world_file=os.path.join(here, 'online-evolve.world'),

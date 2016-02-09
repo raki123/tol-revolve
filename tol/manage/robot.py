@@ -68,15 +68,33 @@ class Robot(RvRobot):
             # Don't mate within the cooldown window
             return False
 
-        dist = other.last_position - self.last_position
-        dist.z = 0
-        if dist.norm() > self.conf.mating_distance_threshold:
+        if self.distance_to(other.last_position) > self.conf.mating_distance_threshold:
             return False
 
         my_fitness = self.fitness()
         other_fitness = other.fitness()
 
-        return my_fitness == 0 or (other_fitness / my_fitness) >= self.conf.mating_fitness_threshold
+        # Only mate with robots with nonzero fitness, check for self zero-fitness
+        # to prevent division by zero.
+        return other_fitness > 0 and (
+            my_fitness == 0 or
+            (other_fitness / my_fitness) >= self.conf.mating_fitness_threshold
+        )
+
+    def distance_to(self, vec, planar=True):
+        """
+        Calculates the Euclidean distance from this robot to
+        the given vector position.
+        :param vec:
+        :type vec: Vector3
+        :param planar: If true, only x/y coordinates are considered.
+        :return:
+        """
+        diff = self.last_position - vec
+        if planar:
+            diff.z = 0
+
+        return diff.norm()
 
     def write_robot(self, details_file, csv_writer):
         """
@@ -108,7 +126,7 @@ class Robot(RvRobot):
         in context of velocities instead.
         :return:
         """
-        if self.age() < (1.5 * self.conf.warmup_time):
+        if self.age() < (0.25 * self.conf.evaluation_time):
             # We want at least some data
             return 0.0
 
