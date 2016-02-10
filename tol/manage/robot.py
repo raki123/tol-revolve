@@ -96,9 +96,10 @@ class Robot(RvRobot):
 
         return diff.norm()
 
-    def write_robot(self, details_file, csv_writer):
+    def write_robot(self, world, details_file, csv_writer):
         """
 
+        :param world:
         :param details_file:
         :param csv_writer:
         :return:
@@ -106,7 +107,7 @@ class Robot(RvRobot):
         with open(details_file, 'w') as f:
             f.write(self.robot.SerializeToString())
 
-        row = [self.robot.id]
+        row = [getattr(world, 'current_run', 0), self.robot.id]
         row += [parent.robot.id for parent in self.parents] if self.parents else ['', '']
         row += [self.age_of_death]
         csv_writer.writerow(row)

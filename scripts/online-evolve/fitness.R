@@ -13,7 +13,8 @@ ggplot(cfitness, aes(t_sim)) +
   geom_ribbon(data=cfitness, aes(ymin=fit-fsd, ymax=fit+fsd), alpha=0.2, fill=fcolor, linetype=0);
 
 ggplot(cfitness, aes(x=t_sim, y=n)) +
-  geom_point() + geom_line();
+  xlab("Time (s)") + ylab("# of individuals") +
+  geom_line(colour=fcolor);
 
 robots = read.csv("robots.csv", head=TRUE);
 

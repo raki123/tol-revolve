@@ -62,13 +62,13 @@ parser.add_argument(
 # General population parameters
 parser.add_argument(
     '--initial-population-size',
-    default=12, type=int,
+    default=15, type=int,
     help="The size of the starting population."
 )
 
 parser.add_argument(
     '--max-population-size',
-    default=75, type=int,
+    default=60, type=int,
     help="The maximum size of the population."
 )
 
@@ -81,20 +81,20 @@ parser.add_argument(
 
 parser.add_argument(
     '--initial-age-mu',
-    default=36000 / 5.0, type=float,
+    default=36000 / 6.0, type=float,
     help="Gaussian mean for the age distribution of the initial population."
 )
 
 parser.add_argument(
     '--initial-age-sigma',
-    default=36000 / 10.0, type=float,
+    default=36000 / 12.0, type=float,
     help="Gaussian standard deviation for age distribution of "
          "the initial population."
 )
 
 parser.add_argument(
     '--age-cutoff',
-    default=0.025, type=float,
+    default=0.05, type=float,
     help="A robot's age of death is determined by the formula "
          "`Ml * min(0.5 * (f1 + f2), c)/c`, where `Ml` is the maximum lifetime, "
          "`f1` and `f2` are the robot parents' fitness values and"
@@ -126,8 +126,36 @@ parser.add_argument(
 
 parser.add_argument(
     '--max-pair-children',
-    default=6, type=int,
+    default=4, type=int,
     help="The maximum number of children one pair of robots is allowed to have."
+)
+
+# Experiment parameters
+parser.add_argument(
+    '--num-repetitions',
+    default=1, type=int,
+    help="The number of times to repeat the experiment."
+)
+
+parser.add_argument(
+    '--explosion-cutoff',
+    default=45, type=int,
+    help="The number of robots in the world beyond which the experiment"
+         " result is set to `explosion`."
+)
+
+parser.add_argument(
+    '--extinction-cutoff',
+    default=3, type=int,
+    help="The number of robots in the world beyond which the experiment"
+         " result is set to `extinction`."
+)
+
+parser.add_argument(
+    '--stability-cutoff',
+    default=7200, type=float,
+    help="The number of simulation seconds after which the experiment"
+         " result is set to `extinction`."
 )
 
 
@@ -149,6 +177,11 @@ class OnlineEvoManager(World):
         self.fitness_file = None
         self.write_fitness = None
 
+        if self.do_restore:
+            self.current_run = self.do_restore['current_run']
+        else:
+            self.current_run = 0
+
         if self.output_directory:
             self.fitness_filename = os.path.join(self.output_directory, 'fitness.csv')
 
@@ -159,7 +192,7 @@ class OnlineEvoManager(World):
             else:
                 self.fitness_file = open(self.fitness_filename, 'wb', buffering=1)
                 self.write_fitness = csv.writer(self.fitness_file, delimiter=',')
-                self.write_fitness.writerow(['t_sim', 'robot_id', 'age', 'displacement',
+                self.write_fitness.writerow(['run', 't_sim', 'robot_id', 'age', 'displacement',
                                              'vel', 'dvel', 'fitness'])
 
     @classmethod
@@ -183,6 +216,15 @@ class OnlineEvoManager(World):
         yield From(super(OnlineEvoManager, self).teardown())
         if self.fitness_file:
             self.fitness_file.close()
+
+    @trollius.coroutine
+    def get_snapshot_data(self):
+        """
+        :return:
+        """
+        data = yield From(super(OnlineEvoManager, self).get_snapshot_data())
+        data['current_run'] = self.current_run
+        raise Return(data)
 
     @trollius.coroutine
     def create_snapshot(self):
@@ -282,14 +324,29 @@ class OnlineEvoManager(World):
             return
 
         t = float(self.last_time)
-        for robot in self.robot_list():
+        n = self.current_run
+        for robot in self.robots.values():
             ds, dt = robot.displacement()
-            self.write_fitness.writerow([t, robot.robot.id,
+            self.write_fitness.writerow([n, t, robot.robot.id,
                                          robot.age(), ds.norm(), robot.velocity(),
                                          robot.displacement_velocity(), robot.fitness()])
 
     @trollius.coroutine
     def run(self):
+        """
+        Simple wrapper to complete multiple simulation runs.
+        :param n:
+        :return:
+        """
+        while self.current_run < self.conf.num_repetitions:
+            yield From(self.run_single())
+
+            # Update run counter and clear restore status
+            self.current_run += 1
+            self.do_restore = None
+
+    @trollius.coroutine
+    def run_single(self):
         """
         :return:
         """
@@ -297,8 +354,9 @@ class OnlineEvoManager(World):
         insert_queue = []
 
         if not self.do_restore:
-            # Build the arena
-            yield From(wait_for(self.build_arena()))
+            if self.current_run == 0:
+                # Only build arena on first run
+                yield From(wait_for(self.build_arena()))
 
             # Generate a starting population
             trees, bboxes = yield From(self.generate_population(conf.initial_population_size))
@@ -321,9 +379,13 @@ class OnlineEvoManager(World):
 
             return False
 
-        # Start the world
+        # Some variables
         real_time = time.time()
+        rtf_interval = 2.5
         sleep_time = 0.1
+        run_result = 'unknown'
+
+        # Start the world
         yield From(wait_for(self.pause(False)))
         while True:
             if insert_queue:
@@ -347,10 +409,6 @@ class OnlineEvoManager(World):
                 if futs:
                     yield From(multi_future(futs))
 
-            if len(self.robots) <= 1:
-                print("Fewer than two robots left in population - extinction.")
-                break
-
             if timer('reproduce', 3.0) and len(self.robots) < conf.max_population_size:
                 # Attempt a reproduction every 3 simulation seconds
                 potential_mates = self.select_mates()
@@ -368,16 +426,55 @@ class OnlineEvoManager(World):
                 # Log overall fitness every 2 simulation seconds
                 self.log_fitness()
 
-            if timer('rtf', 5.0):
-                # Print RTF to screen every 5 simulation seconds
+            if timer('rtf', rtf_interval):
+                # Print RTF to screen every so often
                 nw = time.time()
                 diff = nw - real_time
                 real_time = nw
-                print("RTF: %f" % (1.0 / diff))
+                print("RTF: %f" % (rtf_interval / diff))
+
+            # Stop conditions
+            num_bots = len(self.robots)
+            if num_bots <= conf.extinction_cutoff:
+                print("%d or fewer robots left in population - extinction." %
+                      conf.extinction_cutoff)
+                run_result = 'extinction'
+                break
+            elif num_bots >= conf.explosion_cutoff:
+                print("%d or more robots in population - explosion" %
+                      conf.explosion_cutoff)
+                run_result = 'explosion'
+                break
+            elif float(self.age()) > conf.stability_cutoff:
+                print("World older than %f seconds, stable." % conf.stability_cutoff)
+                run_result = 'stable'
+                break
 
             yield From(trollius.sleep(sleep_time))
 
-        yield From(self.teardown())
+        # Delete all robots and reset the world, just in case a new run
+        # will be started.
+        yield From(wait_for(self.delete_all_robots()))
+        yield From(wait_for(self.reset()))
+        yield From(wait_for(self.pause(True)))
+        self.write_result(run_result)
+
+    def write_result(self, result):
+        """
+        Writes the textual result status of a single run
+        :param result:
+        :return:
+        """
+        if self.output_directory:
+            result_filename = os.path.join(self.output_directory, 'results.csv')
+            exists = os.path.exists(result_filename)
+
+            with open(result_filename, 'ab') as f:
+                writer = csv.writer(f, delimiter=',')
+                if not exists:
+                    writer.writerow(['run', 'result'])
+
+                writer.writerow([self.current_run, result])
 
 
 @trollius.coroutine
@@ -388,6 +485,7 @@ def run():
     conf = parser.parse_args()
     world = yield From(OnlineEvoManager.create(conf))
     yield From(world.run())
+    yield From(world.teardown())
 
 
 def main():

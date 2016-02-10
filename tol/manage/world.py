@@ -101,7 +101,7 @@ class World(WorldManager):
         Extends the robots header with a max age
         :return:
         """
-        return super(World, self).robots_header() + ['max_age']
+        return ['run'] + super(World, self).robots_header() + ['max_age']
 
     def create_robot_manager(self, robot_name, tree, robot, position, time, parents):
         """
