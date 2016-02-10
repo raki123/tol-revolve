@@ -153,7 +153,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--stability-cutoff',
-    default=7200, type=float,
+    default=36000, type=float,
     help="The number of simulation seconds after which the experiment"
          " result is set to `extinction`."
 )
@@ -323,7 +323,7 @@ class OnlineEvoManager(World):
         if not self.write_fitness:
             return
 
-        t = float(self.last_time)
+        t = float(self.age())
         n = self.current_run
         for robot in self.robots.values():
             ds, dt = robot.displacement()
@@ -364,7 +364,7 @@ class OnlineEvoManager(World):
 
         # Simple loop timing mechanism
         timers = {k: Time() for k in ['reproduce', 'death', 'snapshot',
-                                      'log_fitness', 'rtf']}
+                                      'log_fitness', 'rtf', 'insert_queue']}
         this = self
 
         def timer(name, t):
@@ -381,21 +381,29 @@ class OnlineEvoManager(World):
 
         # Some variables
         real_time = time.time()
-        rtf_interval = 2.5
+        rtf_interval = 10.0
         sleep_time = 0.1
         run_result = 'unknown'
+        started = False
 
-        # Start the world
-        yield From(wait_for(self.pause(False)))
         while True:
-            if insert_queue:
+            if insert_queue and (not started or timer('insert_queue', 1.0)):
                 tree, bbox, parents = insert_queue.pop()
                 yield From(wait_for(self.birth(tree, bbox, parents)))
+
+            if not started:
+                # Start the world
+                yield From(wait_for(self.pause(False)))
+                started = True
 
             # Perform operations only if there are no items
             # in the insert queue, makes snapshotting easier.
             if insert_queue:
-                yield From(trollius.sleep(sleep_time))
+                # Space out robot inserts with one simulation second
+                # to allow them to drop in case they are too close.
+                # Sleep for a very small interval every time until
+                # all inserts are done
+                yield From(trollius.sleep(0.01))
                 continue
 
             if timer('snapshot', 100.0):
@@ -454,10 +462,11 @@ class OnlineEvoManager(World):
 
         # Delete all robots and reset the world, just in case a new run
         # will be started.
+        self.write_result(run_result)
         yield From(wait_for(self.delete_all_robots()))
         yield From(wait_for(self.reset()))
         yield From(wait_for(self.pause(True)))
-        self.write_result(run_result)
+        yield From(trollius.sleep(0.5))
 
     def write_result(self, result):
         """

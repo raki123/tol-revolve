@@ -37,7 +37,7 @@ keys = [k for k in param_options]
 idx = 0
 
 # Maximum number of experiments to run
-max_experiments = 25
+max_experiments = 50
 
 args = parser.parse_args()
 
