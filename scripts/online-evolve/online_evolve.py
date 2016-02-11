@@ -294,7 +294,7 @@ class OnlineEvoManager(World):
         """
         s = len(tree)
         if (s + self.total_size()) > self.conf.part_limit:
-            print("Not enough parts in pool to create robot of side %d." % s)
+            print("Not enough parts in pool to create robot of size %d." % s)
             raise Return(False)
 
         r = self.conf.birth_clinic_diameter / 2.0
@@ -524,7 +524,9 @@ class OnlineEvoManager(World):
         while True:
             if insert_queue and (not started or timer('insert_queue', 1.0)):
                 tree, bbox, parents = insert_queue.pop()
-                yield From(wait_for(self.birth(tree, bbox, parents)))
+                res = yield From(self.birth(tree, bbox, parents))
+                if res:
+                    yield From(res)
 
             if not started:
                 # Start the world
