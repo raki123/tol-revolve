@@ -196,10 +196,10 @@ class OnlineEvoManager(World):
                 if self.do_restore:
                     shutil.copy(fname + '.snapshot', fname)
                     f = open(fname, 'ab', buffering=1)
-                    self.csv_files[k]['file'] = f
                 else:
                     f = open(fname, 'wb', buffering=1)
 
+                self.csv_files[k]['file'] = f
                 self.csv_files[k]['csv'] = csv.writer(f, delimiter=',')
 
                 if not self.do_restore:
