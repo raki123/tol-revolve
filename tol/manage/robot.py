@@ -10,7 +10,7 @@ class Robot(RvRobot):
     Class to manage a single robot
     """
 
-    def __init__(self, conf, name, tree, robot, position, time, parents=None):
+    def __init__(self, conf, name, tree, robot, position, time, parents=None, initial_charge=0.0):
         """
         :param conf:
         :param name:
@@ -22,6 +22,8 @@ class Robot(RvRobot):
         :type time: Time
         :param parents:
         :type parents: tuple(Robot, Robot)
+        :param initial_charge: Battery charge for this robot
+        :type initial_charge: float
         :return:
         """
         speed_window = int(conf.evaluation_time * conf.pose_update_frequency)
@@ -32,18 +34,8 @@ class Robot(RvRobot):
         self.mated_with = {}
         self.last_mate = None
         self.conf = conf
-
-        # Set the age of death
-        max_l = conf.max_lifetime
-        if parents:
-            pa, pb = parents
-            f = 0.5 * (pa.fitness() + pb.fitness())
-            c = conf.age_cutoff
-            self.age_of_death = max_l * min(f, c) / c
-        else:
-            mu = self.conf.initial_age_mu
-            sigma = self.conf.initial_age_sigma
-            self.age_of_death = max(0, random.gauss(mu, sigma))
+        self.size = len(tree)
+        self.initial_charge = initial_charge
 
     def will_mate_with(self, other):
         """
@@ -96,6 +88,13 @@ class Robot(RvRobot):
 
         return diff.norm()
 
+    @staticmethod
+    def header():
+        """
+        :return:
+        """
+        return ['run', 'id', 'parent1', 'parent2', 'charge', 'nparts']
+
     def write_robot(self, world, details_file, csv_writer):
         """
 
@@ -109,7 +108,7 @@ class Robot(RvRobot):
 
         row = [getattr(world, 'current_run', 0), self.robot.id]
         row += [parent.robot.id for parent in self.parents] if self.parents else ['', '']
-        row += [self.age_of_death]
+        row += [self.initial_charge, self.size]
         csv_writer.writerow(row)
 
     def fitness(self):
@@ -132,6 +131,13 @@ class Robot(RvRobot):
             return 0.0
 
         return 5.0 * self.displacement_velocity() + self.velocity()
+
+    def charge(self):
+        """
+        Returns the remaining battery charge of this robot.
+        :return:
+        """
+        return self.initial_charge - (float(self.age()) * self.size)
 
     def did_mate_with(self, other):
         """

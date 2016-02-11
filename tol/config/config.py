@@ -47,7 +47,7 @@ def str_to_bool(v):
     """
     :type v: str
     """
-    return v.lower() == "true" or v == "1"
+    return v.lower() in ("true", "1")
 
 
 def str_to_address(v):
@@ -97,7 +97,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--min-parts',
-    default=4, type=int,
+    default=3, type=int,
     help="Minimum number of parts in a robot."
 )
 
