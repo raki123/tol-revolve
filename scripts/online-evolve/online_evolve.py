@@ -125,7 +125,7 @@ parser.add_argument(
     default=0.3, type=float,
     help="The maximum fractional fitness difference between two robots that "
          "will allow a mate. E.g. for a fraction of 0.5, two robots will not mate"
-         " if one is 50% less fit than the other."
+         " if one is 50%% less fit than the other."
 )
 
 parser.add_argument(

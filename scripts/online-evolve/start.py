@@ -1,11 +1,13 @@
 import os
 import sys
-from revolve.util import Supervisor
-from online_evolve import parser
 
 here = os.path.dirname(os.path.abspath(__file__))
 tol_path = os.path.abspath(os.path.join(here, '..', '..'))
 rv_path = os.path.abspath(os.path.join(tol_path, '..', 'revolve'))
+sys.path.append(tol_path)
+
+from revolve.util import Supervisor
+from online_evolve import parser
 
 os.environ['GAZEBO_PLUGIN_PATH'] = os.path.join(tol_path, 'build')
 os.environ['GAZEBO_MODEL_PATH'] = os.path.join(tol_path, 'tools', 'models')
