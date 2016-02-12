@@ -94,6 +94,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--discharge-fraction',
+    default=1.0, type=float,
+    help="Multiply the charge assigned to a robot by this constant fraction before "
+         "actually assigning it."
+)
+
+parser.add_argument(
     '--initial-charge-mu',
     default=7.5 * 36000 / 6.0, type=float,
     help="Gaussian mean for the charge distribution of the initial population."
@@ -413,7 +420,7 @@ class OnlineEvoManager(World):
             fest = 0.5 * (pa.fitness() + pb.fitness())
             fsum = self.total_fitness()
             charge_frac = fest / fsum if fsum > 0 else 1.0 / len(self.robots)
-            charge = charge_frac * self.charge()
+            charge = self.conf.discharge_fraction * charge_frac * self.charge()
         else:
             mu = self.conf.initial_charge_mu
             sigma = self.conf.initial_charge_sigma

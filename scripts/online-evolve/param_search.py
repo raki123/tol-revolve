@@ -12,34 +12,22 @@ from start import OnlineEvolutionSupervisor, manager_cmd, analyzer_cmd, \
 AVG = 7.5
 BASE = AVG * 36000
 param_options = {
-    '--initial-population-size': [8, 10, 12, 14, 16],
-    '--initial-charge-mu': [BASE / a for a in (15, 10, 7.5, 5, 2.5)],
-    '--initial-charge-sigma': [BASE / a for a in (30, 20, 15, 10)],
-    '--mating-fitness-threshold': [0.6, 0.5, 0.4, 0.3, 0.2],
-    '--mating-distance-threshold': [0.5, 0.75, 1.0, 1.25, 1.5],
-    '--gestation-period': [36000.0 / a for a in 10, 20, 50, 100, 150, 200],
-    '--max-pair-children': [1, 2, 3, 4, 5, 6],
     '--birth-clinic-diameter': [4.5, 4.0, 3.5, 3.0, 2.5, 2.0],
     '--charge-rate': [a * AVG for a in (1, 5, 10, 15, 2)],
-    '--initial-charge': [a * BASE / AVG for a in (10, 20, 30, 40, 50)]
-}
-
-# Initial picks from the list (indices)
-positions = {
-    '--initial-population-size': 2,
-    '--initial-charge-mu': 1,
-    '--initial-charge-sigma': 1,
-    '--mating-fitness-threshold': 2,
-    '--mating-distance-threshold': 2,
-    '--gestation-period': 3,
-    '--max-pair-children': 2,
-    '--birth-clinic-diameter': 3,
-    '--charge-rate': 1,
-    '--initial-charge': 1
+    '--discharge-fraction': [0.5, 0.75, 1.0, 1.25],
+    '--gestation-period': [36000.0 / a for a in 10, 20, 50, 100, 150, 200],
+    '--initial-charge': [a * BASE / AVG for a in (10, 20, 30, 40, 50)],
+    '--initial-charge-mu': [BASE / a for a in (15, 10, 7.5, 5, 2.5)],
+    '--initial-charge-sigma': [BASE / a for a in (30, 20, 15, 10)],
+    '--initial-population-size': [8, 10, 12, 14, 16],
+    '--mating-distance-threshold': [0.5, 0.75, 1.0, 1.25, 1.5],
+    '--mating-fitness-threshold': [0.6, 0.5, 0.4, 0.3, 0.2],
+    '--max-pair-children': [1, 2, 3, 4, 5, 6],
+    '--part-limit': [a * AVG for a in (30, 40, 50, 60)]
 }
 
 # Just to have a fixed manner of iteration
-keys = [k for k in param_options]
+keys = sorted([k for k in param_options])
 
 # Current key to browse through
 idx = 0
@@ -47,14 +35,38 @@ idx = 0
 # Maximum number of experiments to run
 max_experiments = 50
 
+# Get arguments to find the output directory
+args = parser.parse_args()
+
 # Parameter lists that have been tried
 tries = set()
 
-args = parser.parse_args()
+# Generate currently tried parameter list based on output directory
+output_dir = os.path.abspath(args.output_directory)
+for xpdir in sorted(os.listdir(output_dir)):
+    settings = os.path.join(output_dir, xpdir, "settings.conf")
+    if os.path.exists(settings):
+        s_args = parser.parse_args(["@"+settings])
+
+        gtry = []
+        for opt in keys:
+            opt_key = opt.replace('--', '').replace('-', '_')
+            gtry.append(getattr(s_args, opt_key))
+
+        tries.add(tuple(gtry))
+
+# Randomly initialize the starting parameter set to something
+# that hasn't been tried before.
+param_set = None
+while True:
+    positions = {a: random.choice(range(len(param_options[a]))) for a in param_options}
+    param_set = tuple(param_options[p][positions[p]] for p in keys)
+
+    if param_set not in tries:
+        break
 
 for i in range(max_experiments):
     # Launch a supervisor with the current parameter set
-    param_set = (positions[p] for p in keys)
     tries.add(param_set)
 
     manager_args = sys.argv[1:]
@@ -125,7 +137,7 @@ for i in range(max_experiments):
                 cur, param_options[cur][positions[cur]], param_options[cur][new_pos]
             ))
             positions[cur] = new_pos
-            param_set = (positions[p] for p in keys)
+            param_set = tuple(param_options[p][positions[p]] for p in keys)
             if param_set in tries:
                 print("Duplicate parameter set, restoring.")
                 positions[cur] = old_pos
