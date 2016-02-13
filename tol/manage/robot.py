@@ -126,7 +126,8 @@ class Robot(RvRobot):
         in context of velocities instead.
         :return:
         """
-        if self.age() < (0.25 * self.conf.evaluation_time):
+        age = self.age()
+        if age < (0.25 * self.conf.evaluation_time) or age < self.conf.warmup_time:
             # We want at least some data
             return 0.0
 

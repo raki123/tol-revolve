@@ -356,7 +356,7 @@ class OnlineEvoManager(World):
         futs = []
         for robot in self.robots.values():
             if robot.charge() <= 0:
-                print("Robot `%d` has an empty battery and will be removed." % robot.name)
+                print("Robot `%s` has an empty battery and will be removed." % robot.name)
                 fut = yield From(self.delete_robot(robot))
                 futs.append(fut)
 
