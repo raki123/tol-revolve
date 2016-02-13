@@ -23,7 +23,7 @@ from sdfbuilder import SDF, Model, Pose, Link
 from ..config import constants, parser, str_to_address
 from ..build import get_builder, get_simulation_robot
 from ..spec import get_tree_generator, make_planar
-from revolve.util import multi_future
+from revolve.util import multi_future, wait_for
 from .robot import Robot
 from ..scenery import Wall, BirthClinic
 from ..logging import logger
@@ -80,7 +80,6 @@ class World(WorldManager):
         # but might in a more complicated yielding structure).
         self._reproducing = False
 
-        # Birth clinic control
         self.model_control = None
         self.birth_clinic_model = None
 
@@ -102,16 +101,12 @@ class World(WorldManager):
 
     def _init(self):
         """
-
         :return:
         """
         yield From(super(World, self)._init())
-
-        # Initialize the model control functionality
         self.model_control = yield From(self.manager.advertise(
             '/gazebo/default/model/modify', 'gazebo.msgs.Model'
         ))
-        yield From(self.model_control.wait_for_listener())
 
     def robots_header(self):
         """
@@ -219,21 +214,35 @@ class World(WorldManager):
         raise Return(multi_future(futures))
 
     @trollius.coroutine
-    def place_birth_clinic(self, diameter):
+    def place_birth_clinic(self, diameter, height, angle=None):
         """
+        Places the birth clinic. Since we're lazy and rotating appears to cause errors,
+        we're just deleting the old birth clinic and inserting a new one every time.
         Inserts the birth clinic
+        :param height:
         :param diameter:
+        :param angle:
         :return:
         """
+        if self.birth_clinic_model:
+            # Delete active birth clinic and place new
+            yield From(wait_for(self.delete_model(self.birth_clinic_model.name)))
+            self.birth_clinic_model = None
+
+        if angle is None:
+            angle = random.random() * 2 * math.pi
+
         name = "birth_clinic_"+str(self.get_robot_id())
-        self.birth_clinic_model = bc = BirthClinic(name=name, diameter=diameter)
+        self.birth_clinic_model = bc = BirthClinic(name=name, diameter=diameter, height=height)
+        bc.rotate_around(Vector3(0, 0, 1), angle)
         future = yield From(self.insert_model(SDF(elements=[bc])))
         raise Return(future)
 
     @trollius.coroutine
     def set_birth_clinic_rotation(self, angle=None):
         """
-        :param angle:
+        Sets rotation of the birth clinic.
+        :param angle: Desired rotation, a random angle is chosen if none is given.
         :return:
         """
         if angle is None:
@@ -242,12 +251,14 @@ class World(WorldManager):
         msg = model_pb2.Model()
         msg.name = self.birth_clinic_model.name
         quat = Quaternion.from_angle_axis(angle, Vector3(0, 0, 1))
-        msg.pose.orientation.w, msg.pose.orientation.x,\
-            msg.pose.orientation.y, msg.pose.orientation.z = quat
-        msg.pose.position.x, msg.pose.position.y, msg.pose.position.z = 0, 0, 0
+
+        pose = msg.pose
+        pos, rot = pose.position, pose.orientation
+        pos.x, pos.y, pos.z = 0, 0, 0
+        rot.w, rot.x, rot.y, rot.z = quat
 
         fut = yield From(self.model_control.publish(msg))
-        yield From(fut)
+        raise Return(fut)
 
     @trollius.coroutine
     def attempt_mate(self, ra, rb):

@@ -9,6 +9,7 @@ from ..config import constants
 # Radius and height without scaling
 MESH_DIAMETER = 4.0
 MESH_HEIGHT = 4.4
+SLICE_FRACTION = 0.7
 
 
 class BirthClinic(Model):
@@ -16,7 +17,7 @@ class BirthClinic(Model):
     Birth clinic model, consists of two cylinders, one of which is rotated.
     """
 
-    def __init__(self, diameter=3.0, name="birth_clinic"):
+    def __init__(self, diameter=3.0, height=3.0, name="birth_clinic"):
         """
 
         :param diameter: Intended diameter of the birth clinic
@@ -25,19 +26,23 @@ class BirthClinic(Model):
         """
         super(BirthClinic, self).__init__(name=name, static=True)
 
-        scale = diameter / MESH_DIAMETER
         self.diameter = diameter
-        self.height = scale * MESH_HEIGHT
+        scale = diameter / MESH_DIAMETER
+
+        # Cannot go higher than mesh height, or lower than the bottom
+        # of the slice.
+        scaled_height = scale * MESH_HEIGHT
+        self.height = max(min(height, scaled_height), SLICE_FRACTION * scaled_height)
 
         mesh = Mesh("model://tol_robot/meshes/BirthClinic.dae", scale=scale)
 
         col = Collision("bc_col", mesh)
         surf = Element(tag_name="surface")
         friction = Friction(
-            friction=0.1,
-            friction2=0.1,
-            slip1=0.9,
-            slip2=0.9
+            friction=0.01,
+            friction2=0.01,
+            slip1=1.0,
+            slip2=1.0
         )
         contact = "<contact>" \
                   "<ode>" \
@@ -54,8 +59,10 @@ class BirthClinic(Model):
         vis = Visual("bc_vis", mesh.copy())
         self.link = Link("bc_link", elements=[col, vis])
 
-        # Translate up such that clinic is on the ground for convenience
-        self.link.translate(Vector3(0, 0, 0.5 * self.height))
+        # By default the model has 0.5 * scale * MESH_HEIGHT below
+        # and above the surface. Translate such that we have exactly
+        # the desired height instead.
+        self.link.translate(Vector3(0, 0, self.height - (0.5 * scaled_height)))
         self.add_element(self.link)
 
 

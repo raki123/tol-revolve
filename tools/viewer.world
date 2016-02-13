@@ -27,9 +27,6 @@
     <include>
       <uri>model://tol_ground</uri>
     </include>
-    <include>
-        <uri>model://test_bot</uri>
-    </include>
 
     <plugin name="tol-control" filename="libtolworldcontrol.so" />
   </world>

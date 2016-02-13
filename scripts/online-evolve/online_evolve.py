@@ -53,6 +53,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--drop-height',
+    default=1.5, type=float,
+    help="The height of the birth clinic in meters. Robots are dropped from slightly "
+         "above this height."
+)
+
+parser.add_argument(
     '--nursery-size',
     default=1.0, type=float,
     help="The size of the nursery (within which robots cannot reproduce). This "
@@ -166,13 +173,6 @@ parser.add_argument(
     default=36000, type=float,
     help="The number of simulation seconds after which the experiment"
          " result is set to `stable`."
-)
-
-parser.add_argument(
-    '--drop-height',
-    default=0.3, type=float,
-    help="The distance in meters *above* the birth clinic from which new robots "
-         "are dropped."
 )
 
 
@@ -294,7 +294,7 @@ class OnlineEvoManager(World):
         points = [Vector3(r * math.cos(i * frac), r * math.sin(i * frac), 0) for i in range(n)]
         fut = yield From(self.build_walls(points))
         futs.append(fut)
-        fut = yield From(self.place_birth_clinic(self.conf.birth_clinic_diameter))
+        fut = yield From(self.place_birth_clinic(self.conf.birth_clinic_diameter, self.conf.drop_height))
         futs.append(fut)
         raise Return(multi_future(futs))
 
@@ -327,8 +327,11 @@ class OnlineEvoManager(World):
         # Rotate the birth clinic some random amount
         yield From(wait_for(self.set_birth_clinic_rotation()))
 
-        # Place predefined height above the birth clinic
-        z = -bbox.min.z + self.birth_clinic_model.height + self.conf.drop_height
+        # For stability...
+        yield From(trollius.sleep(0.01))
+
+        # Drop such that bottom of robot is 20cm below above clinic
+        z = -bbox.min.z + self.birth_clinic_model.height + 0.2
         pos = Vector3(0, 0, z)
 
         # Note that we register the reproduction only if
@@ -353,6 +356,7 @@ class OnlineEvoManager(World):
         futs = []
         for robot in self.robots.values():
             if robot.charge() <= 0:
+                print("Robot `%d` has an empty battery and will be removed." % robot.name)
                 fut = yield From(self.delete_robot(robot))
                 futs.append(fut)
 
