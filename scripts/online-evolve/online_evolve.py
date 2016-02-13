@@ -304,13 +304,8 @@ class OnlineEvoManager(World):
         :return:
         """
         min_dist = (0.5 * self.conf.birth_clinic_diameter) + self.conf.nursery_size
-
-        def f(robot):
-            pos = robot.last_position.copy()
-            pos.z = 0
-            return pos.norm() > min_dist
-
-        potential = filter(f, self.robots.values())
+        potential = filter(lambda r: math.sqrt(r.last_position.x**2 + r.last_position.y**2) > min_dist,
+                           self.robots.values())
         return [(ra, rb) for ra, rb in itertools.combinations(potential, 2)
                 if ra.will_mate_with(rb) and rb.will_mate_with(ra)]
 
