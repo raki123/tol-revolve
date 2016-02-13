@@ -22,6 +22,7 @@ param_options = {
     '--initial-population-size': [8, 10, 12, 14, 16],
     '--mating-distance-threshold': [0.5, 0.75, 1.0, 1.25, 1.5],
     '--mating-fitness-threshold': [0.6, 0.5, 0.4, 0.3, 0.2],
+    '--nursery-size': [0.0, 0.4, 0.8, 1.2],
     '--max-pair-children': [1, 2, 3, 4, 5, 6],
     '--part-limit': [int(a * AVG) for a in (30, 40, 50, 60)]
 }

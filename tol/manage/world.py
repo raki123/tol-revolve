@@ -12,11 +12,11 @@ import os
 from datetime import datetime
 
 # Pygazebo
-from pygazebo.msg import world_control_pb2, poses_stamped_pb2, world_stats_pb2
+from pygazebo.msg import world_control_pb2, poses_stamped_pb2, world_stats_pb2, model_pb2
 
 # Revolve / sdfbuilder
 from revolve.angle import Tree, Crossover, Mutator, WorldManager
-from sdfbuilder.math import Vector3
+from sdfbuilder.math import Vector3, Quaternion
 from sdfbuilder import SDF, Model, Pose, Link
 
 # Local
@@ -25,7 +25,7 @@ from ..build import get_builder, get_simulation_robot
 from ..spec import get_tree_generator, make_planar
 from revolve.util import multi_future
 from .robot import Robot
-from ..scenery import Wall
+from ..scenery import Wall, BirthClinic
 from ..logging import logger
 
 # Construct a message base from the time. This should make
@@ -80,6 +80,10 @@ class World(WorldManager):
         # but might in a more complicated yielding structure).
         self._reproducing = False
 
+        # Birth clinic control
+        self.model_control = None
+        self.birth_clinic_model = None
+
         # Write settings to config file
         if self.output_directory:
             parser.write_to_file(conf, os.path.join(self.output_directory, "settings.conf"))
@@ -95,6 +99,19 @@ class World(WorldManager):
         self = cls(_private=cls._PRIVATE, conf=conf)
         yield From(self._init())
         raise Return(self)
+
+    def _init(self):
+        """
+
+        :return:
+        """
+        yield From(super(World, self)._init())
+
+        # Initialize the model control functionality
+        self.model_control = yield From(self.manager.advertise(
+            '/gazebo/default/model/modify', 'gazebo.msgs.Model'
+        ))
+        yield From(self.model_control.wait_for_listener())
 
     def robots_header(self):
         """
@@ -200,6 +217,37 @@ class World(WorldManager):
             futures.append(future)
 
         raise Return(multi_future(futures))
+
+    @trollius.coroutine
+    def place_birth_clinic(self, diameter):
+        """
+        Inserts the birth clinic
+        :param diameter:
+        :return:
+        """
+        name = "birth_clinic_"+str(self.get_robot_id())
+        self.birth_clinic_model = bc = BirthClinic(name=name, diameter=diameter)
+        future = yield From(self.insert_model(SDF(elements=[bc])))
+        raise Return(future)
+
+    @trollius.coroutine
+    def set_birth_clinic_rotation(self, angle=None):
+        """
+        :param angle:
+        :return:
+        """
+        if angle is None:
+            angle = random.random() * 2 * math.pi
+
+        msg = model_pb2.Model()
+        msg.name = self.birth_clinic_model.name
+        quat = Quaternion.from_angle_axis(angle, Vector3(0, 0, 1))
+        msg.pose.orientation.w, msg.pose.orientation.x,\
+            msg.pose.orientation.y, msg.pose.orientation.z = quat
+        msg.pose.position.x, msg.pose.position.y, msg.pose.position.z = 0, 0, 0
+
+        fut = yield From(self.model_control.publish(msg))
+        yield From(fut)
 
     @trollius.coroutine
     def attempt_mate(self, ra, rb):

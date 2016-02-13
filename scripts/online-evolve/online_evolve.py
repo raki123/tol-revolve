@@ -53,6 +53,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--nursery-size',
+    default=1.0, type=float,
+    help="The size of the nursery (within which robots cannot reproduce). This "
+         "is measured from the edge of the birth clinic."
+)
+
+parser.add_argument(
     '--min-drop-distance',
     default=0.25, type=float,
     help="Minimum distance in meters to the other robots when being dropped "
@@ -159,6 +166,13 @@ parser.add_argument(
     default=36000, type=float,
     help="The number of simulation seconds after which the experiment"
          " result is set to `stable`."
+)
+
+parser.add_argument(
+    '--drop-height',
+    default=0.3, type=float,
+    help="The distance in meters *above* the birth clinic from which new robots "
+         "are dropped."
 )
 
 
@@ -274,19 +288,30 @@ class OnlineEvoManager(World):
         logger.debug("Building the arena...")
         n = self.conf.num_wall_segments
 
+        futs = []
         r = self.conf.world_diameter * 0.5
         frac = 2 * math.pi / n
         points = [Vector3(r * math.cos(i * frac), r * math.sin(i * frac), 0) for i in range(n)]
         fut = yield From(self.build_walls(points))
-        raise Return(fut)
+        futs.append(fut)
+        fut = yield From(self.place_birth_clinic(self.conf.birth_clinic_diameter))
+        futs.append(fut)
+        raise Return(multi_future(futs))
 
     def select_mates(self):
         """
         Finds all mate combinations in the current arena.
         :return:
         """
-        robot_list = self.robots.values()
-        return [(ra, rb) for ra, rb in itertools.combinations(robot_list, 2)
+        min_dist = (0.5 * self.conf.birth_clinic_diameter) + self.conf.nursery_size
+
+        def f(robot):
+            pos = robot.last_position.copy()
+            pos.z = 0
+            return pos.norm() > min_dist
+
+        potential = filter(f, self.robots.values())
+        return [(ra, rb) for ra, rb in itertools.combinations(potential, 2)
                 if ra.will_mate_with(rb) and rb.will_mate_with(ra)]
 
     @trollius.coroutine
@@ -304,29 +329,12 @@ class OnlineEvoManager(World):
             print("Not enough parts in pool to create robot of size %d." % s)
             raise Return(False)
 
-        r = self.conf.birth_clinic_diameter / 2.0
+        # Rotate the birth clinic some random amount
+        yield From(wait_for(self.set_birth_clinic_rotation()))
 
-        # Drop height is 20cm here
-        pos = None
-        done = False
-        z = -bbox.min.z + 0.2
-        for _ in xrange(5):
-            # Make 5 attempts, if we still don't have a satisfactory position
-            # just use the last one.
-            angle = random.random() * 2 * math.pi
-            pos = Vector3(r * math.cos(angle), r * math.sin(angle), z)
-            done = True
-
-            for bot in self.robots.values():
-                if bot.distance_to(pos) < self.conf.min_drop_distance:
-                    done = False
-                    break
-
-            if done:
-                break
-
-        if not done:
-            logger.warning("Warning: could not satisfy minimal drop distance.")
+        # Place predefined height above the birth clinic
+        z = -bbox.min.z + self.birth_clinic_model.height + self.conf.drop_height
+        pos = Vector3(0, 0, z)
 
         # Note that we register the reproduction only if
         # the child is actually born, i.e. there were enough parts
