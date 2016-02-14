@@ -4,6 +4,9 @@ library(ggplot2);
 # Read all data
 fitness = read.csv("fitness.csv", head=TRUE);
 fitness$run = as.factor(fitness$run);
+
+# Filter outliers...
+fitness = fitness[fitness$fitness<0.01,];
 cfitness = ddply(fitness, c("t_sim", "run"), summarise, n=length(fitness), fit=mean(fitness), vel=mean(vel), fsd=sd(fitness), vsd=sd(vel))
 
 wsum = read.csv("summary.csv", head=TRUE);

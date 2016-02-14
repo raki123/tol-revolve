@@ -4,7 +4,7 @@ poses$dist = sqrt(poses$x^2 + poses$y^2);
 mlim = 7;
 
 ggplot(data=poses, aes(x=x, y=y)) + 
-  stat_bin2d(bins=500) +
+  stat_bin2d(bins=250) +
   xlim(-mlim, mlim) + ylim(-mlim, mlim);
 
 #poses_hp = poses[poses$sec > 3600,];

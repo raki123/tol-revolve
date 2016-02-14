@@ -213,6 +213,14 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--disable-sensors',
+    default=False, type=str_to_bool,
+    help="Disables all sensors - overriding specific sensor settings. In practice "
+         "this means that the core component is created without an IMU sensor, whereas "
+         "the other sensor parts are not enabled at all."
+)
+
+parser.add_argument(
     '--enable-touch-sensor',
     default=True, type=str_to_bool,
     help="Enable / disable the touch sensor in robots."

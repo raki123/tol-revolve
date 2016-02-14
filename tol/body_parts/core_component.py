@@ -31,12 +31,13 @@ class CoreComponent(BodyPart, ColorMixin):
         self.link = self.create_component(Box(WIDTH, WIDTH, HEIGHT, MASS), "box",
                                           visual=Mesh("model://tol_robot/meshes/CoreComponent.dae"))
 
-        # Now we will add the IMU sensor. First, we must
-        # create a sensor in SDF. Be careful to give the
-        # sensor a name which is unique for the entire
-        # robot, adding the ID will help us do that.
-        imu = SdfSensor("imu_sensor", "imu", update_rate=self.conf.sensor_update_rate)
-        self.link.add_sensor(imu)
+        if not self.conf.disable_sensors:
+            # Now we will add the IMU sensor. First, we must
+            # create a sensor in SDF. The sensor must have a name which
+            # is unique for the robot - `add_sensor` ensures this for us
+            # assuming the `prefix` argument is left to its default.
+            imu = SdfSensor("imu_sensor", "imu", update_rate=self.conf.sensor_update_rate)
+            self.link.add_sensor(imu)
 
         self.apply_color()
 

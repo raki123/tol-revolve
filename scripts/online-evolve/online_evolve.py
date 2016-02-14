@@ -205,10 +205,14 @@ class OnlineEvoManager(World):
             self.current_run = data['current_run']
             self.current_charge = data['current_charge']
             self.last_charge_update = data['last_charge_update']
+            self.births = data['births']
+            self.deaths = data['deaths']
         else:
             self.current_run = 0
             self.current_charge = 0.0
             self.last_charge_update = 0.0
+            self.births = 0
+            self.deaths = 0
 
         if self.output_directory:
             for k in self.csv_files:
@@ -342,6 +346,7 @@ class OnlineEvoManager(World):
             ra.did_mate_with(rb)
             rb.did_mate_with(ra)
 
+        self.births += 1
         fut = yield From(self.insert_robot(tree, Pose(position=pos), parents))
         raise Return(fut)
 
@@ -359,6 +364,7 @@ class OnlineEvoManager(World):
                 print("Robot `%s` has an empty battery and will be removed." % robot.name)
                 fut = yield From(self.delete_robot(robot))
                 futs.append(fut)
+                self.deaths += 1
 
         raise Return(futs)
 
@@ -506,6 +512,8 @@ class OnlineEvoManager(World):
             # Set initial battery charge
             self.current_charge = self.conf.initial_charge
             self.last_charge_update = 0.0
+            self.births = 0
+            self.deaths = 0
 
             # Generate a starting population
             trees, bboxes = yield From(self.generate_population(conf.initial_population_size))
@@ -593,12 +601,21 @@ class OnlineEvoManager(World):
 
             # Stop conditions
             num_bots = len(self.robots)
+            age = float(self.age())
+
+            # Early stopping criterion for lack of reproduction
+            children = self.births - conf.initial_population_size
+            if age > (0.25 * conf.stability_cutoff) and children < 2:
+                print("No robots are being born - extinction.")
+                run_result = 'no_births'
+                break
+
             if num_bots <= conf.extinction_cutoff:
                 print("%d or fewer robots left in population - extinction." %
                       conf.extinction_cutoff)
                 run_result = 'extinction'
                 break
-            elif float(self.age()) > conf.stability_cutoff:
+            elif age > conf.stability_cutoff:
                 print("World older than %f seconds, stable." % conf.stability_cutoff)
                 run_result = 'stable'
                 break

@@ -12,17 +12,17 @@ from start import OnlineEvolutionSupervisor, manager_cmd, analyzer_cmd, \
 AVG = 7.5
 BASE = AVG * 36000
 param_options = {
-    '--birth-clinic-diameter': [4.5, 4.0, 3.5, 3.0, 2.5, 2.0],
+    '--birth-clinic-diameter': [4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5],
     '--charge-rate': [a * AVG for a in (1, 5, 10, 15, 2)],
     '--discharge-fraction': [0.5, 0.75, 1.0, 1.25],
     '--gestation-period': [36000.0 / a for a in 10, 20, 50, 100, 150, 200],
     '--initial-charge': [a * BASE / AVG for a in (10, 20, 30, 40, 50)],
-    '--initial-charge-mu': [BASE / a for a in (15, 10, 7.5, 5, 2.5)],
+    '--initial-charge-mu': [BASE / a for a in (20, 17.5, 15, 10, 7.5)],
     '--initial-charge-sigma': [BASE / a for a in (30, 20, 15, 10)],
-    '--initial-population-size': [8, 10, 12, 14, 16],
-    '--mating-distance-threshold': [0.5, 0.75, 1.0, 1.25, 1.5],
+    '--initial-population-size': [12, 14, 16, 18, 20],
+    '--mating-distance-threshold': [1.0, 2.5, 5.0, 7.5],
     '--mating-fitness-threshold': [0.6, 0.5, 0.4, 0.3, 0.2],
-    '--nursery-size': [0.1, 0.4, 0.8, 1.2],
+    '--nursery-size': [0.8, 0.6, 0.4, 0.1],
     '--max-pair-children': [1, 2, 3, 4, 5, 6],
     '--part-limit': [int(a * AVG) for a in (30, 40, 50, 60)]
 }
@@ -101,7 +101,7 @@ for i in range(max_experiments):
         for row in reader:
             if row[1] == 'explosion':
                 result -= 1
-            elif row[1] == 'extinction':
+            elif row[1] == 'extinction' or row[1] == 'no_births':
                 result += 1
             elif row[1] != 'stable':
                 print("WARNING: Unsupported result `%s`" % row[1],
