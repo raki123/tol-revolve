@@ -48,22 +48,14 @@ parser.add_argument(
 
 parser.add_argument(
     '--birth-clinic-diameter',
-    default=3.0, type=float,
+    default=2.5, type=float,
     help="The diameter of the birth clinic in meters."
 )
 
 parser.add_argument(
     '--drop-height',
-    default=1.5, type=float,
-    help="The height of the birth clinic in meters. Robots are dropped from slightly "
-         "above this height."
-)
-
-parser.add_argument(
-    '--nursery-size',
-    default=1.0, type=float,
-    help="The size of the nursery (within which robots cannot reproduce). This "
-         "is measured from the edge of the birth clinic."
+    default=0.25, type=float,
+    help="The height from which robots are dropped into the world."
 )
 
 parser.add_argument(
@@ -109,7 +101,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--discharge-fraction',
-    default=1.0, type=float,
+    default=0.5, type=float,
     help="Multiply the charge assigned to a robot by this constant fraction before "
          "actually assigning it."
 )
@@ -130,13 +122,13 @@ parser.add_argument(
 # Mating parameters
 parser.add_argument(
     '--mating-distance-threshold',
-    default=1.0, type=float,
+    default=50.0, type=float,
     help="The mating distance threshold in meters."
 )
 
 parser.add_argument(
     '--mating-fitness-threshold',
-    default=0.3, type=float,
+    default=0.5, type=float,
     help="The maximum fractional fitness difference between two robots that "
          "will allow a mate. E.g. for a fraction of 0.5, two robots will not mate"
          " if one is 50%% less fit than the other."
@@ -194,7 +186,9 @@ class OnlineEvoManager(World):
         csvs = {
             'fitness': ['run', 't_sim', 'robot_id', 'age', 'displacement',
                         'vel', 'dvel', 'fitness', 'charge', 'size'],
-            'summary': ['run', 'world_age', 'charge', 'robot_count', 'part_count']
+            'summary': ['run', 'world_age', 'charge', 'robot_count', 'part_count',
+                        'births', 'deaths'],
+            'deaths': ['run', 'world_age', 'robot_id', 'x', 'y', 'z']
         }
         self.csv_files = {k: {'filename': None, 'file': None, 'csv': None,
                               'header': csvs[k]}
@@ -298,19 +292,34 @@ class OnlineEvoManager(World):
         points = [Vector3(r * math.cos(i * frac), r * math.sin(i * frac), 0) for i in range(n)]
         fut = yield From(self.build_walls(points))
         futs.append(fut)
-        fut = yield From(self.place_birth_clinic(self.conf.birth_clinic_diameter, self.conf.drop_height))
-        futs.append(fut)
         raise Return(multi_future(futs))
+
+    def select_parents(self):
+        """
+        Returns a list of robots that have at least one potential mate.
+
+        :return:
+        """
+        return [ra for ra, _ in self.select_mates()]
+
+    def select_optimal_mate(self, ra):
+        """
+        Given a robot, selects the optimal mate. If you call this method
+        for a robot without any potential mate you will get an `IndexError`.
+        :param ra:
+        :type ra: Robot
+        :return:
+        """
+        return sorted([rb for rb in self.robots.values()
+                       if ra is not rb and ra.will_mate_with(rb) and rb.will_mate_with(ra)],
+                      key=lambda r: r.fitness())[-1]
 
     def select_mates(self):
         """
         Finds all mate combinations in the current arena.
         :return:
         """
-        min_dist = (0.5 * self.conf.birth_clinic_diameter) + self.conf.nursery_size
-        potential = filter(lambda r: math.sqrt(r.last_position.x**2 + r.last_position.y**2) > min_dist,
-                           self.robots.values())
-        return [(ra, rb) for ra, rb in itertools.combinations(potential, 2)
+        return [(ra, rb) for ra, rb in itertools.combinations(self.robots.values(), 2)
                 if ra.will_mate_with(rb) and rb.will_mate_with(ra)]
 
     @trollius.coroutine
@@ -318,6 +327,11 @@ class OnlineEvoManager(World):
         """
         Birth process, picks a robot position and inserts
         the robot into the world.
+
+        Robots are currently placed at a random position within the circular
+        birth clinic. In this process, 5 attempts are made to place the robot
+        at the minimum drop distance from other robots. If this fails however
+        the last generated position is used anyway.
         :param tree:
         :param bbox:
         :param parents:
@@ -328,15 +342,29 @@ class OnlineEvoManager(World):
             print("Not enough parts in pool to create robot of size %d." % s)
             raise Return(False)
 
-        # Rotate the birth clinic some random amount
-        yield From(wait_for(self.set_birth_clinic_rotation()))
+        # Pick a random radius and angle within the birth clinic
+        pos = Vector3()
+        pos.z = -bbox.min.z + self.conf.drop_height
+        done = False
+        min_drop = self.conf.min_drop_distance
 
-        # For stability...
-        yield From(trollius.sleep(0.01))
+        for i in range(5):
+            angle = random.random() * 2 * math.pi
+            radius = self.conf.birth_clinic_diameter * 0.5 * random.random()
+            pos.x = radius * math.cos(angle)
+            pos.y = radius * math.sin(angle)
 
-        # Drop such that bottom of robot is 20cm below above clinic
-        z = -bbox.min.z + self.birth_clinic_model.height + 0.2
-        pos = Vector3(0, 0, z)
+            done = True
+            for robot in self.robots.values():
+                if robot.distance_to(pos, planar=True) < min_drop:
+                    done = False
+                    break
+
+            if done:
+                break
+
+        if not done:
+            logger.warning("Warning: could not satisfy minimum drop distance.")
 
         # Note that we register the reproduction only if
         # the child is actually born, i.e. there were enough parts
@@ -359,12 +387,19 @@ class OnlineEvoManager(World):
         :return:
         """
         futs = []
+        write_deaths = self.csv_files['deaths']['csv']
+
         for robot in self.robots.values():
             if robot.charge() <= 0:
                 print("Robot `%s` has an empty battery and will be removed." % robot.name)
                 fut = yield From(self.delete_robot(robot))
                 futs.append(fut)
                 self.deaths += 1
+
+                if write_deaths:
+                    write_deaths.writerow((self.current_run, self.age(),
+                                           robot.robot.id, robot.last_position.x,
+                                           robot.last_position.y, robot.last_position.z))
 
         raise Return(futs)
 
@@ -481,7 +516,7 @@ class OnlineEvoManager(World):
             return
 
         f.writerow((self.current_run, self.age(), self.charge(),
-                   len(self.robots), self.total_size()))
+                   len(self.robots), self.total_size(), self.births, self.deaths))
 
     @trollius.coroutine
     def run(self):
@@ -570,7 +605,7 @@ class OnlineEvoManager(World):
                 yield From(self.create_snapshot())
                 yield From(wait_for(self.pause(False)))
 
-            if timer('death', 5.0):
+            if timer('death', 3.0):
                 # Kill off robots over their age every 5 simulation seconds
                 futs = yield From(self.kill_old_robots())
                 if futs:
@@ -578,9 +613,10 @@ class OnlineEvoManager(World):
 
             if timer('reproduce', 3.0):
                 # Attempt a reproduction every 3 simulation seconds
-                potential_mates = self.select_mates()
-                if potential_mates:
-                    ra, rb = random.choice(potential_mates)
+                potential_parents = self.select_parents()
+                if potential_parents:
+                    ra = random.choice(potential_parents)
+                    rb = self.select_optimal_mate(ra)
                     result = yield From(self.attempt_mate(ra, rb))
 
                     if result:
@@ -602,13 +638,6 @@ class OnlineEvoManager(World):
             # Stop conditions
             num_bots = len(self.robots)
             age = float(self.age())
-
-            # Early stopping criterion for lack of reproduction
-            children = self.births - conf.initial_population_size
-            if age > (0.25 * conf.stability_cutoff) and children < 2:
-                print("No robots are being born - extinction.")
-                run_result = 'no_births'
-                break
 
             if num_bots <= conf.extinction_cutoff:
                 print("%d or fewer robots left in population - extinction." %

@@ -216,6 +216,8 @@ class World(WorldManager):
     @trollius.coroutine
     def place_birth_clinic(self, diameter, height, angle=None):
         """
+        CURRENTLY NOT USED.
+
         Places the birth clinic. Since we're lazy and rotating appears to cause errors,
         we're just deleting the old birth clinic and inserting a new one every time.
         Inserts the birth clinic
