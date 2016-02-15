@@ -312,7 +312,7 @@ class OnlineEvoManager(World):
         """
         return sorted([rb for rb in self.robots.values()
                        if ra is not rb and ra.will_mate_with(rb) and rb.will_mate_with(ra)],
-                      key=lambda r: r.fitness())[-1]
+                      key=lambda r: r.fitness(), reverse=True)[-1]
 
     def select_mates(self):
         """
