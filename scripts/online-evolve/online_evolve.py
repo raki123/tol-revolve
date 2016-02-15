@@ -48,7 +48,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--birth-clinic-diameter',
-    default=2.5, type=float,
+    default=3.0, type=float,
     help="The diameter of the birth clinic in meters."
 )
 

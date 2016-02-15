@@ -12,15 +12,13 @@ from start import OnlineEvolutionSupervisor, manager_cmd, analyzer_cmd, \
 AVG = 7.5
 BASE = AVG * 36000
 param_options = {
-    '--birth-clinic-diameter': [4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5],
-    '--charge-rate': [a * AVG for a in (1, 5, 10, 15, 2)],
-    '--discharge-fraction': [0.5, 0.75, 1.0, 1.25],
+    '--charge-rate': [a * AVG for a in (1, 5, 10, 15, 20)],
+    '--discharge-fraction': [0.5, 1.0, 1.5],
     '--gestation-period': [36000.0 / a for a in 10, 20, 50, 100, 150, 200],
     '--initial-charge': [a * BASE / AVG for a in (10, 20, 30, 40, 50)],
     '--initial-charge-mu': [BASE / a for a in (20, 17.5, 15, 10, 7.5)],
     '--initial-charge-sigma': [BASE / a for a in (30, 20, 15, 10)],
-    '--initial-population-size': [10, 12, 14, 16, 18, 20],
-    '--mating-distance-threshold': [1.0, 2.5, 5.0, 7.5],
+    '--initial-population-size': [10, 15, 20],
     '--mating-fitness-threshold': [0.6, 0.5, 0.4, 0.3, 0.2],
     '--max-pair-children': [1, 2, 3, 4, 5, 6],
     '--part-limit': [int(a * AVG) for a in (30, 40, 50, 60)]
