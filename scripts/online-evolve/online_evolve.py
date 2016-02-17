@@ -8,6 +8,7 @@ Online evolution experiment. Initially we try to answer the following questions:
 """
 import csv
 import logging
+import sys
 
 import itertools
 
@@ -20,11 +21,14 @@ from sdfbuilder.math import Vector3
 
 import os
 import shutil
-
 import trollius
-from tol.manage.robot import Robot
 from trollius import From, Return
 from revolve.util import multi_future, wait_for, Time
+
+# ToL imports may require the system path
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+
+from tol.manage.robot import Robot
 from tol.config import parser
 from tol.manage import World
 from tol.logging import logger, output_console
