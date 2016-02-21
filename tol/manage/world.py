@@ -62,7 +62,7 @@ class World(WorldManager):
                                     analyzer_address=str_to_address(conf.analyzer_address),
                                     output_directory=conf.output_directory,
                                     builder=get_builder(conf),
-                                    pose_update_frequency=conf.pose_update_frequency,
+                                    state_update_frequency=conf.pose_update_frequency,
                                     generator=get_tree_generator(conf),
                                     restore=conf.restore_directory)
 
@@ -115,7 +115,7 @@ class World(WorldManager):
         """
         return Robot.header()
 
-    def create_robot_manager(self, robot_name, tree, robot, position, time, parents):
+    def create_robot_manager(self, robot_name, tree, robot, position, time, battery_level, parents):
         """
         Overriding with robot manager with more capabilities.
         :param robot_name:
@@ -123,10 +123,12 @@ class World(WorldManager):
         :param robot:
         :param position:
         :param time:
+        :param battery_level:
         :param parents:
         :return:
         """
-        return Robot(self.conf, robot_name, tree, robot, position, time, parents)
+        return Robot(self.conf, robot_name, tree, robot, position, time,
+                     battery_level=battery_level, parents=parents)
 
     @trollius.coroutine
     def add_highlight(self, position, color):

@@ -3,7 +3,7 @@ poses = read.csv("poses.csv", head=TRUE, colClasses=c('factor', 'numeric', 'nume
 poses$dist = sqrt(poses$x^2 + poses$y^2);
 mlim = 7;
 
-ggplot(data=poses, aes(x=x, y=y)) + 
+ggplot(data=poses, aes(x=x, y=y)) +
   stat_bin2d(bins=250) +
   xlim(-mlim, mlim) + ylim(-mlim, mlim);
 

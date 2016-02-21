@@ -379,7 +379,7 @@ class OnlineEvoManager(World):
             rb.did_mate_with(ra)
 
         self.births += 1
-        fut = yield From(self.insert_robot(tree, Pose(position=pos), parents))
+        fut = yield From(self.insert_robot(tree, Pose(position=pos), parents=parents))
         raise Return(fut)
 
     @trollius.coroutine
@@ -407,7 +407,7 @@ class OnlineEvoManager(World):
 
         raise Return(futs)
 
-    def create_robot_manager(self, robot_name, tree, robot, position, time, parents):
+    def create_robot_manager(self, robot_name, tree, robot, position, time, battery_level, parents):
         """
         Overriding with robot manager with more capabilities.
         :param robot_name:
@@ -415,11 +415,13 @@ class OnlineEvoManager(World):
         :param robot:
         :param position:
         :param time:
+        :param battery_level:
         :param parents:
         :return:
         """
+        # Keeping for compliance with old experiments, will set up to use actual battery level after this
         initial_charge = self.subtract_charge(self.calculate_initial_charge(parents))
-        return Robot(self.conf, robot_name, tree, robot, position, time, parents, initial_charge)
+        return Robot(self.conf, robot_name, tree, robot, position, time, initial_charge, parents)
 
     def subtract_charge(self, charge):
         """

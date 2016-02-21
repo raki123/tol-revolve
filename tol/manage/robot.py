@@ -10,7 +10,7 @@ class Robot(RvRobot):
     Class to manage a single robot
     """
 
-    def __init__(self, conf, name, tree, robot, position, time, parents=None, initial_charge=0.0):
+    def __init__(self, conf, name, tree, robot, position, time, battery_level=0.0, parents=None):
         """
         :param conf:
         :param name:
@@ -22,20 +22,22 @@ class Robot(RvRobot):
         :type time: Time
         :param parents:
         :type parents: tuple(Robot, Robot)
-        :param initial_charge: Battery charge for this robot
-        :type initial_charge: float
+        :param battery_level: Battery charge for this robot
+        :type battery_level: float
         :return:
         """
         speed_window = int(conf.evaluation_time * conf.pose_update_frequency)
         super(Robot, self).__init__(name=name, tree=tree, robot=robot, position=position, time=time,
-                                    speed_window=speed_window, warmup_time=conf.warmup_time, parents=parents)
+                                    battery_level=battery_level, speed_window=speed_window,
+                                    warmup_time=conf.warmup_time, parents=parents)
 
         # Set of robots this bot has mated with
         self.mated_with = {}
         self.last_mate = None
         self.conf = conf
         self.size = len(tree)
-        self.initial_charge = initial_charge
+        self.battery_level = battery_level
+        self.initial_charge = battery_level
 
     def will_mate_with(self, other):
         """
