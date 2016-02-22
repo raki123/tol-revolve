@@ -17,7 +17,6 @@ def get_body_spec(conf):
     :return:
     :rtype: BodyImplementation
     """
-    # Body specification
     parts = {
         "Core": PartSpec(
             body_part=CoreComponent,

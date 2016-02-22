@@ -44,6 +44,7 @@ class CoreComponent(BodyPart, ColorMixin):
     def get_slot(self, slot):
         """
         There's only one slot, return the link.
+        :param slot:
         """
         self.check_slot(slot)
         return self.link
@@ -51,6 +52,7 @@ class CoreComponent(BodyPart, ColorMixin):
     def get_slot_position(self, slot):
         """
         Return slot position
+        :param slot:
         """
         self.check_slot(slot)
         vmax = WIDTH / 2.0
@@ -70,6 +72,7 @@ class CoreComponent(BodyPart, ColorMixin):
     def get_slot_normal(self, slot):
         """
         Return slot normal.
+        :param slot:
         """
         return self.get_slot_position(slot).normalized()
 
