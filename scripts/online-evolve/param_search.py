@@ -10,18 +10,18 @@ from start import OnlineEvolutionSupervisor, manager_cmd, analyzer_cmd, \
 # Parameter options to try, from left to right they should lead to
 # more lenient parameters (i.e. bigger chance for populations to survive)
 AVG = 7.5
-BASE = AVG * 36000
+BASE = AVG * 3600
 param_options = {
-    '--charge-rate': [a * AVG for a in (1, 5, 10, 15, 20)],
-    '--discharge-fraction': [0.5, 1.0, 1.5],
+    '--max-robot-charge-rate': [a * AVG for a in (0.5, 1.0, 2.0)],
+    '--max-robot-charge': [AVG * 36000],
+    '--initial-charge': [BASE * a for a in (1, 2, 3)],
+    '--charger-r': [0.5, 1.0, 1.5],
+    '--total-charge-rate': [AVG * a for a in (10, 20, 30, 40)],
     '--gestation-period': [36000.0 / a for a in 10, 20, 50, 100, 150, 200],
-    '--initial-charge': [a * BASE / AVG for a in (10, 20, 30, 40, 50)],
-    '--initial-charge-mu': [BASE / a for a in (20, 17.5, 15, 10, 7.5)],
-    '--initial-charge-sigma': [BASE / a for a in (30, 20, 15, 10)],
     '--initial-population-size': [10, 15, 20],
     '--mating-fitness-threshold': [0.6, 0.5, 0.4, 0.3, 0.2],
-    '--max-pair-children': [1, 2, 3, 4, 5, 6],
-    '--part-limit': [int(a * AVG) for a in (30, 40, 50, 60)]
+    '--max-pair-children': [1, 2, 4],
+    '--part-limit': [int(a * AVG) for a in (40, 50, 60)]
 }
 
 # Just to have a fixed manner of iteration

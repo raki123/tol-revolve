@@ -40,7 +40,7 @@ logger.setLevel(logging.DEBUG)
 # Environment parameters
 parser.add_argument(
     '--world-diameter',
-    default=50, type=float,
+    default=25, type=float,
     help="The diameter of the environment in meters."
 )
 
@@ -57,7 +57,6 @@ parser.add_argument(
 )
 
 
-# Charger parameters
 parser.add_argument(
     '--charger-x',
     default=12.0, type=float,
@@ -70,6 +69,7 @@ parser.add_argument(
     help="y-coordinate of the position of the charger in the world"
 )
 
+# Battery charging parameters
 parser.add_argument(
     '--charger-r',
     default=0.5, type=float,
@@ -78,7 +78,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--total-charge-rate',
-    default=200.0, type=float,
+    default=150, type=float,
     help="The total number of charge units the charger provides per second. How many of this each "
          "robot receives depends on their number and distance to the charger."
 )
@@ -624,8 +624,9 @@ class OnlineEvoManager(World):
                         child, bbox = result
                         insert_queue.append((child, bbox, (ra, rb)))
 
-            if timer('charge', 1.0):
-                # Update robot battery levels every simulation second
+            if timer('charge', 2.0):
+                # Update robot battery levels every 2 sim seconds
+                # (this sends a bunch of messages, so less often saves time)
                 yield From(wait_for(self.charge_batteries()))
 
             if timer('log_fitness', 2.0):

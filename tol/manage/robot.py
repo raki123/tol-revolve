@@ -155,7 +155,7 @@ class Robot(RvRobot):
         :return:
         """
         level = self.get_battery_level() + amount
-        self.battery_level = max(self.conf.max_robot_charge, level)
+        self.battery_level = min(self.conf.max_robot_charge, level)
 
     def did_mate_with(self, other):
         """
