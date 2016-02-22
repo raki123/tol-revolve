@@ -39,7 +39,7 @@ class CoreComponent(BodyPart, ColorMixin):
             imu = SdfSensor("imu_sensor", "imu", update_rate=self.conf.sensor_update_rate)
             self.link.add_sensor(imu)
 
-            if hasattr(self.conf, 'initial_charge_mu'):
+            if hasattr(self.conf, 'max_robot_charge'):
                 # Add virtual battery sensor
                 self.link.add_sensor(BasicBatterySensor("battery_sensor"))
 

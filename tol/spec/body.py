@@ -23,7 +23,7 @@ def get_body_spec(conf):
         core_inputs = 0
     else:
         core_inputs = 6
-        if 'initial_charge_mu' in conf:
+        if 'max_robot_charge' in conf:
             core_inputs += 1
 
         if 'charger_x' in conf:
