@@ -38,6 +38,7 @@ class Robot(RvRobot):
         self.size = len(tree)
         self.battery_level = battery_level
         self.initial_charge = battery_level
+        self.last_battery_calc = time
 
     def will_mate_with(self, other):
         """
@@ -136,12 +137,25 @@ class Robot(RvRobot):
 
         return 5.0 * self.displacement_velocity() + self.velocity()
 
-    def charge(self):
+    def get_battery_level(self):
         """
-        Returns the remaining battery charge of this robot.
+        Updates and returns the current battery level.
         :return:
         """
-        return self.initial_charge - (float(self.age()) * self.size)
+        t_diff = self.last_update - self.last_battery_calc
+        self.last_battery_calc = self.last_update
+        self.battery_level -= float(t_diff) * self.size
+        return self.battery_level
+
+    def add_charge(self, amount):
+        """
+        Adds the given amount of charge to this robot's battery, or
+        less if it maxes out the battery.
+        :param amount:
+        :return:
+        """
+        level = self.get_battery_level() + amount
+        self.battery_level = max(self.conf.max_robot_charge, level)
 
     def did_mate_with(self, other):
         """

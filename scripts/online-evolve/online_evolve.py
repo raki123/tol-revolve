@@ -56,6 +56,52 @@ parser.add_argument(
     help="The diameter of the birth clinic in meters."
 )
 
+
+# Charger parameters
+parser.add_argument(
+    '--charger-x',
+    default=12.0, type=float,
+    help="x-coordinate of the position of the charger in the world"
+)
+
+parser.add_argument(
+    '--charger-y',
+    default=12.0, type=float,
+    help="y-coordinate of the position of the charger in the world"
+)
+
+parser.add_argument(
+    '--charger-r',
+    default=0.5, type=float,
+    help="Charger degradation distance."
+)
+
+parser.add_argument(
+    '--total-charge-rate',
+    default=200.0, type=float,
+    help="The total number of charge units the charger provides per second. How many of this each "
+         "robot receives depends on their number and distance to the charger."
+)
+
+parser.add_argument(
+    '--max-robot-charge-rate',
+    default=15.0, type=float,
+    help="The maximum number of charge units a robot battery can increase in one second."
+)
+
+parser.add_argument(
+    '--max-robot-charge',
+    default=7.5 * 36000, type=float,
+    help="The maximum robot battery charge in units."
+)
+
+parser.add_argument(
+    '--initial-charge',
+    default=7.5 * 3600, type=float,
+    help="Initial battery charge for new robots."
+)
+
+# Robot insertion parameters
 parser.add_argument(
     '--drop-height',
     default=0.25, type=float,
@@ -79,48 +125,8 @@ parser.add_argument(
 
 parser.add_argument(
     '--part-limit',
-    default=300, type=int,
+    default=500, type=int,
     help="The maximum number of robot parts in the world."
-)
-
-parser.add_argument(
-    '--max-charge',
-    default=36000 * 7.5, type=float,
-    help="The maximum battery charge in a robot, in seconds."
-)
-
-parser.add_argument(
-    '--initial-charge',
-    default=100000, type=float,
-    help="Charge in the main battery at the start of the simulation. The"
-         " initial population feeds off this charge as well!"
-)
-
-parser.add_argument(
-    '--charge-rate',
-    default=200, type=float,
-    help="The number of units of charge added to the system with each simulation "
-         "second. One unit of charge powers one robot part for one simulation second."
-)
-
-parser.add_argument(
-    '--discharge-fraction',
-    default=0.5, type=float,
-    help="Multiply the charge assigned to a robot by this constant fraction before "
-         "actually assigning it."
-)
-
-parser.add_argument(
-    '--initial-charge-mu',
-    default=7.5 * 36000 / 6.0, type=float,
-    help="Gaussian mean for the charge distribution of the initial population."
-)
-
-parser.add_argument(
-    '--initial-charge-sigma',
-    default=7.5 * 36000 / 12.0, type=float,
-    help="Gaussian standard deviation for charge distribution of "
-         "the initial population."
 )
 
 # Mating parameters
@@ -190,7 +196,7 @@ class OnlineEvoManager(World):
         csvs = {
             'fitness': ['run', 't_sim', 'robot_id', 'age', 'displacement',
                         'vel', 'dvel', 'fitness', 'charge', 'size'],
-            'summary': ['run', 'world_age', 'charge', 'robot_count', 'part_count',
+            'summary': ['run', 'world_age', 'robot_count', 'part_count',
                         'births', 'deaths'],
             'deaths': ['run', 'world_age', 'robot_id', 'x', 'y', 'z']
         }
@@ -198,17 +204,17 @@ class OnlineEvoManager(World):
                               'header': csvs[k]}
                           for k in csvs}
 
+        self.charger_location = Vector3(self.conf.charger_x, self.conf.charger_y, 0.0)
+
         data = self.do_restore
         if self.do_restore:
             self.current_run = data['current_run']
-            self.current_charge = data['current_charge']
             self.last_charge_update = data['last_charge_update']
             self.births = data['births']
             self.deaths = data['deaths']
         else:
+            self.last_charge_update = None
             self.current_run = 0
-            self.current_charge = 0.0
-            self.last_charge_update = 0.0
             self.births = 0
             self.deaths = 0
 
@@ -260,7 +266,8 @@ class OnlineEvoManager(World):
         data = yield From(super(OnlineEvoManager, self).get_snapshot_data())
         data.update({
             'current_run': self.current_run,
-            'current_charge': self.current_charge,
+            'births': self.births,
+            'deaths': self.deaths,
             'last_charge_update': self.last_charge_update
         })
         raise Return(data)
@@ -379,7 +386,8 @@ class OnlineEvoManager(World):
             rb.did_mate_with(ra)
 
         self.births += 1
-        fut = yield From(self.insert_robot(tree, Pose(position=pos), parents=parents))
+        fut = yield From(self.insert_robot(tree, Pose(position=pos), parents=parents,
+                                           initial_battery=self.conf.initial_charge))
         raise Return(fut)
 
     @trollius.coroutine
@@ -394,7 +402,7 @@ class OnlineEvoManager(World):
         write_deaths = self.csv_files['deaths']['csv']
 
         for robot in self.robots.values():
-            if robot.charge() <= 0:
+            if robot.get_battery_level() <= 0:
                 print("Robot `%s` has an empty battery and will be removed." % robot.name)
                 fut = yield From(self.delete_robot(robot))
                 futs.append(fut)
@@ -407,80 +415,68 @@ class OnlineEvoManager(World):
 
         raise Return(futs)
 
-    def create_robot_manager(self, robot_name, tree, robot, position, time, battery_level, parents):
+    @trollius.coroutine
+    def charge_batteries(self):
+        """
+        :return:
+        """
+        if self.last_charge_update is None:
+            # Only start updating batteries after intial world update
+            self.last_charge_update = self.last_time
+            return
+
+        t_diff = float(self.last_time - self.last_charge_update)
+        self.last_charge_update = self.last_time
+
+        if not self.robots:
+            return
+
+        available = self.conf.total_charge_rate
+        max_charge_rate = self.conf.max_robot_charge_rate
+        max_rate_frac = max_charge_rate / available
+        r = self.conf.charger_r
+
+        # First calculate the fraction of the total charge each
+        # of these robots could receive theoretically. This is
+        # bounded to `max_rate_frac` because a robot will
+        # never draw more than this amount.
+        # For simplicity we assume that robots which are already
+        # maximally charged will still draw charge from the station,
+        # but will simply dissipate this as heat.
+        max_recv = {}
+        recv_sum = 0
+        for name, robot in self.robots.iteritems():
+            d = robot.distance_to(self.charger_location)
+            recv = min(1.0 if d < r else (r / d)**2, max_rate_frac)
+            max_recv[name] = recv
+            recv_sum += recv
+
+        # If the total charge that can be received by these robots
+        # exceeds the total available charge, we apply a correction
+        # factor so that the total divided charge will equal the max
+        corr = 1.0 if recv_sum < 1.0 else 1.0 / recv_sum
+
+        for name, robot in self.robots.iteritems():
+            charge_amount = t_diff * corr * max_recv[name] * available
+            robot.add_charge(charge_amount)
+
+        # Update robot controller battery levels
+        fut = yield From(self.update_battery_levels())
+        raise Return(fut)
+
+    def create_robot_manager(self, robot_name, tree, robot, position, t, battery_level, parents):
         """
         Overriding with robot manager with more capabilities.
         :param robot_name:
         :param tree:
         :param robot:
         :param position:
-        :param time:
+        :param t:
         :param battery_level:
         :param parents:
         :return:
         """
-        # Keeping for compliance with old experiments, will set up to use actual battery level after this
-        initial_charge = self.subtract_charge(self.calculate_initial_charge(parents))
-        return Robot(self.conf, robot_name, tree, robot, position, time, initial_charge, parents)
-
-    def subtract_charge(self, charge):
-        """
-        Subtracts the given charge from the main battery if possible,
-        returns the amount of charge actually subtracted.
-        :param charge:
-        :return:
-        """
-        current_charge = self.charge()
-        if current_charge < charge:
-            self.current_charge = 0
-            return current_charge
-        else:
-            self.current_charge -= charge
-            return charge
-
-    def charge(self):
-        """
-        Updates and returns the current charge.
-        :return:
-        """
-        rate = self.conf.charge_rate
-        age = self.age()
-        elapsed = float(age - self.last_charge_update)
-        self.last_charge_update = age
-
-        if elapsed > 0:
-            self.current_charge += rate * elapsed
-
-        return self.current_charge
-
-    def calculate_initial_charge(self, parents):
-        """
-        Calculates an initial charge. This follows the following formula:
-
-        - If this robot is part of the initial population, a normally distributed
-          charge is assigned with predefined mu and sigma.
-        - If parents are available, the average fitness of these parents is divided
-          by the total fitness of the population. The percentage of charge that comes
-          out of this is assigned to the baby robot.
-
-        In both scenarios, the charge is limited by both the total charge available
-        in the world
-
-        :param parents:
-        :return:
-        """
-        if parents:
-            pa, pb = parents
-            fest = 0.5 * (pa.fitness() + pb.fitness())
-            fsum = self.total_fitness()
-            charge_frac = fest / fsum if fsum > 0 else 1.0 / len(self.robots)
-            charge = self.conf.discharge_fraction * charge_frac * self.charge()
-        else:
-            mu = self.conf.initial_charge_mu
-            sigma = self.conf.initial_charge_sigma
-            charge = max(0, random.gauss(mu, sigma))
-
-        return min(self.conf.max_charge, charge, self.charge())
+        return Robot(self.conf, robot_name, tree, robot, position, t, battery_level, parents)
 
     def total_fitness(self):
         """
@@ -511,7 +507,7 @@ class OnlineEvoManager(World):
             f.writerow([n, t, robot.robot.id,
                         robot.age(), ds.norm(), robot.velocity(),
                         robot.displacement_velocity(), robot.fitness(),
-                        robot.charge(), robot.size])
+                        robot.get_battery_level(), robot.size])
 
     def log_summary(self):
         """
@@ -521,8 +517,8 @@ class OnlineEvoManager(World):
         if not f:
             return
 
-        f.writerow((self.current_run, self.age(), self.charge(),
-                   len(self.robots), self.total_size(), self.births, self.deaths))
+        f.writerow((self.current_run, self.age(), len(self.robots),
+                    self.total_size(), self.births, self.deaths))
 
     @trollius.coroutine
     def run(self):
@@ -550,9 +546,6 @@ class OnlineEvoManager(World):
                 # Only build arena on first run
                 yield From(wait_for(self.build_arena()))
 
-            # Set initial battery charge
-            self.current_charge = self.conf.initial_charge
-            self.last_charge_update = 0.0
             self.births = 0
             self.deaths = 0
 
@@ -561,8 +554,7 @@ class OnlineEvoManager(World):
             insert_queue = zip(trees, bboxes, [None for _ in range(len(trees))])
 
         # Simple loop timing mechanism
-        timers = {k: Time() for k in ['reproduce', 'death', 'snapshot',
-                                      'log_fitness', 'rtf', 'insert_queue']}
+        timers = {}
         this = self
 
         def timer(name, t):
@@ -571,6 +563,9 @@ class OnlineEvoManager(World):
             :param name:
             :return:
             """
+            if name not in timers:
+                timers[name] = Time()
+
             if this.last_time is not None and float(this.last_time - timers[name]) > t:
                 timers[name] = this.last_time
                 return True
@@ -628,6 +623,10 @@ class OnlineEvoManager(World):
                     if result:
                         child, bbox = result
                         insert_queue.append((child, bbox, (ra, rb)))
+
+            if timer('charge', 1.0):
+                # Update robot battery levels every simulation second
+                yield From(wait_for(self.charge_batteries()))
 
             if timer('log_fitness', 2.0):
                 # Log overall fitness every 2 simulation seconds

@@ -17,11 +17,23 @@ def get_body_spec(conf):
     :return:
     :rtype: BodyImplementation
     """
+    # Nr of inputs in the core component depends on a number
+    # of factors.
+    if conf.disable_sensors:
+        core_inputs = 0
+    else:
+        core_inputs = 6
+        if 'initial_charge_mu' in conf:
+            core_inputs += 1
+
+        if 'charger_x' in conf:
+            core_inputs += 1
+
     parts = {
         "Core": PartSpec(
             body_part=CoreComponent,
             arity=4,
-            inputs=0 if conf.disable_sensors else 6,
+            inputs=core_inputs,
             params=color_params
         ),
         "FixedBrick": PartSpec(

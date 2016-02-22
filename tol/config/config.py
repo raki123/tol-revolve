@@ -109,7 +109,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--max-inputs',
-    default=10, type=int,
+    default=12, type=int,
     help="Maximum number of inputs (i.e. sensors) in a robot."
 )
 

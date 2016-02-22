@@ -7,7 +7,7 @@ from sdfbuilder.math import Vector3
 from sdfbuilder.structure import Box, Mesh
 
 # Revolve imports
-from revolve.build.sdf import BodyPart
+from revolve.build.sdf import BodyPart, BasicBatterySensor, PointIntensitySensor
 from revolve.build.util import in_grams, in_mm
 
 # Local imports
@@ -38,6 +38,17 @@ class CoreComponent(BodyPart, ColorMixin):
             # assuming the `prefix` argument is left to its default.
             imu = SdfSensor("imu_sensor", "imu", update_rate=self.conf.sensor_update_rate)
             self.link.add_sensor(imu)
+
+            if hasattr(self.conf, 'initial_charge_mu'):
+                # Add virtual battery sensor
+                self.link.add_sensor(BasicBatterySensor("battery_sensor"))
+
+            if hasattr(self.conf, 'charger_x'):
+                # Add point proximity sensor
+                point = Vector3(self.conf.charger_x, self.conf.charger_y, 0.0)
+                self.link.add_sensor(PointIntensitySensor("charge_sense", point,
+                                                          i_max=self.conf.total_charge_rate,
+                                                          r=self.conf.charger_r))
 
         self.apply_color()
 
