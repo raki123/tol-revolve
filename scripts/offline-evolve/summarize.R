@@ -26,10 +26,4 @@ ggplot(cdata, aes(gen)) +
   xlab("Generation") +
   ylab("Fitness")
 
-lastgen1 = data1[data1$gen==max(data1$gen),];
-fit_mean1 = mean(lastgen1$fitness);
-fit_sd1 = sd(lastgen1$fitness);
-
-lastgen2 = data2[data2$gen==max(data2$gen),];
-fit_mean2 = mean(lastgen2$fitness);
-fit_sd2 = sd(lastgen2$fitness);
+maxes = cdata[cdata$gen==max(cdata$gen),];
