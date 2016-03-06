@@ -80,9 +80,6 @@ class World(WorldManager):
         # but might in a more complicated yielding structure).
         self._reproducing = False
 
-        self.model_control = None
-        self.birth_clinic_model = None
-
         # Write settings to config file
         if self.output_directory:
             parser.write_to_file(conf, os.path.join(self.output_directory, "settings.conf"))
@@ -99,15 +96,6 @@ class World(WorldManager):
         yield From(self._init())
         raise Return(self)
 
-    def _init(self):
-        """
-        :return:
-        """
-        yield From(super(World, self)._init())
-        self.model_control = yield From(self.manager.advertise(
-            '/gazebo/default/model/modify', 'gazebo.msgs.Model'
-        ))
-
     def robots_header(self):
         """
         Extends the robots header with a max age
@@ -115,19 +103,19 @@ class World(WorldManager):
         """
         return Robot.header()
 
-    def create_robot_manager(self, robot_name, tree, robot, position, time, battery_level, parents):
+    def create_robot_manager(self, robot_name, tree, robot, position, t, battery_level, parents):
         """
         Overriding with robot manager with more capabilities.
         :param robot_name:
         :param tree:
         :param robot:
         :param position:
-        :param time:
+        :param t:
         :param battery_level:
         :param parents:
         :return:
         """
-        return Robot(self.conf, robot_name, tree, robot, position, time,
+        return Robot(self.conf, robot_name, tree, robot, position, t,
                      battery_level=battery_level, parents=parents)
 
     @trollius.coroutine
@@ -188,13 +176,14 @@ class World(WorldManager):
         future.add_done_callback(lambda _: logger.debug("Done inserting population."))
         raise Return(future)
 
-    def get_simulation_sdf(self, robot, robot_name):
+    def get_simulation_sdf(self, robot, robot_name, initial_battery=0.0):
         """
         :param robot:
         :param robot_name:
+        :param initial_battery:
         :return:
         """
-        return get_simulation_robot(robot, robot_name, self.builder, self.conf)
+        return get_simulation_robot(robot, robot_name, self.builder, self.conf, battery_charge=initial_battery)
 
     @trollius.coroutine
     def build_walls(self, points):
@@ -214,55 +203,6 @@ class World(WorldManager):
             futures.append(future)
 
         raise Return(multi_future(futures))
-
-    @trollius.coroutine
-    def place_birth_clinic(self, diameter, height, angle=None):
-        """
-        CURRENTLY NOT USED.
-
-        Places the birth clinic. Since we're lazy and rotating appears to cause errors,
-        we're just deleting the old birth clinic and inserting a new one every time.
-        Inserts the birth clinic
-        :param height:
-        :param diameter:
-        :param angle:
-        :return:
-        """
-        if self.birth_clinic_model:
-            # Delete active birth clinic and place new
-            yield From(wait_for(self.delete_model(self.birth_clinic_model.name)))
-            self.birth_clinic_model = None
-
-        if angle is None:
-            angle = random.random() * 2 * math.pi
-
-        name = "birth_clinic_"+str(self.get_robot_id())
-        self.birth_clinic_model = bc = BirthClinic(name=name, diameter=diameter, height=height)
-        bc.rotate_around(Vector3(0, 0, 1), angle)
-        future = yield From(self.insert_model(SDF(elements=[bc])))
-        raise Return(future)
-
-    @trollius.coroutine
-    def set_birth_clinic_rotation(self, angle=None):
-        """
-        Sets rotation of the birth clinic.
-        :param angle: Desired rotation, a random angle is chosen if none is given.
-        :return:
-        """
-        if angle is None:
-            angle = random.random() * 2 * math.pi
-
-        msg = model_pb2.Model()
-        msg.name = self.birth_clinic_model.name
-        quat = Quaternion.from_angle_axis(angle, Vector3(0, 0, 1))
-
-        pose = msg.pose
-        pos, rot = pose.position, pose.orientation
-        pos.x, pos.y, pos.z = 0, 0, 0
-        rot.w, rot.x, rot.y, rot.z = quat
-
-        fut = yield From(self.model_control.publish(msg))
-        raise Return(fut)
 
     @trollius.coroutine
     def attempt_mate(self, ra, rb):
