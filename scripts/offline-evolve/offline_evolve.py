@@ -168,7 +168,7 @@ class OfflineEvoManager(World):
         yield From(wait_for(self.pause(True)))
 
         pose = Pose(position=Vector3(0, 0, -bbox.min.z))
-        fut = yield From(self.insert_robot(tree, pose, parents))
+        fut = yield From(self.insert_robot(tree, pose, parents=parents))
         robot = yield From(fut)
 
         max_age = self.conf.evaluation_time + self.conf.warmup_time
@@ -184,7 +184,7 @@ class OfflineEvoManager(World):
 
             # Sleep for the pose update frequency, which is about when
             # we expect a new age update.
-            yield From(trollius.sleep(1.0 / self.pose_update_frequency))
+            yield From(trollius.sleep(1.0 / self.state_update_frequency))
 
         yield From(wait_for(self.delete_robot(robot)))
         yield From(wait_for(self.pause(True)))
