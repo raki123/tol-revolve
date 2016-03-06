@@ -97,7 +97,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--initial-charge',
-    default=7.5 * 3600, type=float,
+    default=7.5 * 1800, type=float,
     help="Initial battery charge for new robots."
 )
 
@@ -168,6 +168,13 @@ parser.add_argument(
     default=3, type=int,
     help="The number of robots in the world beyond which the experiment"
          " result is set to `extinction`."
+)
+
+parser.add_argument(
+    '--explosion-cutoff',
+    default=60, type=int,
+    help="The number of robots in the world beyond which the experiment"
+         " result is set to `explosion`."
 )
 
 parser.add_argument(
@@ -456,9 +463,13 @@ class OnlineEvoManager(World):
         # factor so that the total divided charge will equal the max
         corr = 1.0 if recv_sum < 1.0 else 1.0 / recv_sum
 
+        charge_sum = 0.0
         for name, robot in self.robots.iteritems():
             charge_amount = t_diff * corr * max_recv[name] * available
+            charge_sum += charge_amount
             robot.add_charge(charge_amount)
+
+        assert charge_sum <= available, "Too much charge distributed."
 
         # Update robot controller battery levels
         fut = yield From(self.update_battery_levels())
@@ -649,6 +660,10 @@ class OnlineEvoManager(World):
                 print("%d or fewer robots left in population - extinction." %
                       conf.extinction_cutoff)
                 run_result = 'extinction'
+                break
+            elif num_bots >= conf.explosion_cutoff:
+                print("%d or more robots in population - explosion." % conf.explosion_cutoff)
+                run_result = 'explosion'
                 break
             elif age > conf.stability_cutoff:
                 print("World older than %f seconds, stable." % conf.stability_cutoff)

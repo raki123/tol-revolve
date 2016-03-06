@@ -18,30 +18,127 @@ bot_yaml = '''
 body:
   id          : Core
   type        : Core
-  children:
+  children    :
     0:
-      id: Brick1
-      type: FixedBrick
-      children:
+      id          : Leg00Joint
+      type        : ActiveHinge
+      orientation : 90
+      children    :
         1:
-          id: T1
-          type: TouchSensor
-    1:
-      id: Hinge
-      type: Hinge
-    3:
-      id: H2
-      type: Hinge
-      children:
-        1:
-          id: P1
-          type: ParametricBarJoint
-          params:
-            alpha: -0.8
-          children:
+          id          : Leg00
+          type        : FixedBrick
+          orientation : -90
+          children    :
             1:
-              id: H3
-              type: Hinge
+              id          : Leg01Joint
+              type        : ActiveHinge
+              children    :
+                1:
+                  id          : Leg01
+                  type        : FixedBrick
+    1:
+      id          : Leg10Joint
+      type        : ActiveHinge
+      orientation : 90
+      children    :
+        1:
+          id          : Leg10
+          type        : FixedBrick
+          orientation : -90
+          children    :
+            1:
+              id          : Leg11Joint
+              type        : ActiveHinge
+              children    :
+                1:
+                  id          : Leg11
+                  type        : FixedBrick
+    2:
+      id          : Leg20Joint
+      type        : ActiveHinge
+      orientation : 90
+      children    :
+        1:
+          id          : Leg20
+          type        : FixedBrick
+          orientation : -90
+          children    :
+            1:
+              id          : Leg21Joint
+              type        : ActiveHinge
+              children    :
+                1:
+                  id          : Leg21
+                  type        : FixedBrick
+    3:
+      id          : Leg30Joint
+      type        : ActiveHinge
+      orientation : 90
+      children    :
+        1:
+          id          : Leg30
+          type        : FixedBrick
+          orientation : -90
+          children    :
+            1:
+              id          : Leg31Joint
+              type        : ActiveHinge
+              children    :
+                1:
+                  id          : Leg31
+                  type        : FixedBrick
+
+
+brain:
+  # extra input neuron (bias)
+  neurons:
+    Core-hidden-0:
+      id: Core-hidden-0
+      layer: hidden
+      part_id: Core
+      type: Oscillator
+
+  # Here you specify the connections between neurons, as
+  # {"src": "src-id", "dst": "dst-id", "weight": float}
+  connections:
+  - src: Core-hidden-0
+    dst: Leg00Joint-out-0
+    weight: 1.0
+
+  - src: Core-hidden-0
+    dst: Leg01Joint-out-0
+    weight: 1.0
+
+  - src: Core-hidden-0
+    dst: Leg10Joint-out-0
+    weight: 1.0
+
+  - src: Core-hidden-0
+    dst: Leg11Joint-out-0
+    weight: 1.0
+
+  - src: Core-hidden-0
+    dst: Leg20Joint-out-0
+    weight: 1.0
+
+  - src: Core-hidden-0
+    dst: Leg21Joint-out-0
+    weight: 1.0
+
+  - src: Core-hidden-0
+    dst: Leg30Joint-out-0
+    weight: 1.0
+
+  - src: Core-hidden-0
+    dst: Leg31Joint-out-0
+    weight: 1.0
+
+
+  params:
+    Core-hidden-0:
+      period: 1.0
+      phase_offset: 0
+      amplitude: 1.8
 
 '''
 # bot_yaml = '''

@@ -12,15 +12,15 @@ from start import OnlineEvolutionSupervisor, manager_cmd, analyzer_cmd, \
 AVG = 7.5
 BASE = AVG * 3600
 param_options = {
-    '--max-robot-charge-rate': [a * AVG for a in (0.5, 1.0, 2.0)],
+    '--max-robot-charge-rate': [a * AVG for a in (0.5, 1.0, 1.2)],
     '--max-robot-charge': [AVG * 36000],
-    '--initial-charge': [BASE * a for a in (1, 2, 3)],
-    '--charger-r': [0.5, 1.0, 1.5],
-    '--total-charge-rate': [AVG * a for a in (10, 20, 30, 40)],
-    '--gestation-period': [36000.0 / a for a in 10, 20, 50, 100, 150, 200],
+    '--initial-charge': [BASE * a for a in (0.5, 1)],
+    '--charger-r': [0.5, 0.75, 1.0],
+    '--total-charge-rate': [AVG * a for a in (5, 10)],
+    '--gestation-period': [36000.0 / a for a in 10, 20, 50, 100],
     '--initial-population-size': [10, 15, 20],
-    '--mating-fitness-threshold': [0.6, 0.5, 0.4, 0.3, 0.2],
-    '--max-pair-children': [1, 2, 4],
+    '--mating-fitness-threshold': [0.6, 0.4],
+    '--max-pair-children': [1, 2],
     '--part-limit': [int(a * AVG) for a in (40, 50, 60)]
 }
 
