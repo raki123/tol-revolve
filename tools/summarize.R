@@ -7,19 +7,27 @@ library(ggplot2)
 library(plyr)
 library(reshape)
 
-data = read.csv("generations.csv", head=TRUE)
-cdata = ddply(data, c("gen"), summarise, Fitness=mean(fitness), Velocity=mean(vel), fsd=sd(fitness), vsd=sd(vel))
-mdata = melt(cdata, id=c("gen", "fsd", "vsd"))
+data1 = read.csv("plus/generations.csv", head=TRUE)
+data1$param_set = "First"
+data2 = read.csv("plus-aggressive/generations.csv", head=TRUE)
+data2$param_set = "Second"
+data = rbind(data1, data2)
+data$param_set = as.factor(data$param_set)
+cdata = ddply(data, c("gen", "param_set"), summarise, Fitness=mean(fitness), Velocity=mean(vel), fsd=sd(fitness), vsd=sd(vel))
+#mdata = melt(cdata, id=c("gen", "fsd", "vsd"))
 
-fcolor <- "#00A6DE"
-vcolor <- "#B00000"
-
-
-ggplot(mdata, aes(gen)) +
-  geom_line(aes(y=value, colour=variable)) +
-  geom_ribbon(data=cdata, aes(ymin=Fitness-fsd, ymax=Fitness+fsd), alpha=0.2, fill=fcolor, linetype=0) +
-  geom_ribbon(data=cdata, aes(ymin=Velocity-vsd, ymax=Velocity+vsd), alpha=0.2, fill=vcolor, linetype=0) +
-  scale_colour_manual(values=c(fcolor, vcolor), labels=c("Fitness*", "Velocity (m/s)"),
-                      name="Variable") +
+ggplot(cdata, aes(gen)) +
+  geom_line(aes(y=Fitness, colour=param_set)) +
+  geom_ribbon(aes(ymin=Fitness-fsd, ymax=Fitness+fsd, fill=param_set), alpha=0.2, linetype=0) +
+  scale_fill_discrete(name="Parameter set") +
+  scale_colour_discrete(name="Parameter set") +
   xlab("Generation") +
-  ylab("Value")
+  ylab("Fitness")
+
+lastgen1 = data1[data1$gen==max(data1$gen),];
+fit_mean1 = mean(lastgen1$fitness);
+fit_sd1 = sd(lastgen1$fitness);
+
+lastgen2 = data2[data2$gen==max(data2$gen),];
+fit_mean2 = mean(lastgen2$fitness);
+fit_sd2 = sd(lastgen2$fitness);
