@@ -188,7 +188,7 @@ class OnlineEvoManager(World):
 
         # Output files
         csvs = {
-            'fitness': ['run', 't_sim', 'robot_id', 'age', 'displacement',
+            'fitness': ['run', 't_sim', 'births', 'robot_id', 'age', 'displacement',
                         'vel', 'dvel', 'fitness', 'charge', 'size'],
             'summary': ['run', 'world_age', 'charge', 'robot_count', 'part_count',
                         'births', 'deaths'],
@@ -260,6 +260,8 @@ class OnlineEvoManager(World):
         data = yield From(super(OnlineEvoManager, self).get_snapshot_data())
         data.update({
             'current_run': self.current_run,
+            'births': self.births,
+            'deaths': self.deaths,
             'current_charge': self.current_charge,
             'last_charge_update': self.last_charge_update
         })
@@ -508,7 +510,7 @@ class OnlineEvoManager(World):
         n = self.current_run
         for robot in self.robots.values():
             ds, dt = robot.displacement()
-            f.writerow([n, t, robot.robot.id,
+            f.writerow([n, t, self.births, robot.robot.id,
                         robot.age(), ds.norm(), robot.velocity(),
                         robot.displacement_velocity(), robot.fitness(),
                         robot.charge(), robot.size])
