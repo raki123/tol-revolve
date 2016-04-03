@@ -1,10 +1,7 @@
 from revolve.build.sdf import RobotBuilder, BodyBuilder, NeuralNetBuilder, BasicBattery
-from sdfbuilder import SDF, Element
-from sdfbuilder.physics import Friction
-from sdfbuilder.structure import Collision
-from sdfbuilder.util import number_format as nf
+from revolve.angle.robogen.util import apply_surface_parameters
+from sdfbuilder import SDF
 from ..spec import get_body_spec, get_brain_spec
-from ..config import constants
 
 
 def get_builder(conf):
@@ -37,34 +34,3 @@ def get_simulation_robot(robot, name, builder, conf, battery_charge=None):
     sdf.add_element(model)
     return sdf
 
-
-def apply_surface_parameters(model):
-    """
-    Applies surface parameters to all collisions in the given model.
-    :param model:
-    :type model: Model
-    :return:
-    """
-    # Add friction surfaces to all body parts
-    surf = Element(tag_name="surface")
-    friction = Friction(
-        friction=constants.SURFACE_FRICTION1,
-        friction2=constants.SURFACE_FRICTION2,
-        slip1=constants.SURFACE_SLIP1,
-        slip2=constants.SURFACE_SLIP2
-    )
-    contact = "<contact>" \
-              "<ode>" \
-              "<kd>%s</kd>" \
-              "<kp>%s</kp>" \
-              "</ode>" \
-              "</contact>" % (
-                  nf(constants.SURFACE_KD), nf(constants.SURFACE_KP)
-              )
-
-    surf.add_element(contact)
-    surf.add_element(friction)
-
-    collisions = model.get_elements_of_type(Collision, recursive=True)
-    for collision in collisions:
-        collision.add_element(surf)

@@ -239,3 +239,11 @@ parser.add_argument(
          " when put down without that being counted as movement. Especially helps when dropping"
          " robots from the sky at the start."
 )
+
+
+def get_revolve_config(conf):
+    """
+    Returns a `revolve.angle.robogen` compatible config object.
+    """
+    conf.enable_wheel_parts = False
+    return conf
