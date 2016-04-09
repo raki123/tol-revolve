@@ -55,7 +55,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--num-generations',
-    default=80, type=int,
+    default=100, type=int,
     help="The number of generations to simulate."
 )
 

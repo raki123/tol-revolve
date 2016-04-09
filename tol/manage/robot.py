@@ -109,7 +109,7 @@ class Robot(RvRobot):
 
         row = [getattr(world, 'current_run', 0), self.robot.id,
                world.age()]
-        row += [parent.robot.id for parent in self.parents] if self.parents else ['', '']
+        row += list(self.parent_ids) if self.parent_ids else ['', '']
         row += [self.initial_charge, self.size, self.last_position.x,
                 self.last_position.y, self.last_position.z]
         csv_writer.writerow(row)

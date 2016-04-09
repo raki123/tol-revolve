@@ -21,7 +21,7 @@ from sdfbuilder.math import Vector3, Quaternion
 from sdfbuilder import SDF, Model, Pose, Link
 
 # Local
-from ..config import constants, parser, str_to_address, get_revolve_config
+from ..config import constants, parser, str_to_address, make_revolve_config
 from ..build import get_builder, get_simulation_robot
 from ..spec import get_tree_generator
 from revolve.util import multi_future, wait_for
@@ -58,7 +58,7 @@ class World(WorldManager):
         :param conf:
         :return:
         """
-        rv_conf = get_revolve_config(conf)
+        conf = make_revolve_config(conf)
         super(World, self).__init__(_private=_private,
                                     world_address=str_to_address(conf.world_address),
                                     analyzer_address=str_to_address(conf.analyzer_address),

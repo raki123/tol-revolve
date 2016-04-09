@@ -27,4 +27,9 @@ ggplot(cdata, aes(gen)) +
   xlab("Generation") +
   ylab("Fitness")
 
-maxes = cdata[cdata$gen==max(cdata$gen),];
+last_gens = cdata[cdata$gen==max(cdata$gen),];
+
+# Retrieve all the best robots per experiment
+# See http://stackoverflow.com/questions/6289538/aggregate-a-dataframe-on-a-given-column-and-display-another-column
+exp_maxes = do.call(rbind,lapply(split(data, list(data$exp, data$run)),function(chunk) chunk[which.max(chunk$fitness),]))
+exp_maxes = exp_maxes[order(-exp_maxes$fitness),]

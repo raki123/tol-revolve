@@ -64,13 +64,13 @@ def str_to_address(v):
 parser = CustomParser(fromfile_prefix_chars='@')
 parser.add_argument(
     '--sensor-update-rate',
-    default=10, type=int,
+    default=8, type=int,
     help='The rate at which Gazebo sensors are set to update their values.'
 )
 
 parser.add_argument(
     '--controller-update-rate',
-    default=10, type=int,
+    default=8, type=int,
     help='The rate at which the `RobotController` is requested to update.'
 )
 
@@ -82,7 +82,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--pose-update-frequency',
-    default=8, type=int,
+    default=5, type=int,
     help="The frequency at which the world is requested to send robot pose"
          " updates (in number of times per *simulation* second)."
 )
@@ -228,7 +228,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--enable-light-sensor',
-    default=True, type=str_to_bool,
+    default=False, type=str_to_bool,
     help="Enable / disable the light sensor in robots."
 )
 
@@ -241,9 +241,10 @@ parser.add_argument(
 )
 
 
-def get_revolve_config(conf):
+def make_revolve_config(conf):
     """
-    Returns a `revolve.angle.robogen` compatible config object.
+    Turns a `tol` config object into a revolve.angle.robogen compatible config
+    object.
     """
     conf.enable_wheel_parts = False
     return conf
