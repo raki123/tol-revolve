@@ -68,15 +68,22 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--disable-selection',
+    '--disable-fitness',
     default=False, type=lambda v: v.lower() == "true" or v == "1",
     help="Useful as a different baseline test - if set to true, robots reproduce,"
          " but parents are selected completely random."
 )
 
 parser.add_argument(
+    '--disable-selection',
+    default=False, type=lambda v: v.lower() == "true" or v == "1",
+    help="Another baseline testing option, sorts robots randomly rather "
+         "than selecting the top pairs."
+)
+
+parser.add_argument(
     '--num-evolutions',
-    default=10, type=int,
+    default=8, type=int,
     help="The number of times to repeat the experiment."
 )
 
@@ -258,7 +265,7 @@ class OfflineEvoManager(World):
 
         while len(trees) < self.conf.num_children:
             print("Producing individual...")
-            if self.conf.disable_selection:
+            if self.conf.disable_fitness:
                 p1, p2 = random.sample(parents, 2)
             else:
                 p1, p2 = select_parents(parents)
@@ -360,7 +367,12 @@ class OfflineEvoManager(World):
                     pairs = child_pairs
 
                 # Sort the bots and reduce to population size
-                pairs = sorted(pairs, key=lambda r: r[0].fitness(), reverse=True)[:conf.population_size]
+                if conf.disable_fitness:
+                    random.shuffle(pairs)
+                else:
+                    pairs = sorted(pairs, key=lambda r: r[0].fitness(), reverse=True)
+
+                pairs = pairs[:conf.population_size]
                 self.log_generation(evo, generation, pairs)
 
             # Clear "restore" parameters

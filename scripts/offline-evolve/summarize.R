@@ -22,7 +22,8 @@ cdata = ddply(data, c("gen", "exp"), summarise,
               joints=mean(joint_count), jsd=sd(joint_count),
               motors=mean(motor_count), msd=sd(motor_count),
               sz=mean(size), ssd=sd(size),
-              inp=mean(inputs), isd=sd(inputs)
+              inp=mean(inputs), isd=sd(inputs),
+              hid=mean(hidden), hsd=sd(hidden)
               );
               
 cdata$plot = as.factor("Fitness");
@@ -31,12 +32,14 @@ cdata2 = cdata;
 cdata3 = cdata;
 cdata4 = cdata;
 cdata5 = cdata;
+cdata6 = cdata;
 
 cdata1$plot = as.factor("# of joints");
 cdata2$plot = as.factor("# of active joints");
 cdata3$plot = as.factor("Total size");
 cdata4$plot = as.factor("# of extremities");
 cdata5$plot = as.factor("# of inputs");
+cdata6$plot = as.factor("# of hidden neurons");
 
 # Fitness over generations
 ggplot(cdata, aes(gen)) +
@@ -59,6 +62,9 @@ ggplot(cdata, aes(gen)) +
   geom_line(data=cdata5, aes(y=inp, colour=exp)) +
   geom_ribbon(data=cdata5, aes(ymin=inp-isd, ymax=inp+isd, fill=exp), alpha=0.1, linetype=0) +
   
+  geom_line(data=cdata6, aes(y=hid, colour=exp)) +
+  geom_ribbon(data=cdata6, aes(ymin=hid-hsd, ymax=hid+hsd, fill=exp), alpha=0.1, linetype=0) +
+  
   scale_fill_discrete(name="Experiment") +
   scale_colour_discrete(name="Experiment") +
   xlab("Generation") +
@@ -70,3 +76,6 @@ last_gens = cdata[cdata$gen==max(cdata$gen),];
 # See http://stackoverflow.com/questions/6289538/aggregate-a-dataframe-on-a-given-column-and-display-another-column
 exp_maxes = do.call(rbind,lapply(split(data, list(data$exp, data$run)),function(chunk) chunk[which.max(chunk$fitness),]))
 exp_maxes = exp_maxes[order(-exp_maxes$fitness),]
+
+exp_states = ddply(data, ~exp+run, summarise, cur_gen=max(gen));
+exp_states = exp_states[order(exp_states$exp, -exp_states$run),];
