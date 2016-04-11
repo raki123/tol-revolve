@@ -29,6 +29,7 @@ from tol.manage.robot import Robot
 from tol.config import parser
 from tol.manage import World
 from tol.logging import logger, output_console
+from tol.util.analyze import list_extremities, count_joints, count_motors, count_extremities
 
 # Log output to console
 output_console()
@@ -55,7 +56,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--num-generations',
-    default=100, type=int,
+    default=80, type=int,
     help="The number of generations to simulate."
 )
 
@@ -67,8 +68,15 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--disable-selection',
+    default=False, type=lambda v: v.lower() == "true" or v == "1",
+    help="Useful as a different baseline test - if set to true, robots reproduce,"
+         " but parents are selected completely random."
+)
+
+parser.add_argument(
     '--num-evolutions',
-    default=8, type=int,
+    default=10, type=int,
     help="The number of times to repeat the experiment."
 )
 
@@ -91,6 +99,7 @@ class OfflineEvoManager(World):
     """
     Extended world manager for the offline evolution script
     """
+
     def __init__(self, conf, _private):
         """
 
@@ -100,23 +109,35 @@ class OfflineEvoManager(World):
         """
         super(OfflineEvoManager, self).__init__(conf, _private)
 
-        self.generations_filename = None
-        self.generations_file = None
-        self.write_generations = None
-
         self._snapshot_data = {}
 
-        if self.output_directory:
-            self.generations_filename = os.path.join(self.output_directory, 'generations.csv')
+        # Output files
+        csvs = {
+            'generations': ['run', 'gen', 'robot_id', 'vel', 'dvel', 'fitness', 't_eval',
+                            'size', 'extremity_count', 'joint_count', 'motor_count',
+                            'inputs', 'outputs', 'hidden'],
+            'robot_details': ['robot_id', 'extremity_id', 'extremity_size',
+                              'joint_count', 'motor_count']
+        }
+        self.csv_files = {k: {'filename': None, 'file': None, 'csv': None,
+                              'header': csvs[k]}
+                          for k in csvs}
 
-            if self.do_restore:
-                shutil.copy(self.generations_filename+'.snapshot', self.generations_filename)
-                self.generations_file = open(self.generations_filename, 'ab', buffering=1)
-                self.write_generations = csv.writer(self.generations_file, delimiter=',')
-            else:
-                self.generations_file = open(self.generations_filename, 'wb', buffering=1)
-                self.write_generations = csv.writer(self.generations_file, delimiter=',')
-                self.write_generations.writerow(['run', 'gen', 'robot_id', 'vel', 'dvel', 'fitness', 't_eval'])
+        if self.output_directory:
+            for k in self.csv_files:
+                fname = os.path.join(self.output_directory, k + '.csv')
+                self.csv_files[k]['filename'] = fname
+                if self.do_restore:
+                    shutil.copy(fname + '.snapshot', fname)
+                    f = open(fname, 'ab', buffering=1)
+                else:
+                    f = open(fname, 'wb', buffering=1)
+
+                self.csv_files[k]['file'] = f
+                self.csv_files[k]['csv'] = csv.writer(f, delimiter=',')
+
+                if not self.do_restore:
+                    self.csv_files[k]['csv'].writerow(self.csv_files[k]['header'])
 
     def robots_header(self):
         return Robot.header()
@@ -143,8 +164,11 @@ class OfflineEvoManager(World):
         if not ret:
             raise Return(ret)
 
-        self.generations_file.flush()
-        shutil.copy(self.generations_filename, self.generations_filename+'.snapshot')
+        for k in self.csv_files:
+            entry = self.csv_files[k]
+            if entry['file']:
+                entry['file'].flush()
+                shutil.copy(entry['filename'], entry['filename'] + '.snapshot')
 
     @trollius.coroutine
     def get_snapshot_data(self):
@@ -234,7 +258,10 @@ class OfflineEvoManager(World):
 
         while len(trees) < self.conf.num_children:
             print("Producing individual...")
-            p1, p2 = select_parents(parents)
+            if self.conf.disable_selection:
+                p1, p2 = random.sample(parents, 2)
+            else:
+                p1, p2 = select_parents(parents)
 
             for j in xrange(self.conf.max_mating_attempts):
                 pair = yield From(self.attempt_mate(p1, p2))
@@ -257,12 +284,26 @@ class OfflineEvoManager(World):
         :return:
         """
         print("================== GENERATION %d ==================" % generation)
-        if not self.generations_file:
+        if not self.output_directory:
             return
 
+        go = self.csv_files['generations']['csv']
+        do = self.csv_files['robot_details']['csv']
         for robot, t_eval in pairs:
-            self.write_generations.writerow([evo, generation, robot.robot.id, robot.velocity(),
-                                             robot.displacement_velocity(), robot.fitness(), t_eval])
+            robot_id = robot.robot.id
+            root = robot.tree.root
+            inputs, outputs, hidden = root.io_count(recursive=True)
+            go.writerow([evo, generation, robot.robot.id, robot.velocity(),
+                         robot.displacement_velocity(), robot.fitness(), t_eval,
+                         len(root), count_extremities(root), count_joints(root),
+                         count_motors(root), inputs, outputs, hidden])
+
+            counter = 0
+            for extr in list_extremities(root):
+                num_joints = count_joints(extr)
+                num_motors = count_motors(extr)
+                do.writerow((robot_id, counter, len(extr), num_joints, num_motors))
+                counter += 1
 
     @trollius.coroutine
     def run(self):
@@ -334,8 +375,9 @@ class OfflineEvoManager(World):
         :return:
         """
         yield From(super(OfflineEvoManager, self).teardown())
-        if self.generations_file:
-            self.generations_file.close()
+        for k in self.csv_files:
+            if self.csv_files[k]['file']:
+                self.csv_files[k]['file'].close()
 
 
 def select_parent(parents):
@@ -345,7 +387,7 @@ def select_parent(parents):
     :return:
     """
     p = random.sample(parents, 2)
-    return p[0] if p[0].velocity() > p[1].velocity() else p[1]
+    return p[0] if p[0].fitness() > p[1].fitness() else p[1]
 
 
 def select_parents(parents):
