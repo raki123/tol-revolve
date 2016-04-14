@@ -119,14 +119,15 @@ class Robot(RvRobot):
         Fitness is proportional to both the displacement and absolute
         velocity of the center of mass of the robot, in the formula:
 
-        5 dS + S
+        (1 - d l) * (a dS + b S + c l)
 
         Where dS is the displacement over a direct line between the
-        start and end points of the robot, and S is the distance that
-        the robot has moved.
+        start and end points of the robot, S is the distance that
+        the robot has moved and l is the robot size.
 
         Since we use an active speed window, we use this formula
-        in context of velocities instead.
+        in context of velocities instead. The parameters a, b and c
+        are modifyable through config.
         :return:
         """
         age = self.age()
@@ -134,7 +135,11 @@ class Robot(RvRobot):
             # We want at least some data
             return 0.0
 
-        return 5.0 * self.displacement_velocity() + self.velocity()
+        v_fac = self.conf.fitness_velocity_factor
+        d_fac = self.conf.fitness_displacement_factor
+        s_fac = self.conf.fitness_size_factor
+        d = 1.0 - (self.conf.fitness_size_discount * self.size)
+        return d * (d_fac * self.displacement_velocity() + v_fac * self.velocity() + s_fac * self.size)
 
     def charge(self):
         """

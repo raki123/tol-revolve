@@ -89,7 +89,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--evaluation-time',
-    default=12, type=float,
+    default=14, type=float,
     help="The size of the `speed window` for each robot, i.e. the number of past (simulation) seconds "
          "over which its speed is evaluated. In offline evolution, this determines the length"
          "of the experiment run."
@@ -103,7 +103,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--max-parts',
-    default=12, type=int,
+    default=100, type=int,
     help="Maximum number of parts in a robot."
 )
 
@@ -127,13 +127,13 @@ parser.add_argument(
 
 parser.add_argument(
     '--body-mutation-epsilon',
-    default=0.1, type=float,
+    default=0.05, type=float,
     help="Mutation epsilon for robot body parameters."
 )
 
 parser.add_argument(
     '--brain-mutation-epsilon',
-    default=0.2, type=float,
+    default=0.1, type=float,
     help="Mutation epsilon for robot neural net parameters."
 )
 
@@ -151,25 +151,25 @@ parser.add_argument(
 
 parser.add_argument(
     '--p-swap-subtree',
-    default=0.1, type=float,
+    default=0.05, type=float,
     help="Probability of swapping two subtrees."
 )
 
 parser.add_argument(
     '--p-delete-subtree',
-    default=0.1, type=float,
+    default=0.05, type=float,
     help="Probability of deleting a subtree."
 )
 
 parser.add_argument(
     '--p-remove-brain-connection',
-    default=0.1, type=float,
+    default=0.05, type=float,
     help="Probability of removing a neural network connection."
 )
 
 parser.add_argument(
     '--p-delete-hidden-neuron',
-    default=0.1, type=float,
+    default=0.05, type=float,
     help="Probability of deleting a random hidden neuron."
 )
 
@@ -234,10 +234,37 @@ parser.add_argument(
 
 parser.add_argument(
     '--warmup-time',
-    default=1, type=float,
+    default=0, type=float,
     help="The number of seconds the robot is initially ignored, allows it to e.g. topple over"
          " when put down without that being counted as movement. Especially helps when dropping"
          " robots from the sky at the start."
+)
+
+parser.add_argument(
+    '--fitness-size-factor',
+    default=0, type=float,
+    help="Multiplication factor of robot size in the fitness function. Note that this"
+         " needs to be negative to discount size."
+)
+
+parser.add_argument(
+    '--fitness-velocity-factor',
+    default=1.0, type=float,
+    help="Multiplication factor of robot velocity in the fitness function."
+)
+
+parser.add_argument(
+    '--fitness-displacement-factor',
+    default=5.0, type=float,
+    help="Multiplication factor of robot displacement velocity (= velocity in a straight line "
+         " in the fitness function."
+)
+
+parser.add_argument(
+    '--fitness-size-discount',
+    default=0, type=float,
+    help="Another possible way of discounting robot size, multiplies the previously calculated"
+         " fitness by (1 - d * size) where `d` is this discount factor."
 )
 
 

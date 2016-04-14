@@ -16,6 +16,12 @@ read_dir_data <- function(odir) {
 dirs = list.files(".");
 data = do.call(rbind, lapply(dirs, read_dir_data));
 
+# Unify fitness calculation
+data$fitness = 5*data$dvel + data$vel;
+
+# Remove outliers
+data = data[data$fitness<1,];
+
 cdata = ddply(data, c("gen", "exp"), summarise, 
               fit=mean(fitness), fsd=sd(fitness), 
               ext=mean(extremity_count), esd=sd(extremity_count),
@@ -23,7 +29,8 @@ cdata = ddply(data, c("gen", "exp"), summarise,
               motors=mean(motor_count), msd=sd(motor_count),
               sz=mean(size), ssd=sd(size),
               inp=mean(inputs), isd=sd(inputs),
-              hid=mean(hidden), hsd=sd(hidden)
+              hid=mean(hidden), hsd=sd(hidden),
+              con=mean(conn), csd=sd(conn)
               );
               
 cdata$plot = as.factor("Fitness");
@@ -33,6 +40,7 @@ cdata3 = cdata;
 cdata4 = cdata;
 cdata5 = cdata;
 cdata6 = cdata;
+cdata7 = cdata;
 
 cdata1$plot = as.factor("# of joints");
 cdata2$plot = as.factor("# of active joints");
@@ -40,6 +48,7 @@ cdata3$plot = as.factor("Total size");
 cdata4$plot = as.factor("# of extremities");
 cdata5$plot = as.factor("# of inputs");
 cdata6$plot = as.factor("# of hidden neurons");
+cdata7$plot = as.factor("# of connections");
 
 # Fitness over generations
 ggplot(cdata, aes(gen)) +
@@ -64,6 +73,9 @@ ggplot(cdata, aes(gen)) +
   
   geom_line(data=cdata6, aes(y=hid, colour=exp)) +
   geom_ribbon(data=cdata6, aes(ymin=hid-hsd, ymax=hid+hsd, fill=exp), alpha=0.1, linetype=0) +
+
+  geom_line(data=cdata7, aes(y=con, colour=exp)) +
+  geom_ribbon(data=cdata7, aes(ymin=con-csd, ymax=con+csd, fill=exp), alpha=0.1, linetype=0) +
   
   scale_fill_discrete(name="Experiment") +
   scale_colour_discrete(name="Experiment") +
@@ -79,3 +91,5 @@ exp_maxes = exp_maxes[order(-exp_maxes$fitness),]
 
 exp_states = ddply(data, ~exp+run, summarise, cur_gen=max(gen));
 exp_states = exp_states[order(exp_states$exp, -exp_states$run),];
+
+exp_states

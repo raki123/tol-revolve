@@ -60,3 +60,11 @@ def joints_per_extremity(node):
     :type node: Node
     """
     return [count_extremities(c) for c in list_extremities(node)]
+
+
+def count_connections(node):
+    """
+    :type node: Node
+    """
+    return len(node.get_neural_connections()) + sum(count_connections(c.node)
+                                                    for c in node.child_connections())

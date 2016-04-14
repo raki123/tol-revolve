@@ -29,7 +29,7 @@ from tol.manage.robot import Robot
 from tol.config import parser
 from tol.manage import World
 from tol.logging import logger, output_console
-from tol.util.analyze import list_extremities, count_joints, count_motors, count_extremities
+from tol.util.analyze import list_extremities, count_joints, count_motors, count_extremities, count_connections
 
 # Log output to console
 output_console()
@@ -68,14 +68,14 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--disable-fitness',
+    '--disable-selection',
     default=False, type=lambda v: v.lower() == "true" or v == "1",
     help="Useful as a different baseline test - if set to true, robots reproduce,"
          " but parents are selected completely random."
 )
 
 parser.add_argument(
-    '--disable-selection',
+    '--disable-fitness',
     default=False, type=lambda v: v.lower() == "true" or v == "1",
     help="Another baseline testing option, sorts robots randomly rather "
          "than selecting the top pairs."
@@ -122,7 +122,7 @@ class OfflineEvoManager(World):
         csvs = {
             'generations': ['run', 'gen', 'robot_id', 'vel', 'dvel', 'fitness', 't_eval',
                             'size', 'extremity_count', 'joint_count', 'motor_count',
-                            'inputs', 'outputs', 'hidden'],
+                            'inputs', 'outputs', 'hidden', 'conn'],
             'robot_details': ['robot_id', 'extremity_id', 'extremity_size',
                               'joint_count', 'motor_count']
         }
@@ -265,7 +265,7 @@ class OfflineEvoManager(World):
 
         while len(trees) < self.conf.num_children:
             print("Producing individual...")
-            if self.conf.disable_fitness:
+            if self.conf.disable_selection:
                 p1, p2 = random.sample(parents, 2)
             else:
                 p1, p2 = select_parents(parents)
@@ -303,7 +303,7 @@ class OfflineEvoManager(World):
             go.writerow([evo, generation, robot.robot.id, robot.velocity(),
                          robot.displacement_velocity(), robot.fitness(), t_eval,
                          len(root), count_extremities(root), count_joints(root),
-                         count_motors(root), inputs, outputs, hidden])
+                         count_motors(root), inputs, outputs, hidden, count_connections(root)])
 
             counter = 0
             for extr in list_extremities(root):
