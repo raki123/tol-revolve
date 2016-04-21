@@ -108,6 +108,18 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--initial-parts-mu',
+    default=12, type=int,
+    help="Mean part count of generated robots."
+)
+
+parser.add_argument(
+    '--initial-parts-sigma',
+    default=5, type=int,
+    help="Standard deviation of part count in generated robots."
+)
+
+parser.add_argument(
     '--max-inputs',
     default=10, type=int,
     help="Maximum number of inputs (i.e. sensors) in a robot."
@@ -116,7 +128,7 @@ parser.add_argument(
 parser.add_argument(
     '--max-outputs',
     default=10, type=int,
-    help="Maximum number of outputs (i.e. sensors) in a robot."
+    help="Maximum number of outputs (i.e. motors) in a robot."
 )
 
 parser.add_argument(

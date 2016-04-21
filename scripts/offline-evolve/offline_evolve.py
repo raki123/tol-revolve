@@ -48,37 +48,41 @@ parser.add_argument(
     help="The number of children produced in each generation."
 )
 
+
+def str2bool(v):
+    return v.lower() == "true" or v == "1"
+
 parser.add_argument(
     '--keep-parents',
-    default=True, type=lambda v: v.lower() == "true" or v == "1",
+    default=True, type=str2bool,
     help="Whether or not to discard the parents after each generation. This determines the strategy, + or ,."
 )
 
 parser.add_argument(
     '--num-generations',
-    default=80, type=int,
+    default=200, type=int,
     help="The number of generations to simulate."
 )
 
 parser.add_argument(
     '--disable-evolution',
-    default=False, type=lambda v: v.lower() == "true" or v == "1",
+    default=False, type=str2bool,
     help="Useful as a baseline test - if set to true, new robots are generated"
          " every time rather than evolving them."
 )
 
 parser.add_argument(
     '--disable-selection',
-    default=False, type=lambda v: v.lower() == "true" or v == "1",
+    default=False, type=str2bool,
     help="Useful as a different baseline test - if set to true, robots reproduce,"
          " but parents are selected completely random."
 )
 
 parser.add_argument(
     '--disable-fitness',
-    default=False, type=lambda v: v.lower() == "true" or v == "1",
+    default=False, type=str2bool,
     help="Another baseline testing option, sorts robots randomly rather "
-         "than selecting the top pairs."
+         "than selecting the top pairs. This only matters if parents are kept."
 )
 
 parser.add_argument(
@@ -120,15 +124,15 @@ class OfflineEvoManager(World):
 
         # Output files
         csvs = {
-            'generations': ['run', 'gen', 'robot_id', 'vel', 'dvel', 'fitness', 't_eval',
-                            'size', 'extremity_count', 'joint_count', 'motor_count',
-                            'inputs', 'outputs', 'hidden', 'conn'],
+            'generations': ['run', 'gen', 'robot_id', 'vel', 'dvel', 'fitness', 't_eval'],
             'robot_details': ['robot_id', 'extremity_id', 'extremity_size',
                               'joint_count', 'motor_count']
         }
         self.csv_files = {k: {'filename': None, 'file': None, 'csv': None,
                               'header': csvs[k]}
                           for k in csvs}
+
+        self.current_run = 0
 
         if self.output_directory:
             for k in self.csv_files:
@@ -299,12 +303,10 @@ class OfflineEvoManager(World):
         for robot, t_eval in pairs:
             robot_id = robot.robot.id
             root = robot.tree.root
-            inputs, outputs, hidden = root.io_count(recursive=True)
             go.writerow([evo, generation, robot.robot.id, robot.velocity(),
-                         robot.displacement_velocity(), robot.fitness(), t_eval,
-                         len(root), count_extremities(root), count_joints(root),
-                         count_motors(root), inputs, outputs, hidden, count_connections(root)])
+                         robot.displacement_velocity(), robot.fitness(), t_eval])
 
+            # TODO Write this once when robot is written instead
             counter = 0
             for extr in list_extremities(root):
                 num_joints = count_joints(extr)
@@ -332,6 +334,8 @@ class OfflineEvoManager(World):
             pairs = None
 
         for evo in range(evo_start, conf.num_evolutions + 1):
+            self.current_run = evo
+
             if not pairs:
                 # Only create initial population if we are not restoring from
                 # a previous experiment.

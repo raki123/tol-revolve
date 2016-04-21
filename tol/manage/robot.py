@@ -1,8 +1,7 @@
-import random
-
 from sdfbuilder.math import Vector3
 from revolve.util import Time
 from revolve.angle import Robot as RvRobot
+from ..util.analyze import count_joints, count_motors, count_connections, count_extremities
 
 
 class Robot(RvRobot):
@@ -95,7 +94,9 @@ class Robot(RvRobot):
         """
         :return:
         """
-        return ['run', 'id', 't_birth', 'parent1', 'parent2', 'charge', 'nparts', 'x', 'y', 'z']
+        return ['run', 'id', 't_birth', 'parent1', 'parent2', 'nparts', 'x', 'y', 'z',
+                'extremity_count', 'joint_count', 'motor_count', 'inputs', 'outputs', 'hidden',
+                'conn']
 
     def write_robot(self, world, details_file, csv_writer):
         """
@@ -110,8 +111,14 @@ class Robot(RvRobot):
         row = [getattr(world, 'current_run', 0), self.robot.id,
                world.age()]
         row += list(self.parent_ids) if self.parent_ids else ['', '']
-        row += [self.initial_charge, self.size, self.last_position.x,
+        row += [self.size, self.last_position.x,
                 self.last_position.y, self.last_position.z]
+
+        root = self.tree.root
+        inputs, outputs, hidden = root.io_count(recursive=True)
+        row += [count_extremities(root), count_joints(root), count_motors(root),
+                inputs, outputs, hidden, count_connections(root)]
+
         csv_writer.writerow(row)
 
     def fitness(self):

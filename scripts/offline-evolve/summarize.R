@@ -10,7 +10,9 @@ library(reshape)
 read_dir_data <- function(odir) {
   tdata = read.csv(paste(odir, "/generations.csv", sep=""), head=TRUE);
   tdata$exp = as.factor(odir);
-  return(tdata);
+  rdata = read.csv(paste(odir, "/robots.csv", sep=""), head=TRUE);
+  
+  return(merge(tdata, rdata, by.x=c("robot_id", "run"), by.y=c("id", "run")));
 }
 
 dirs = list.files(".");
@@ -27,7 +29,7 @@ cdata = ddply(data, c("gen", "exp"), summarise,
               ext=mean(extremity_count), esd=sd(extremity_count),
               joints=mean(joint_count), jsd=sd(joint_count),
               motors=mean(motor_count), msd=sd(motor_count),
-              sz=mean(size), ssd=sd(size),
+              sz=mean(nparts), ssd=sd(nparts),
               inp=mean(inputs), isd=sd(inputs),
               hid=mean(hidden), hsd=sd(hidden),
               con=mean(conn), csd=sd(conn)
