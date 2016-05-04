@@ -87,7 +87,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--num-evolutions',
-    default=8, type=int,
+    default=30, type=int,
     help="The number of times to repeat the experiment."
 )
 
@@ -99,10 +99,20 @@ parser.add_argument(
 
 parser.add_argument(
     '--evaluation-threshold',
-    default=5.0, type=float,
+    default=10.0, type=float,
     help="Maximum number of seconds one evaluation can take before the "
          "decision is made to restart from snapshot. The assumption is "
          "that the world may have become slow and restarting will help."
+)
+
+parser.add_argument(
+    '--tournament-size',
+    default=4, type=int,
+    help="The size of the random tournament used for parent selection, if"
+         " selection is enabled. When individuals are chosen for reproduction,"
+         " this number of possible parents is randomly sampled from the population,"
+         " and out of these the best is chosen. A larger number here means higher"
+         " selection pressure but less selection variance and vice versa."
 )
 
 
@@ -227,7 +237,8 @@ class OfflineEvoManager(World):
         diff = time.time() - before
         if diff > self.conf.evaluation_threshold:
             sys.stderr.write("Evaluation threshold exceeded, shutting down with nonzero status code.\n")
-            sys.exit(1)
+            sys.stderr.flush()
+            sys.exit(15)
 
         raise Return(robot)
 
@@ -272,7 +283,7 @@ class OfflineEvoManager(World):
             if self.conf.disable_selection:
                 p1, p2 = random.sample(parents, 2)
             else:
-                p1, p2 = select_parents(parents)
+                p1, p2 = select_parents(parents, self.conf)
 
             for j in xrange(self.conf.max_mating_attempts):
                 pair = yield From(self.attempt_mate(p1, p2))
@@ -396,26 +407,24 @@ class OfflineEvoManager(World):
                 self.csv_files[k]['file'].close()
 
 
-def select_parent(parents):
+def select_parent(parents, conf):
     """
     Select a parent using a binary tournament.
     :param parents:
+    :param conf: Configuration object
     :return:
     """
-    p = random.sample(parents, 2)
-    return p[0] if p[0].fitness() > p[1].fitness() else p[1]
+    return sorted(random.sample(parents, conf.tournament_size), key=lambda r: r.fitness())[-1]
 
 
-def select_parents(parents):
+def select_parents(parents, conf):
     """
     :param parents:
+    :param conf: Configuration object
     :return:
     """
-    p1 = select_parent(parents)
-    p2 = p1
-    while p2 == p1:
-        p2 = select_parent(parents)
-
+    p1 = select_parent(parents, conf)
+    p2 = select_parent(list(parent for parent in parents if parent != p1), conf)
     return p1, p2
 
 

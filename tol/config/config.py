@@ -89,7 +89,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--evaluation-time',
-    default=14, type=float,
+    default=12, type=float,
     help="The size of the `speed window` for each robot, i.e. the number of past (simulation) seconds "
          "over which its speed is evaluated. In offline evolution, this determines the length"
          "of the experiment run."
@@ -103,7 +103,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--max-parts',
-    default=100, type=int,
+    default=30, type=int,
     help="Maximum number of parts in a robot."
 )
 
