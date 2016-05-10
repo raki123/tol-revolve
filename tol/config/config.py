@@ -279,6 +279,22 @@ parser.add_argument(
          " fitness by (1 - d * size) where `d` is this discount factor."
 )
 
+parser.add_argument(
+    '--tournament-size',
+    default=4, type=int,
+    help="The size of the random tournament used for parent selection, if"
+         " selection is enabled. When individuals are chosen for reproduction,"
+         " this number of possible parents is randomly sampled from the population,"
+         " and out of these the best is chosen. A larger number here means higher"
+         " selection pressure but less selection variance and vice versa."
+)
+
+parser.add_argument(
+    '--max-mating-attempts',
+    default=5, type=int,
+    help="Maximum number of mating attempts between two parents."
+)
+
 
 def make_revolve_config(conf):
     """

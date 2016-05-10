@@ -92,27 +92,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--max-mating-attempts',
-    default=5, type=int,
-    help="Maximum number of mating attempts between two parents."
-)
-
-parser.add_argument(
     '--evaluation-threshold',
     default=10.0, type=float,
     help="Maximum number of seconds one evaluation can take before the "
          "decision is made to restart from snapshot. The assumption is "
          "that the world may have become slow and restarting will help."
-)
-
-parser.add_argument(
-    '--tournament-size',
-    default=4, type=int,
-    help="The size of the random tournament used for parent selection, if"
-         " selection is enabled. When individuals are chosen for reproduction,"
-         " this number of possible parents is randomly sampled from the population,"
-         " and out of these the best is chosen. A larger number here means higher"
-         " selection pressure but less selection variance and vice versa."
 )
 
 
