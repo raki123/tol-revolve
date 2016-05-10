@@ -48,6 +48,7 @@ if __name__ == '__main__':
         world_file=world_file,
         output_directory=args.output_directory,
         manager_args=sys.argv[1:],
-        restore_directory=args.restore_directory
+        restore_directory=args.restore_directory,
+        gazebo_cmd="gazebo"
     )
     supervisor.launch()

@@ -17,8 +17,8 @@ add_definitions(-DSOURCE_DIR=${CMAKE_SOURCE_DIR})
 # Compiler options
 # TODO This currently assumes GCC, add Windows support in due time
 add_definitions(-pedantic -Wno-long-long -Wall -Wextra -Wformat=2
-                -Wredundant-decls -Wwrite-strings -Wmissing-include-dirs 
-                -Wswitch-enum -Wuninitialized 
+                -Wredundant-decls -Wwrite-strings -Wmissing-include-dirs
+                -Wswitch-enum -Wuninitialized
                 -Wswitch-default -Winit-self -Wfloat-equal -fPIC )
 
 # Use C++11 (removed, this is added below by the Gazebo flags)
@@ -60,7 +60,9 @@ file(GLOB_RECURSE
 
 file(GLOB_RECURSE
 	 TOL_ROBOT_SRC
-	 tol/plugin/RobotController.cpp
+     tol/plugin/RobotController.cpp
+     tol/plugin/fakebrain.cpp
+     tol/plugin/rlpower.cpp
 )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
@@ -105,6 +107,10 @@ else()
 endif()
 include_directories(${GAZEBO_INCLUDE_DIRS})
 
+#### GSL ####
+# Gnu mathematical library
+find_package(GSL REQUIRED)
+
 # Add Gazebo's C++ flags
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
@@ -119,11 +125,11 @@ endforeach()
 include_directories(${GAZEBO_PROTO_INCLUDE})
 
 # Set include dirs and dependencies
-include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH} ${GAZEBO_INCLUDE_DIRS})
-set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES} ${GAZEBO_LIBRARIES})
+include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH} ${GAZEBO_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS})
+set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES} ${GAZEBO_LIBRARIES} ${GSL_LIBRARIES})
 
-target_link_libraries(tolworldcontrol ${TOL_DEPS})
 target_link_libraries(tolrobotcontrol ${TOL_DEPS})
+target_link_libraries(tolworldcontrol ${TOL_DEPS} tolrobotcontrol)
 
 # Evolution keys library
 find_package(Qt4)
