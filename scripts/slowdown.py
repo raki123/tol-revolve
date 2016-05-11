@@ -67,26 +67,32 @@ def run_server():
     conf.initial_age_sigma = 500
 
     world = yield From(World.create(conf))
-    yield From(world.pause(True))
-    trees, bboxes = yield From(world.generate_population(40))
-    insert_queue = zip(trees, bboxes)
-
     yield From(world.pause(False))
-    for tree, bbox in insert_queue[:40]:
-        fut = yield From(birth(world, tree, bbox, None))
-        yield From(fut)
-        yield From(sleep_sim_time(world, 1.0))
-
-    print("Inserted all robots")
-    sim_time_sec = 1.0
+    sim_time_sec = 10.0
 
     while True:
+        trees, bboxes = yield From(world.generate_population(10))
+        insert_queue = zip(trees, bboxes)
+
+        for tree, bbox in insert_queue[:40]:
+            fut = yield From(birth(world, tree, bbox, None))
+            yield From(fut)
+            yield From(sleep_sim_time(world, 1.0))
+
+        print("Inserted all robots")
+
         before = time.time()
         yield From(sleep_sim_time(world, sim_time_sec))
         after = time.time()
 
         diff = after - before
         print(sim_time_sec / diff)
+
+        for robot in world.robot_list():
+            fut = yield From(world.delete_robot(robot))
+            yield From(fut)
+
+        yield From(trollius.sleep(0.1))
 
 
 def main():
