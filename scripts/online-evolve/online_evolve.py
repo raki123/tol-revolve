@@ -441,7 +441,7 @@ class OnlineEvoManager(World):
             insert_queue = zip(trees, bboxes, [None for _ in range(len(trees))])
 
         # Simple loop timing mechanism
-        timers = {k: Time() for k in ['reproduce', 'death', 'snapshot',
+        timers = {k: Time() for k in ['reproduce', 'death', 'snapshot', 'ping',
                                       'log_fitness', 'rtf', 'insert_queue']}
         this = self
 
@@ -504,21 +504,22 @@ class OnlineEvoManager(World):
                 real_time = nw
                 print("RTF: %f" % (rtf_interval / diff))
 
-            min_age = min(r.age() for r in self.robot_list())
-            if min_age >= t_eval:
-                if self.births >= self.conf.birth_limit:
-                    # Stop the experiment
-                    break
+            if timer('death', 1.0):
+                min_age = min(r.age() for r in self.robot_list())
+                if min_age >= t_eval:
+                    if self.births >= self.conf.birth_limit:
+                        # Stop the experiment
+                        break
 
-                # - Kill all but the `n` most fit robots
-                futs = yield From(self.kill_robots())
+                    # - Kill all but the `n` most fit robots
+                    futs = yield From(self.kill_robots())
 
-                if futs:
-                    yield From(multi_future(futs))
+                    if futs:
+                        yield From(multi_future(futs))
 
-                # - Produce `n` children and insert into the world
-                trees, bboxes, parent_pairs = yield From(self.produce_generation())
-                insert_queue += zip(trees, bboxes, parent_pairs)
+                    # - Produce `n` children and insert into the world
+                    trees, bboxes, parent_pairs = yield From(self.produce_generation())
+                    insert_queue += zip(trees, bboxes, parent_pairs)
 
             yield From(trollius.sleep(sleep_time))
 

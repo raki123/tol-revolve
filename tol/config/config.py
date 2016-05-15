@@ -296,6 +296,14 @@ parser.add_argument(
 )
 
 
+parser.add_argument(
+    '--world-step-size',
+    default=0.005, type=float,
+    help="The physics step size configured in the simulation world file. This needs to match"
+         " in order to configure some physics parameters."
+)
+
+
 def make_revolve_config(conf):
     """
     Turns a `tol` config object into a revolve.angle.robogen compatible config

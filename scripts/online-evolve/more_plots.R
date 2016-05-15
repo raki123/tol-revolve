@@ -35,10 +35,10 @@ wsum1=wsum;
 wsum1$panel = "# of robot parts";
 wsum2 = wsum;
 wsum2$panel = "Avg parts / robot"
-wsum3 = wsum;
-wsum3$panel = "Main battery charge";
+#wsum3 = wsum;
+#wsum3$panel = "Main battery charge";
 
-ggplot(cfitness, aes(births, colour=run)) + geom_line(aes(y=fit));
+ggplot(cfitness, aes(births)) + geom_line(aes(y=fit));
 
 ggplot(data = cfitness, mapping = aes(births, colour=run, fill=run)) +
   facet_grid(panel~., scale="free") +
@@ -46,8 +46,8 @@ ggplot(data = cfitness, mapping = aes(births, colour=run, fill=run)) +
   geom_line(data=cfitness, aes(y=fit)) +
   geom_line(data=wsum, aes(y=robot_count)) +
   geom_line(data=wsum1, aes(y=part_count)) +
-  geom_line(data=wsum2, aes(y=ppr)) +
-  geom_line(data=wsum3, aes(y=charge)) +
+#  geom_line(data=wsum2, aes(y=ppr)) +
+#  geom_line(data=wsum3, aes(y=charge)) +
   scale_colour_discrete(name="Run") +
   scale_fill_discrete(guide=FALSE) +
   ylab("") + xlab("# of born individuals");
