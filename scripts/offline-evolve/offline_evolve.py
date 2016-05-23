@@ -339,8 +339,8 @@ class OfflineEvoManager(World):
                 self.log_generation(evo, 0, pairs)
 
             for generation in xrange(gen_start, conf.num_generations):
-                if (generation % 5) == 0:
-                    # Snapshot every 2 generations
+                if (generation % 10) == 0:
+                    # Snapshot every 10 generations
                     self._snapshot_data = {
                         "local_pairs": pairs,
                         "gen_start": generation,

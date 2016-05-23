@@ -9,13 +9,12 @@ Online evolution experiment. Initially we try to answer the following questions:
 import csv
 import logging
 import sys
-
-import itertools
-
 import math
 import random
-
 import time
+
+import numpy as np
+
 from sdfbuilder import Pose
 from sdfbuilder.math import Vector3
 
@@ -52,7 +51,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--birth-clinic-diameter',
-    default=3.0, type=float,
+    default=4.0, type=float,
     help="The diameter of the birth clinic in meters."
 )
 
@@ -74,7 +73,15 @@ parser.add_argument(
 parser.add_argument(
     '--population-size',
     default=15, type=int,
-    help="The minimum size of the maintained population."
+    help="The approximate size of the maintained population."
+)
+
+parser.add_argument(
+    '--population-limit',
+    default=30, type=int,
+    help="The maximum size of the population. If this number is hit without "
+         "sufficient robots to kill, a fixed fraction is killed instead of"
+         " a mean-based fraction."
 )
 
 # Mating parameters
@@ -103,6 +110,12 @@ parser.add_argument(
     '--birth-limit',
     default=15 * 200, type=int,
     help="The number of evaluated births after which to stop the experiment."
+)
+
+parser.add_argument(
+    '--kill-fraction',
+    default=0.65, type=int,
+    help="Kill all robots that have a fitness below this fraction of the mean."
 )
 
 
@@ -242,7 +255,7 @@ class OnlineEvoManager(World):
 
         :return:
         """
-        parents = self.robot_list()
+        parents = self.evaluated_robots()
         p1 = self.select_parent(parents)
         p2 = self.select_parent(list(parent for parent in parents if parent != p1))
         return p1, p2
@@ -304,13 +317,29 @@ class OnlineEvoManager(World):
         Kills selected robots.
         :return:
         """
-        bots = sorted(self.robot_list(), key=lambda r: r.fitness(), reverse=True)
-        to_kill = bots[self.conf.population_size:]
+        robots = self.evaluated_robots()
+        fitness = [r.fitness() for r in robots]
+        avg = np.mean(fitness)
+        cutoff = self.conf.kill_fraction * avg
+        to_kill = [r for r in robots if r.fitness() < cutoff]
+
+        if not to_kill and len(robots) == self.conf.population_limit:
+            # Just kill the desired fraction
+            n_kill = int(round(self.conf.kill_fraction * self.conf.population_limit))
+            to_kill = sorted(robots, key=lambda r: r.fitness())[:n_kill]
+
+        # Never kill more than the required number of robots
+        # for two completely different random tournaments (two is a
+        # rather arbitrary number).
+        max_kill = max(0, len(robots) - 2 * self.conf.tournament_size)
+        to_kill = to_kill[:max_kill]
 
         futs = []
         write_deaths = self.csv_files['deaths']['csv']
 
         for robot in to_kill:
+            print("Killing robot ID %d" % robot.robot.id)
+            self.deaths += 1
             fut = yield From(self.delete_robot(robot))
             futs.append(fut)
 
@@ -319,37 +348,23 @@ class OnlineEvoManager(World):
                                        robot.robot.id, robot.last_position.x,
                                        robot.last_position.y, robot.last_position.z))
 
+        print("Killed %d robots" % len(futs))
         raise Return(futs)
 
     @trollius.coroutine
-    def produce_generation(self):
+    def produce_individual(self):
         """
-        Produce the next generation of robots from
-        the current.
-        :param parents:
+
         :return:
         """
-        print("Producing generation...")
-        trees = []
-        bboxes = []
-        parent_pairs = []
+        p1, p2 = self.select_parents()
 
-        while len(trees) < self.conf.population_size:
-            print("Producing individual...")
-            p1, p2 = self.select_parents()
+        for j in xrange(self.conf.max_mating_attempts):
+            pair = yield From(self.attempt_mate(p1, p2))
+            if pair:
+                raise Return((pair[0], pair[1], (p1, p2)))
 
-            for j in xrange(self.conf.max_mating_attempts):
-                pair = yield From(self.attempt_mate(p1, p2))
-                if pair:
-                    trees.append(pair[0])
-                    bboxes.append(pair[1])
-                    parent_pairs.append((p1, p2))
-                    break
-
-            print("Done.")
-
-        print("Done producing generation.")
-        raise Return(trees, bboxes, parent_pairs)
+        raise Return(False)
 
     def create_robot_manager(self, robot_name, tree, robot, position, time, battery_level, parents):
         """
@@ -364,6 +379,12 @@ class OnlineEvoManager(World):
         :return:
         """
         return Robot(self.conf, robot_name, tree, robot, position, time, 0.0, parents)
+
+    def evaluated_robots(self):
+        """
+        :return:
+        """
+        return [robot for robot in self.robots.values() if robot.is_evaluated()]
 
     def total_fitness(self):
         """
@@ -428,9 +449,9 @@ class OnlineEvoManager(World):
         insert_queue = []
 
         if not self.do_restore:
-            if self.current_run == 0:
-                # Only build arena on first run
-                yield From(wait_for(self.build_arena()))
+            # if self.current_run == 0:
+            #     # Only build arena on first run
+            #     yield From(wait_for(self.build_arena()))
 
             # Set initial battery charge
             self.births = 0
@@ -441,8 +462,7 @@ class OnlineEvoManager(World):
             insert_queue = zip(trees, bboxes, [None for _ in range(len(trees))])
 
         # Simple loop timing mechanism
-        timers = {k: Time() for k in ['reproduce', 'death', 'snapshot', 'ping',
-                                      'log_fitness', 'rtf', 'insert_queue']}
+        timers = {}
         this = self
 
         def timer(name, t):
@@ -451,7 +471,14 @@ class OnlineEvoManager(World):
             :param name:
             :return:
             """
-            if this.last_time is not None and float(this.last_time - timers[name]) > t:
+            if this.last_time is None:
+                return False
+
+            if name not in timers:
+                timers[name] = this.last_time
+                return False
+
+            if float(this.last_time - timers[name]) > t:
                 timers[name] = this.last_time
                 return True
 
@@ -463,6 +490,10 @@ class OnlineEvoManager(World):
         sleep_time = 0.1
         started = False
         t_eval = self.conf.evaluation_time + self.conf.warmup_time
+        robot_limit = self.conf.population_limit
+
+        birth_interval = t_eval
+        kill_interval = 2 * birth_interval
 
         while True:
             if insert_queue and (not started or timer('insert_queue', 1.0)):
@@ -492,8 +523,8 @@ class OnlineEvoManager(World):
                 yield From(self.create_snapshot())
                 yield From(wait_for(self.pause(False)))
 
-            if timer('log_fitness', 2.0):
-                # Log overall fitness every 2 simulation seconds
+            if timer('log_fitness', 5.0):
+                # Log overall fitness every 5 simulation seconds
                 self.log_fitness()
                 self.log_summary()
 
@@ -504,22 +535,20 @@ class OnlineEvoManager(World):
                 real_time = nw
                 print("RTF: %f" % (rtf_interval / diff))
 
-            if timer('death', 1.0):
-                min_age = min(r.age() for r in self.robot_list())
-                if min_age >= t_eval:
-                    if self.births >= self.conf.birth_limit:
-                        # Stop the experiment
-                        break
+            if timer('death', kill_interval):
+                futs = yield From(self.kill_robots())
 
-                    # - Kill all but the `n` most fit robots
-                    futs = yield From(self.kill_robots())
+                if futs:
+                    yield From(multi_future(futs))
 
-                    if futs:
-                        yield From(multi_future(futs))
+            if timer('birth', birth_interval) and len(self.robots) < robot_limit:
+                if self.births >= self.conf.birth_limit:
+                    # Stop the experiment
+                    break
 
-                    # - Produce `n` children and insert into the world
-                    trees, bboxes, parent_pairs = yield From(self.produce_generation())
-                    insert_queue += zip(trees, bboxes, parent_pairs)
+                triplet = yield From(self.produce_individual())
+                if triplet:
+                    insert_queue.append(triplet)
 
             yield From(trollius.sleep(sleep_time))
 

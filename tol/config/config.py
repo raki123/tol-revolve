@@ -280,6 +280,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--fitness-limit',
+    default=1.0, type=float,
+    help="Minimum fitness value that is considered unrealistic and should probably be attributed"
+         " to a simulator instability. A fitness of zero is returned in this case."
+)
+
+parser.add_argument(
     '--tournament-size',
     default=4, type=int,
     help="The size of the random tournament used for parent selection, if"
@@ -298,7 +305,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--world-step-size',
-    default=0.005, type=float,
+    default=0.0025, type=float,
     help="The physics step size configured in the simulation world file. This needs to match"
          " in order to configure some physics parameters."
 )
