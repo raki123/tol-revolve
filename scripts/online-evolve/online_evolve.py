@@ -106,6 +106,19 @@ parser.add_argument(
     help="The number of times to repeat the experiment."
 )
 
+# Experiment parameters
+parser.add_argument(
+    '--current-run',
+    default=0, type=int,
+    help="Run to start from."
+)
+
+parser.add_argument(
+    '--robot-id-base',
+    default=0, type=int,
+    help="Robot ID to start from."
+)
+
 parser.add_argument(
     '--birth-limit',
     default=15 * 200, type=int,
@@ -114,7 +127,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--kill-fraction',
-    default=0.65, type=int,
+    default=0.7, type=int,
     help="Kill all robots that have a fitness below this fraction of the mean."
 )
 
@@ -145,13 +158,15 @@ class OnlineEvoManager(World):
                               'header': csvs[k]}
                           for k in csvs}
 
+        self._running = False
         data = self.do_restore
         if self.do_restore:
             self.current_run = data['current_run']
             self.births = data['births']
             self.deaths = data['deaths']
         else:
-            self.current_run = 0
+            self.robot_id = conf.robot_id_base
+            self.current_run = conf.current_run
             self.births = 0
             self.deaths = 0
 
@@ -201,10 +216,13 @@ class OnlineEvoManager(World):
         :return:
         """
         data = yield From(super(OnlineEvoManager, self).get_snapshot_data())
+        data['current_run'] = self.current_run
+
         data.update({
             'current_run': self.current_run,
             'births': self.births,
-            'deaths': self.deaths
+            'deaths': self.deaths,
+            'running': self._running
         })
         raise Return(data)
 
@@ -434,11 +452,18 @@ class OnlineEvoManager(World):
         :return:
         """
         while self.current_run < self.conf.num_repetitions:
+            self._running = True
             yield From(self.run_single())
+            self._running = False
 
             # Update run counter and clear restore status
             self.current_run += 1
             self.do_restore = None
+
+            # New: snapshot and restart the simulator after each run,
+            # to be able to deal with memory leaks / slowdowns better.
+            yield From(self.create_snapshot())
+            sys.exit(22)
 
     @trollius.coroutine
     def run_single(self):
@@ -448,11 +473,7 @@ class OnlineEvoManager(World):
         conf = self.conf
         insert_queue = []
 
-        if not self.do_restore:
-            # if self.current_run == 0:
-            #     # Only build arena on first run
-            #     yield From(wait_for(self.build_arena()))
-
+        if not self.do_restore or not self.do_restore['running']:
             # Set initial battery charge
             self.births = 0
             self.deaths = 0

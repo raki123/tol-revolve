@@ -21,7 +21,7 @@ wsum = rename(wsum, c("world_age"="t_sim"));
 
 # Filter outliers...
 # TODO How to make this better?
-fitness = fitness[fitness$fitness<0.5,];
+#fitness = fitness[fitness$fitness<0.5,];
 cfitness = ddply(fitness, c("births", "run"), summarise, fit=mean(fitness), fsd=sd(fitness))
 
 wsum$run = as.factor(wsum$run);
