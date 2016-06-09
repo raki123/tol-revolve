@@ -50,7 +50,7 @@ RLPower::RLPower(std::string modelName, EvaluatorPtr evaluator, std::vector< rev
 
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::normal_distribution<double> dist(-1, 1);
+    std::normal_distribution<double> dist(0, this->noise_sigma_);
 
     // Init first random controller
     current_policy_ = std::make_shared<Policy>(nActuators_);
@@ -231,15 +231,15 @@ void RLPower::generateOutput(const double time, double* output_vector)
         cycle_start_time_ = time;
     }
 
-    // get correct X value (between 0 and CICLE_LENGTH)
+    // get correct X value (between 0 and CYCLE_LENGTH)
     double x = time - cycle_start_time_;
-    while (x >= RLPower::CICLE_LENGTH) {
-        cycle_start_time_ += RLPower::CICLE_LENGTH;
+    while (x >= RLPower::CYCLE_LENGTH) {
+        cycle_start_time_ += RLPower::CYCLE_LENGTH;
         x = time - cycle_start_time_;
     }
 
     // adjust X on the cache coordinate space
-    x = (x/CICLE_LENGTH) * INTERPOLATION_CACHE_SIZE;
+    x = (x/CYCLE_LENGTH) * INTERPOLATION_CACHE_SIZE;
     // generate previous and next values
     int x_a = ((int)x) % INTERPOLATION_CACHE_SIZE;
     int x_b = (x_a+1) % INTERPOLATION_CACHE_SIZE;
@@ -283,29 +283,25 @@ void RLPower::interpolateCubic(Policy * const source_y, Policy *destination_y)
     const unsigned int source_y_size = (*source_y)[0].size();
     const unsigned int destination_y_size = (*destination_y)[0].size();
 
-   const unsigned int N = source_y_size;
-    double *x = new double[N+1];
-    double *y = new double[N+1];
+   const unsigned int N = source_y_size + 1;
+    double *x = new double[N];
+    double *y = new double[N];
     double *x_new = new double[destination_y_size];
 
     gsl_interp_accel *acc = gsl_interp_accel_alloc ();
     const gsl_interp_type *t = gsl_interp_cspline_periodic;
-    gsl_spline *spline = gsl_spline_alloc (t, N+1);
+    gsl_spline *spline = gsl_spline_alloc (t, N);
 
     // init x
-    double step_size = ((double)CICLE_LENGTH) / source_y_size;
-    double x_ = 0;
-    for (int i = 0; i < N+1; i++) {
-        x[i] = x_;
-        x_ += step_size;
+    double step_size = CYCLE_LENGTH / source_y_size;
+    for (int i = 0; i < N; i++) {
+        x[i] = step_size * i;
     }
 
     // init x_new
-    step_size = ((double)CICLE_LENGTH) / destination_y_size;
-    x_ = 0;
-    for (int i = 0; i <= destination_y_size; i++) {
-        x_new[i] = x_;
-        x_ += step_size;
+    step_size = CYCLE_LENGTH / destination_y_size;
+    for (int i = 0; i < destination_y_size; i++) {
+        x_new[i] = step_size * i;
     }
 
 
@@ -315,14 +311,14 @@ void RLPower::interpolateCubic(Policy * const source_y, Policy *destination_y)
 
         // init y
         // TODO use memcpy
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < source_y_size; i++) {
             y[i] = source_y_line[i];
         }
 
         // make last equal to first
-        y[N] = y[0];
+        y[N - 1] = y[0];
 
-        gsl_spline_init(spline, x, y, N+1);
+        gsl_spline_init(spline, x, y, N);
 
 //         std::cout << "[ ";
 //         for (int i=0; i< destination_y_size; i++) {
@@ -342,19 +338,12 @@ void RLPower::interpolateCubic(Policy * const source_y, Policy *destination_y)
 
     }
 
-        std::cout << "######################################################### BEFORE" << std::endl;
-
     gsl_spline_free (spline);
-        std::cout << "######################################################### 0" << std::endl;
     gsl_interp_accel_free (acc);
-        std::cout << "######################################################### 1" << std::endl;
 
-//     delete[] x_new;
-        std::cout << "######################################################### 2" << std::endl;
-//     delete[] y;
-        std::cout << "######################################################### 3" << std::endl;
-//     delete[] x;
-        std::cout << "######################################################### END" << std::endl;
+    delete[] x_new;
+    delete[] y;
+    delete[] x;
 }
 
 
