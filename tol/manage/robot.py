@@ -146,7 +146,15 @@ class Robot(RvRobot):
         d_fac = self.conf.fitness_displacement_factor
         s_fac = self.conf.fitness_size_factor
         d = 1.0 - (self.conf.fitness_size_discount * self.size)
-        return d * (d_fac * self.displacement_velocity() + v_fac * self.velocity() + s_fac * self.size)
+        v = d * (d_fac * self.displacement_velocity() + v_fac * self.velocity() + s_fac * self.size)
+        return v if v <= self.conf.fitness_limit else 0.0
+
+    def is_evaluated(self):
+        """
+        Returns true if this robot is at least one full evaluation time old.
+        :return:
+        """
+        return self.age() >= (self.conf.warmup_time + self.conf.evaluation_time)
 
     def charge(self):
         """

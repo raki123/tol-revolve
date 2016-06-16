@@ -4,7 +4,7 @@ import collections
 from sdfbuilder import Pose
 from sdfbuilder.math import Vector3
 from revolve.convert.yaml import yaml_to_robot
-from revolve.util import Time
+from revolve.util import Time, multi_future
 from revolve.angle import Tree
 import os
 import sys
@@ -67,26 +67,43 @@ def run_server():
     conf.initial_age_sigma = 500
 
     world = yield From(World.create(conf))
-    yield From(world.pause(True))
-    trees, bboxes = yield From(world.generate_population(40))
+    yield From(world.pause(False))
+
+    trees, bboxes = yield From(world.generate_population(30))
     insert_queue = zip(trees, bboxes)
 
-    yield From(world.pause(False))
-    for tree, bbox in insert_queue[:40]:
+    for tree, bbox in insert_queue[:15]:
         fut = yield From(birth(world, tree, bbox, None))
         yield From(fut)
         yield From(sleep_sim_time(world, 1.0))
 
-    print("Inserted all robots")
-    sim_time_sec = 1.0
+    sim_time_sec = 5.0
 
     while True:
+        bots = []
+        for tree, bbox in insert_queue[15:]:
+            fut = yield From(birth(world, tree, bbox, None))
+            bot = yield From(fut)
+            bots.append(bot)
+            yield From(sleep_sim_time(world, 1.0))
+
+        print("Inserted all robots")
+
         before = time.time()
         yield From(sleep_sim_time(world, sim_time_sec))
         after = time.time()
 
         diff = after - before
         print(sim_time_sec / diff)
+
+        futs = []
+        for robot in bots:
+            fut = yield From(world.delete_robot(robot))
+            futs.append(fut)
+
+        yield From(multi_future(futs))
+        yield From(trollius.sleep(0.1))
+        print("Deleted all robots")
 
 
 def main():

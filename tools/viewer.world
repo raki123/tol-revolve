@@ -2,8 +2,8 @@
 <sdf version="1.5">
   <world name="default">
     <physics type="ode">
-      <max_step_size>0.005</max_step_size>
-      <real_time_update_rate>200</real_time_update_rate>
+      <max_step_size>0.003</max_step_size>
+      <real_time_update_rate>333</real_time_update_rate>
       <ode>
         <constraints>
           <!-- In Robogen: Simulator.cpp -->
@@ -15,7 +15,7 @@
           <contact_surface_layer>1e-8</contact_surface_layer>
         </constraints>
         <solver>
-          <type>world</type>
+          <type>quick</type>
         </solver>
       </ode>
     </physics>

@@ -2,4 +2,4 @@
 # Runs gazebo with the correct plugin path
 WORLD=viewer.world
 CMD=gazebo
-GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:`pwd`/../build GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:`pwd`/models $CMD -u $WORLD
+GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:`pwd`/../build GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:`pwd`/../../revolve/tools/models:`pwd`/models $CMD -u $WORLD

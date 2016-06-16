@@ -28,7 +28,7 @@ def get_simulation_robot(robot, name, builder, conf, battery_charge=None):
                                   update_rate=conf.controller_update_rate, name=name,
                                   battery=battery)
 
-    apply_surface_parameters(model)
+    apply_surface_parameters(model, conf.world_step_size)
 
     sdf = SDF()
     sdf.add_element(model)

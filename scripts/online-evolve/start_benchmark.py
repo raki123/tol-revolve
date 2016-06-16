@@ -37,9 +37,9 @@ class OnlineEvolutionSupervisor(Supervisor):
             self.ode_errors = 0
             sys.stderr.write('ODE Message 3 (100)\n')
 
-manager_cmd = [sys.executable, "online_evolve.py"]
+manager_cmd = [sys.executable, "benchmark.py"]
 analyzer_cmd = os.path.join(rv_path, 'tools', 'analyzer', 'run-analyzer')
-world_file = os.path.join(here, 'online-evolve.world')
+world_file = os.path.join(here, 'benchmark.world')
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -49,7 +49,6 @@ if __name__ == '__main__':
         world_file=world_file,
         output_directory=args.output_directory,
         manager_args=sys.argv[1:],
-        restore_directory=args.restore_directory,
-        gazebo_cmd="gazebo"
+        restore_directory=args.restore_directory
     )
     supervisor.launch()
