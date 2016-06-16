@@ -72,55 +72,9 @@ parser.add_argument(
 
 # General population parameters
 parser.add_argument(
-    '--initial-population-size',
-    default=12, type=int,
-    help="The size of the starting population."
-)
-
-parser.add_argument(
-    '--part-limit',
-    default=300, type=int,
-    help="The maximum number of robot parts in the world."
-)
-
-parser.add_argument(
-    '--max-charge',
-    default=36000 * 7.5, type=float,
-    help="The maximum battery charge in a robot, in seconds."
-)
-
-parser.add_argument(
-    '--initial-charge',
-    default=100000, type=float,
-    help="Charge in the main battery at the start of the simulation. The"
-         " initial population feeds off this charge as well!"
-)
-
-parser.add_argument(
-    '--charge-rate',
-    default=200, type=float,
-    help="The number of units of charge added to the system with each simulation "
-         "second. One unit of charge powers one robot part for one simulation second."
-)
-
-parser.add_argument(
-    '--discharge-fraction',
-    default=0.5, type=float,
-    help="Multiply the charge assigned to a robot by this constant fraction before "
-         "actually assigning it."
-)
-
-parser.add_argument(
-    '--initial-charge-mu',
-    default=7.5 * 36000 / 6.0, type=float,
-    help="Gaussian mean for the charge distribution of the initial population."
-)
-
-parser.add_argument(
-    '--initial-charge-sigma',
-    default=7.5 * 36000 / 12.0, type=float,
-    help="Gaussian standard deviation for charge distribution of "
-         "the initial population."
+    '--population-size',
+    default=15, type=int,
+    help="The minimum size of the maintained population."
 )
 
 # Mating parameters
@@ -138,37 +92,17 @@ parser.add_argument(
          " if one is 50%% less fit than the other."
 )
 
-parser.add_argument(
-    '--gestation-period',
-    default=36000 / 100.0, type=float,
-    help="The minimum time a robot has to wait between matings."
-)
-
-parser.add_argument(
-    '--max-pair-children',
-    default=4, type=int,
-    help="The maximum number of children one pair of robots is allowed to have."
-)
-
 # Experiment parameters
 parser.add_argument(
     '--num-repetitions',
-    default=1, type=int,
+    default=30, type=int,
     help="The number of times to repeat the experiment."
 )
 
 parser.add_argument(
-    '--extinction-cutoff',
-    default=3, type=int,
-    help="The number of robots in the world beyond which the experiment"
-         " result is set to `extinction`."
-)
-
-parser.add_argument(
-    '--stability-cutoff',
-    default=36000, type=float,
-    help="The number of simulation seconds after which the experiment"
-         " result is set to `stable`."
+    '--birth-limit',
+    default=15 * 200, type=int,
+    help="The number of evaluated births after which to stop the experiment."
 )
 
 
@@ -189,8 +123,8 @@ class OnlineEvoManager(World):
         # Output files
         csvs = {
             'fitness': ['run', 't_sim', 'births', 'robot_id', 'age', 'displacement',
-                        'vel', 'dvel', 'fitness', 'charge', 'size'],
-            'summary': ['run', 'world_age', 'charge', 'robot_count', 'part_count',
+                        'vel', 'dvel', 'fitness'],
+            'summary': ['run', 'world_age', 'robot_count', 'part_count',
                         'births', 'deaths'],
             'deaths': ['run', 'world_age', 'robot_id', 'x', 'y', 'z']
         }
@@ -201,14 +135,10 @@ class OnlineEvoManager(World):
         data = self.do_restore
         if self.do_restore:
             self.current_run = data['current_run']
-            self.current_charge = data['current_charge']
-            self.last_charge_update = data['last_charge_update']
             self.births = data['births']
             self.deaths = data['deaths']
         else:
             self.current_run = 0
-            self.current_charge = 0.0
-            self.last_charge_update = 0.0
             self.births = 0
             self.deaths = 0
 
@@ -261,9 +191,7 @@ class OnlineEvoManager(World):
         data.update({
             'current_run': self.current_run,
             'births': self.births,
-            'deaths': self.deaths,
-            'current_charge': self.current_charge,
-            'last_charge_update': self.last_charge_update
+            'deaths': self.deaths
         })
         raise Return(data)
 
@@ -300,33 +228,24 @@ class OnlineEvoManager(World):
         futs.append(fut)
         raise Return(multi_future(futs))
 
+    def select_parent(self, parents):
+        """
+
+        :return:
+        """
+        return sorted(random.sample(parents, self.conf.tournament_size),
+                      key=lambda r: r.fitness())[-1]
+
     def select_parents(self):
         """
         Returns a list of robots that have at least one potential mate.
 
         :return:
         """
-        return [ra for ra, _ in self.select_mates()]
-
-    def select_optimal_mate(self, ra):
-        """
-        Given a robot, selects the optimal mate. If you call this method
-        for a robot without any potential mate you will get an `IndexError`.
-        :param ra:
-        :type ra: Robot
-        :return:
-        """
-        return sorted([rb for rb in self.robots.values()
-                       if ra is not rb and ra.will_mate_with(rb) and rb.will_mate_with(ra)],
-                      key=lambda r: r.fitness(), reverse=True)[-1]
-
-    def select_mates(self):
-        """
-        Finds all mate combinations in the current arena.
-        :return:
-        """
-        return [(ra, rb) for ra, rb in itertools.combinations(self.robots.values(), 2)
-                if ra.will_mate_with(rb) and rb.will_mate_with(ra)]
+        parents = self.robot_list()
+        p1 = self.select_parent(parents)
+        p2 = self.select_parent(list(parent for parent in parents if parent != p1))
+        return p1, p2
 
     @trollius.coroutine
     def birth(self, tree, bbox, parents):
@@ -343,11 +262,6 @@ class OnlineEvoManager(World):
         :param parents:
         :return:
         """
-        s = len(tree)
-        if (s + self.total_size()) > self.conf.part_limit:
-            print("Not enough parts in pool to create robot of size %d." % s)
-            raise Return(False)
-
         # Pick a random radius and angle within the birth clinic
         pos = Vector3()
         pos.z = -bbox.min.z + self.conf.drop_height
@@ -385,29 +299,57 @@ class OnlineEvoManager(World):
         raise Return(fut)
 
     @trollius.coroutine
-    def kill_old_robots(self):
+    def kill_robots(self):
         """
-        Kills old robots, returns a list of futures of all
-        delete requests (robots should be deleted once these
-        are resolved).
+        Kills selected robots.
         :return:
         """
+        bots = sorted(self.robot_list(), key=lambda r: r.fitness(), reverse=True)
+        to_kill = bots[self.conf.population_size:]
+
         futs = []
         write_deaths = self.csv_files['deaths']['csv']
 
-        for robot in self.robots.values():
-            if robot.charge() <= 0:
-                print("Robot `%s` has an empty battery and will be removed." % robot.name)
-                fut = yield From(self.delete_robot(robot))
-                futs.append(fut)
-                self.deaths += 1
+        for robot in to_kill:
+            fut = yield From(self.delete_robot(robot))
+            futs.append(fut)
 
-                if write_deaths:
-                    write_deaths.writerow((self.current_run, self.age(),
-                                           robot.robot.id, robot.last_position.x,
-                                           robot.last_position.y, robot.last_position.z))
+            if write_deaths:
+                write_deaths.writerow((self.current_run, self.age(),
+                                       robot.robot.id, robot.last_position.x,
+                                       robot.last_position.y, robot.last_position.z))
 
         raise Return(futs)
+
+    @trollius.coroutine
+    def produce_generation(self):
+        """
+        Produce the next generation of robots from
+        the current.
+        :param parents:
+        :return:
+        """
+        print("Producing generation...")
+        trees = []
+        bboxes = []
+        parent_pairs = []
+
+        while len(trees) < self.conf.population_size:
+            print("Producing individual...")
+            p1, p2 = self.select_parents()
+
+            for j in xrange(self.conf.max_mating_attempts):
+                pair = yield From(self.attempt_mate(p1, p2))
+                if pair:
+                    trees.append(pair[0])
+                    bboxes.append(pair[1])
+                    parent_pairs.append((p1, p2))
+                    break
+
+            print("Done.")
+
+        print("Done producing generation.")
+        raise Return(trees, bboxes, parent_pairs)
 
     def create_robot_manager(self, robot_name, tree, robot, position, time, battery_level, parents):
         """
@@ -421,68 +363,7 @@ class OnlineEvoManager(World):
         :param parents:
         :return:
         """
-        # Keeping for compliance with old experiments, will set up to use actual battery level after this
-        initial_charge = self.subtract_charge(self.calculate_initial_charge(parents))
-        return Robot(self.conf, robot_name, tree, robot, position, time, initial_charge, parents)
-
-    def subtract_charge(self, charge):
-        """
-        Subtracts the given charge from the main battery if possible,
-        returns the amount of charge actually subtracted.
-        :param charge:
-        :return:
-        """
-        current_charge = self.charge()
-        if current_charge < charge:
-            self.current_charge = 0
-            return current_charge
-        else:
-            self.current_charge -= charge
-            return charge
-
-    def charge(self):
-        """
-        Updates and returns the current charge.
-        :return:
-        """
-        rate = self.conf.charge_rate
-        age = self.age()
-        elapsed = float(age - self.last_charge_update)
-        self.last_charge_update = age
-
-        if elapsed > 0:
-            self.current_charge += rate * elapsed
-
-        return self.current_charge
-
-    def calculate_initial_charge(self, parents):
-        """
-        Calculates an initial charge. This follows the following formula:
-
-        - If this robot is part of the initial population, a normally distributed
-          charge is assigned with predefined mu and sigma.
-        - If parents are available, the average fitness of these parents is divided
-          by the total fitness of the population. The percentage of charge that comes
-          out of this is assigned to the baby robot.
-
-        In both scenarios, the charge is limited by both the total charge available
-        in the world
-
-        :param parents:
-        :return:
-        """
-        if parents:
-            pa, pb = parents
-            fest = 0.5 * (pa.fitness() + pb.fitness())
-            fsum = self.total_fitness()
-            charge_frac = fest / fsum if fsum > 0 else 1.0 / len(self.robots)
-            charge = self.conf.discharge_fraction * charge_frac * self.charge()
-        else:
-            mu = self.conf.initial_charge_mu
-            sigma = self.conf.initial_charge_sigma
-            charge = max(0, random.gauss(mu, sigma))
-
-        return min(self.conf.max_charge, charge, self.charge())
+        return Robot(self.conf, robot_name, tree, robot, position, time, 0.0, parents)
 
     def total_fitness(self):
         """
@@ -512,8 +393,7 @@ class OnlineEvoManager(World):
             ds, dt = robot.displacement()
             f.writerow([n, t, self.births, robot.robot.id,
                         robot.age(), ds.norm(), robot.velocity(),
-                        robot.displacement_velocity(), robot.fitness(),
-                        robot.charge(), robot.size])
+                        robot.displacement_velocity(), robot.fitness()])
 
     def log_summary(self):
         """
@@ -523,8 +403,8 @@ class OnlineEvoManager(World):
         if not f:
             return
 
-        f.writerow((self.current_run, self.age(), self.charge(),
-                   len(self.robots), self.total_size(), self.births, self.deaths))
+        f.writerow((self.current_run, self.age(), len(self.robots),
+                    self.total_size(), self.births, self.deaths))
 
     @trollius.coroutine
     def run(self):
@@ -553,13 +433,11 @@ class OnlineEvoManager(World):
                 yield From(wait_for(self.build_arena()))
 
             # Set initial battery charge
-            self.current_charge = self.conf.initial_charge
-            self.last_charge_update = 0.0
             self.births = 0
             self.deaths = 0
 
             # Generate a starting population
-            trees, bboxes = yield From(self.generate_population(conf.initial_population_size))
+            trees, bboxes = yield From(self.generate_population(conf.population_size))
             insert_queue = zip(trees, bboxes, [None for _ in range(len(trees))])
 
         # Simple loop timing mechanism
@@ -583,8 +461,8 @@ class OnlineEvoManager(World):
         real_time = time.time()
         rtf_interval = 10.0
         sleep_time = 0.1
-        run_result = 'unknown'
         started = False
+        t_eval = self.conf.evaluation_time + self.conf.warmup_time
 
         while True:
             if insert_queue and (not started or timer('insert_queue', 1.0)):
@@ -608,28 +486,11 @@ class OnlineEvoManager(World):
                 yield From(trollius.sleep(0.01))
                 continue
 
+            # Book keeping
             if timer('snapshot', 100.0):
                 # Snapshot the world every 100 simulation seconds
                 yield From(self.create_snapshot())
                 yield From(wait_for(self.pause(False)))
-
-            if timer('death', 3.0):
-                # Kill off robots over their age every 5 simulation seconds
-                futs = yield From(self.kill_old_robots())
-                if futs:
-                    yield From(multi_future(futs))
-
-            if timer('reproduce', 3.0):
-                # Attempt a reproduction every 3 simulation seconds
-                potential_parents = self.select_parents()
-                if potential_parents:
-                    ra = random.choice(potential_parents)
-                    rb = self.select_optimal_mate(ra)
-                    result = yield From(self.attempt_mate(ra, rb))
-
-                    if result:
-                        child, bbox = result
-                        insert_queue.append((child, bbox, (ra, rb)))
 
             if timer('log_fitness', 2.0):
                 # Log overall fitness every 2 simulation seconds
@@ -643,46 +504,30 @@ class OnlineEvoManager(World):
                 real_time = nw
                 print("RTF: %f" % (rtf_interval / diff))
 
-            # Stop conditions
-            num_bots = len(self.robots)
-            age = float(self.age())
+            min_age = min(r.age() for r in self.robot_list())
+            if min_age >= t_eval:
+                if self.births >= self.conf.birth_limit:
+                    # Stop the experiment
+                    break
 
-            if num_bots <= conf.extinction_cutoff:
-                print("%d or fewer robots left in population - extinction." %
-                      conf.extinction_cutoff)
-                run_result = 'extinction'
-                break
-            elif age > conf.stability_cutoff:
-                print("World older than %f seconds, stable." % conf.stability_cutoff)
-                run_result = 'stable'
-                break
+                # - Kill all but the `n` most fit robots
+                futs = yield From(self.kill_robots())
+
+                if futs:
+                    yield From(multi_future(futs))
+
+                # - Produce `n` children and insert into the world
+                trees, bboxes, parent_pairs = yield From(self.produce_generation())
+                insert_queue += zip(trees, bboxes, parent_pairs)
 
             yield From(trollius.sleep(sleep_time))
 
         # Delete all robots and reset the world, just in case a new run
         # will be started.
-        self.write_result(run_result)
         yield From(wait_for(self.delete_all_robots()))
         yield From(wait_for(self.reset()))
         yield From(wait_for(self.pause(True)))
         yield From(trollius.sleep(0.5))
-
-    def write_result(self, result):
-        """
-        Writes the textual result status of a single run
-        :param result:
-        :return:
-        """
-        if self.output_directory:
-            result_filename = os.path.join(self.output_directory, 'results.csv')
-            exists = os.path.exists(result_filename)
-
-            with open(result_filename, 'ab') as f:
-                writer = csv.writer(f, delimiter=',')
-                if not exists:
-                    writer.writerow(['run', 'result'])
-
-                writer.writerow([self.current_run, result])
 
 
 @trollius.coroutine

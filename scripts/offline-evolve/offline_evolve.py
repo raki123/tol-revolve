@@ -29,6 +29,7 @@ from tol.manage.robot import Robot
 from tol.config import parser
 from tol.manage import World
 from tol.logging import logger, output_console
+from tol.util.analyze import list_extremities, count_joints, count_motors, count_extremities, count_connections
 
 # Log output to console
 output_console()
@@ -47,40 +48,52 @@ parser.add_argument(
     help="The number of children produced in each generation."
 )
 
+
+def str2bool(v):
+    return v.lower() == "true" or v == "1"
+
 parser.add_argument(
     '--keep-parents',
-    default=True, type=lambda v: v.lower() == "true" or v == "1",
+    default=True, type=str2bool,
     help="Whether or not to discard the parents after each generation. This determines the strategy, + or ,."
 )
 
 parser.add_argument(
     '--num-generations',
-    default=80, type=int,
+    default=200, type=int,
     help="The number of generations to simulate."
 )
 
 parser.add_argument(
     '--disable-evolution',
-    default=False, type=lambda v: v.lower() == "true" or v == "1",
+    default=False, type=str2bool,
     help="Useful as a baseline test - if set to true, new robots are generated"
          " every time rather than evolving them."
 )
 
 parser.add_argument(
+    '--disable-selection',
+    default=False, type=str2bool,
+    help="Useful as a different baseline test - if set to true, robots reproduce,"
+         " but parents are selected completely random."
+)
+
+parser.add_argument(
+    '--disable-fitness',
+    default=False, type=str2bool,
+    help="Another baseline testing option, sorts robots randomly rather "
+         "than selecting the top pairs. This only matters if parents are kept."
+)
+
+parser.add_argument(
     '--num-evolutions',
-    default=8, type=int,
+    default=30, type=int,
     help="The number of times to repeat the experiment."
 )
 
 parser.add_argument(
-    '--max-mating-attempts',
-    default=5, type=int,
-    help="Maximum number of mating attempts between two parents."
-)
-
-parser.add_argument(
     '--evaluation-threshold',
-    default=5.0, type=float,
+    default=10.0, type=float,
     help="Maximum number of seconds one evaluation can take before the "
          "decision is made to restart from snapshot. The assumption is "
          "that the world may have become slow and restarting will help."
@@ -91,6 +104,7 @@ class OfflineEvoManager(World):
     """
     Extended world manager for the offline evolution script
     """
+
     def __init__(self, conf, _private):
         """
 
@@ -100,23 +114,35 @@ class OfflineEvoManager(World):
         """
         super(OfflineEvoManager, self).__init__(conf, _private)
 
-        self.generations_filename = None
-        self.generations_file = None
-        self.write_generations = None
-
         self._snapshot_data = {}
 
-        if self.output_directory:
-            self.generations_filename = os.path.join(self.output_directory, 'generations.csv')
+        # Output files
+        csvs = {
+            'generations': ['run', 'gen', 'robot_id', 'vel', 'dvel', 'fitness', 't_eval'],
+            'robot_details': ['robot_id', 'extremity_id', 'extremity_size',
+                              'joint_count', 'motor_count']
+        }
+        self.csv_files = {k: {'filename': None, 'file': None, 'csv': None,
+                              'header': csvs[k]}
+                          for k in csvs}
 
-            if self.do_restore:
-                shutil.copy(self.generations_filename+'.snapshot', self.generations_filename)
-                self.generations_file = open(self.generations_filename, 'ab', buffering=1)
-                self.write_generations = csv.writer(self.generations_file, delimiter=',')
-            else:
-                self.generations_file = open(self.generations_filename, 'wb', buffering=1)
-                self.write_generations = csv.writer(self.generations_file, delimiter=',')
-                self.write_generations.writerow(['run', 'gen', 'robot_id', 'vel', 'dvel', 'fitness', 't_eval'])
+        self.current_run = 0
+
+        if self.output_directory:
+            for k in self.csv_files:
+                fname = os.path.join(self.output_directory, k + '.csv')
+                self.csv_files[k]['filename'] = fname
+                if self.do_restore:
+                    shutil.copy(fname + '.snapshot', fname)
+                    f = open(fname, 'ab', buffering=1)
+                else:
+                    f = open(fname, 'wb', buffering=1)
+
+                self.csv_files[k]['file'] = f
+                self.csv_files[k]['csv'] = csv.writer(f, delimiter=',')
+
+                if not self.do_restore:
+                    self.csv_files[k]['csv'].writerow(self.csv_files[k]['header'])
 
     def robots_header(self):
         return Robot.header()
@@ -143,8 +169,11 @@ class OfflineEvoManager(World):
         if not ret:
             raise Return(ret)
 
-        self.generations_file.flush()
-        shutil.copy(self.generations_filename, self.generations_filename+'.snapshot')
+        for k in self.csv_files:
+            entry = self.csv_files[k]
+            if entry['file']:
+                entry['file'].flush()
+                shutil.copy(entry['filename'], entry['filename'] + '.snapshot')
 
     @trollius.coroutine
     def get_snapshot_data(self):
@@ -192,7 +221,8 @@ class OfflineEvoManager(World):
         diff = time.time() - before
         if diff > self.conf.evaluation_threshold:
             sys.stderr.write("Evaluation threshold exceeded, shutting down with nonzero status code.\n")
-            sys.exit(1)
+            sys.stderr.flush()
+            sys.exit(15)
 
         raise Return(robot)
 
@@ -234,7 +264,10 @@ class OfflineEvoManager(World):
 
         while len(trees) < self.conf.num_children:
             print("Producing individual...")
-            p1, p2 = select_parents(parents)
+            if self.conf.disable_selection:
+                p1, p2 = random.sample(parents, 2)
+            else:
+                p1, p2 = select_parents(parents, self.conf)
 
             for j in xrange(self.conf.max_mating_attempts):
                 pair = yield From(self.attempt_mate(p1, p2))
@@ -257,12 +290,24 @@ class OfflineEvoManager(World):
         :return:
         """
         print("================== GENERATION %d ==================" % generation)
-        if not self.generations_file:
+        if not self.output_directory:
             return
 
+        go = self.csv_files['generations']['csv']
+        do = self.csv_files['robot_details']['csv']
         for robot, t_eval in pairs:
-            self.write_generations.writerow([evo, generation, robot.robot.id, robot.velocity(),
-                                             robot.displacement_velocity(), robot.fitness(), t_eval])
+            robot_id = robot.robot.id
+            root = robot.tree.root
+            go.writerow([evo, generation, robot.robot.id, robot.velocity(),
+                         robot.displacement_velocity(), robot.fitness(), t_eval])
+
+            # TODO Write this once when robot is written instead
+            counter = 0
+            for extr in list_extremities(root):
+                num_joints = count_joints(extr)
+                num_motors = count_motors(extr)
+                do.writerow((robot_id, counter, len(extr), num_joints, num_motors))
+                counter += 1
 
     @trollius.coroutine
     def run(self):
@@ -284,6 +329,8 @@ class OfflineEvoManager(World):
             pairs = None
 
         for evo in range(evo_start, conf.num_evolutions + 1):
+            self.current_run = evo
+
             if not pairs:
                 # Only create initial population if we are not restoring from
                 # a previous experiment.
@@ -319,7 +366,12 @@ class OfflineEvoManager(World):
                     pairs = child_pairs
 
                 # Sort the bots and reduce to population size
-                pairs = sorted(pairs, key=lambda r: r[0].fitness(), reverse=True)[:conf.population_size]
+                if conf.disable_fitness:
+                    random.shuffle(pairs)
+                else:
+                    pairs = sorted(pairs, key=lambda r: r[0].fitness(), reverse=True)
+
+                pairs = pairs[:conf.population_size]
                 self.log_generation(evo, generation, pairs)
 
             # Clear "restore" parameters
@@ -334,30 +386,29 @@ class OfflineEvoManager(World):
         :return:
         """
         yield From(super(OfflineEvoManager, self).teardown())
-        if self.generations_file:
-            self.generations_file.close()
+        for k in self.csv_files:
+            if self.csv_files[k]['file']:
+                self.csv_files[k]['file'].close()
 
 
-def select_parent(parents):
+def select_parent(parents, conf):
     """
     Select a parent using a binary tournament.
     :param parents:
+    :param conf: Configuration object
     :return:
     """
-    p = random.sample(parents, 2)
-    return p[0] if p[0].velocity() > p[1].velocity() else p[1]
+    return sorted(random.sample(parents, conf.tournament_size), key=lambda r: r.fitness())[-1]
 
 
-def select_parents(parents):
+def select_parents(parents, conf):
     """
     :param parents:
+    :param conf: Configuration object
     :return:
     """
-    p1 = select_parent(parents)
-    p2 = p1
-    while p2 == p1:
-        p2 = select_parent(parents)
-
+    p1 = select_parent(parents, conf)
+    p2 = select_parent(list(parent for parent in parents if parent != p1), conf)
     return p1, p2
 
 

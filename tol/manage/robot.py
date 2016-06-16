@@ -1,8 +1,7 @@
-import random
-
 from sdfbuilder.math import Vector3
 from revolve.util import Time
 from revolve.angle import Robot as RvRobot
+from ..util.analyze import count_joints, count_motors, count_connections, count_extremities
 
 
 class Robot(RvRobot):
@@ -95,7 +94,9 @@ class Robot(RvRobot):
         """
         :return:
         """
-        return ['run', 'id', 't_birth', 'parent1', 'parent2', 'charge', 'nparts', 'x', 'y', 'z']
+        return ['run', 'id', 't_birth', 'parent1', 'parent2', 'nparts', 'x', 'y', 'z',
+                'extremity_count', 'joint_count', 'motor_count', 'inputs', 'outputs', 'hidden',
+                'conn']
 
     def write_robot(self, world, details_file, csv_writer):
         """
@@ -109,9 +110,15 @@ class Robot(RvRobot):
 
         row = [getattr(world, 'current_run', 0), self.robot.id,
                world.age()]
-        row += [parent.robot.id for parent in self.parents] if self.parents else ['', '']
-        row += [self.initial_charge, self.size, self.last_position.x,
+        row += list(self.parent_ids) if self.parent_ids else ['', '']
+        row += [self.size, self.last_position.x,
                 self.last_position.y, self.last_position.z]
+
+        root = self.tree.root
+        inputs, outputs, hidden = root.io_count(recursive=True)
+        row += [count_extremities(root), count_joints(root), count_motors(root),
+                inputs, outputs, hidden, count_connections(root)]
+
         csv_writer.writerow(row)
 
     def fitness(self):
@@ -119,14 +126,15 @@ class Robot(RvRobot):
         Fitness is proportional to both the displacement and absolute
         velocity of the center of mass of the robot, in the formula:
 
-        5 dS + S
+        (1 - d l) * (a dS + b S + c l)
 
         Where dS is the displacement over a direct line between the
-        start and end points of the robot, and S is the distance that
-        the robot has moved.
+        start and end points of the robot, S is the distance that
+        the robot has moved and l is the robot size.
 
         Since we use an active speed window, we use this formula
-        in context of velocities instead.
+        in context of velocities instead. The parameters a, b and c
+        are modifyable through config.
         :return:
         """
         age = self.age()
@@ -134,7 +142,11 @@ class Robot(RvRobot):
             # We want at least some data
             return 0.0
 
-        return 5.0 * self.displacement_velocity() + self.velocity()
+        v_fac = self.conf.fitness_velocity_factor
+        d_fac = self.conf.fitness_displacement_factor
+        s_fac = self.conf.fitness_size_factor
+        d = 1.0 - (self.conf.fitness_size_discount * self.size)
+        return d * (d_fac * self.displacement_velocity() + v_fac * self.velocity() + s_fac * self.size)
 
     def charge(self):
         """

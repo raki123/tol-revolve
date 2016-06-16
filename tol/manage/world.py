@@ -16,13 +16,14 @@ from pygazebo.msg import world_control_pb2, poses_stamped_pb2, world_stats_pb2, 
 
 # Revolve / sdfbuilder
 from revolve.angle import Tree, Crossover, Mutator, WorldManager
+from revolve.angle.robogen.spec import make_planar
 from sdfbuilder.math import Vector3, Quaternion
 from sdfbuilder import SDF, Model, Pose, Link
 
 # Local
-from ..config import constants, parser, str_to_address
+from ..config import constants, parser, str_to_address, make_revolve_config
 from ..build import get_builder, get_simulation_robot
-from ..spec import get_tree_generator, make_planar
+from ..spec import get_tree_generator
 from revolve.util import multi_future, wait_for
 from .robot import Robot
 from ..scenery import Wall, BirthClinic
@@ -57,6 +58,7 @@ class World(WorldManager):
         :param conf:
         :return:
         """
+        conf = make_revolve_config(conf)
         super(World, self).__init__(_private=_private,
                                     world_address=str_to_address(conf.world_address),
                                     analyzer_address=str_to_address(conf.analyzer_address),
