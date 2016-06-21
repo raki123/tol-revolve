@@ -1,0 +1,494 @@
+time to recall last: 5m30
+time to recall first: 31m0; halted, fitness=0.997412
+
+--------------------------------------------------------------------------------
+reduce max_depth from 101 to 10
+
+--------------------------------------------------------------------------------
+4 core on cluster node
+
+time to recall first [seq/tight/first]: 10m0
+time to recall both [seq/tight/both]: 12h15m; halted, fitness=0.994637
+
+--------------------------------------------------------------------------------
+large frequency activation regions
+
+recall both: 51m; halted, gen=1944, fitness=0.993307
+
+--------------------------------------------------------------------------------
+recall elements in separate tests
+
+recall both [seq/sep/both]: 6h1m; halted, gen=3945, fitness=0.999423
+
+--------------------------------------------------------------------------------
+increase population from 1k to 5k
+
+recall both [seq/pop5k]: 15h30m; halted, gen=1883, fitness=0.999829, nspecies=[2, 3473, 2756]
+
+--------------------------------------------------------------------------------
+increase compatibility threshold from 4.0 to 6.0
+
+recall both [seq/compat=6.0]: 16m; halted, gen=279, fitness=0.999825, nspecies=[1, 2115, 1319]
+
+--------------------------------------------------------------------------------
+increase compatibility threshold from 6.0 to 20.0
+
+recall both [seq/compat=20.0]: 18m; halted, gen=402, fitness=0.999791, nspecies=[1, 51, 38]
+
+--------------------------------------------------------------------------------
+decrease compatibility threshold from 20.0 to 10.0
+
+recall both [seq/compat=10.0]: 37m, halted, gen=457, fitness=0.999877, nspecies=[1, 490, 244]
+
+--------------------------------------------------------------------------------
+compatibility threshold 20.0 and 10k pop
+
+recall both [seq/pop=10k,compat=20.0]: halted quickly. only one species after 600 generations!
+
+--------------------------------------------------------------------------------
+compatibility threshold 10.0 and 10k pop
+
+recall both [seq/pop=10k,compa=10.0]: FITNESS=1.0!!! gen=477, nspecies=[1, 938, 743, 383.05]
+                                  _1: 4h, halted; fitness=0.999955, gen=845, [1, 850, 240, 270.33]
+
+********************************************************************************
+MOVE ALL PREVIOUS TO inflated_score/*
+
+--------------------------------------------------------------------------------
+compat threshold 4.0, 10k pop
+
+[seq/comp=4.0]: fitness=0.955744, gen=537
+
+********************************************************************************
+3 frequencies
+
+--------------------------------------------------------------------------------
+compat threshold 4.0, 10k pop
+
+[3freq/compat=4.0]: 12h30m; fitness=0.876239, gen=818
+
+
+********************************************************************************
+********************************************************************************
+********************************************************************************
+
+Go back to simpler experiments
+
+--------------------------------------------------------------------------------
+simple direct mapping from in to out all at once
+
+s0: solved in 21 generations.
+s1: solved in 21 generations.
+s2: solved in 27 generations.
+s3: solved in 44 generations.
+
+--------------------------------------------------------------------------------
+use create 4th frequency state for null
+
+took too long to solve, but can't remember how many generations :(
+
+--------------------------------------------------------------------------------
+introduce "signal" neuron
+
+s0: solved in 23 generations
+s1: solved in 28 generations
+s1: solved in 31 generations
+
+--------------------------------------------------------------------------------
+introduce "query" neuron
+
+s0: 10 gens
+s1: 28 gens
+s1: 23 gens
+
+--------------------------------------------------------------------------------
+delayed "query"
+
+[simple/delayed-query]: HALTED after 2408 gens. fitness=0.989442. Seemed to struggle
+distinguishing betwen "B" (0.5) and "C" (1.0). Moving to only 2 frequencies.
+
+--------------------------------------------------------------------------------
+delayed "query" w/ AB
+
+[simple/delayed-ab]:
+
+s0: solved in 66 generations
+s1: solved in 64 generations
+s2: solved in 86 generations
+
+--------------------------------------------------------------------------------
+3-element delayed query
+
+[simple/delayed-3el]:
+
+s0: solved in 230 generations
+s1: solved in 132 generations
+s1: solved in 164 generations
+
+--------------------------------------------------------------------------------
+2-element AB, big delay
+
+[simple/bigdelay]
+
+s0: solved in 175 gens
+s1: solved in 373 gens
+
+--------------------------------------------------------------------------------
+use 2 steps to present sequence, but use separate sensor for each element
+
+[simple/2step2sensor]
+
+s0: solved in 169 gens
+s1: solved in 212 gens
+
+--------------------------------------------------------------------------------
+Use only 1 sensor for freq
+
+[simple/2step1freqsens]
+
+s0: solved in 204 gens
+s1: solved in 204 gens
+
+--------------------------------------------------------------------------------
+silence after each element, 2 separate signal sensors
+
+[simple/silence-2sigsens]
+
+s0: 412
+s1: 319
+
+--------------------------------------------------------------------------------
+1 signal sensor
+
+[simple/silence-1sigsens]
+
+s0: 276
+s1: 385
+
+--------------------------------------------------------------------------------
+3 elements
+
+[simple/silence-1sigsens-3el] ppn=6
+
+this is what was shown to dickson and was the basis of acceleration efforts.
+
+s0: fitness=0.995833 @ gen_2505; halted at gen_3872 (37.5 hours)
+    gen_1000 @ 2 hours, gen_2000 @ 8.5 hours, gen_3000 @ 21 hours
+
+s1: fitness=0.991364 @ gen_2371; halted at gen_3065 (24 hours)
+
+********************************************************************************
+pursued better performance.
+
+--------------------------------------------------------------------------------
+simplified neural nets & decoupled phenotype/genotype
+
+[simplenet/nodegene] ppn=10
+
+s0: fitness=0.993913 @ gen_3053; halted at gen_4500 (15 hours)
+    gen_1000 @ 0.5 hours, gen_2000 @ 2 hours, gen_3000 @ 5.5 hours, gen_4000 @ 11.5 hours
+
+--------------------------------------------------------------------------------
+parallelized reproduce
+
+[parallel-reproduce/init] ppn=10
+
+s0: fitness=0.992946 @ gen_1783; halted at gen_4500 (7 hours)
+    gen_1000 @ 0.25 hours, gen_2000 @ 1.25 hours, gen_3000 @ 3 hours, gen_4000 @ 5.5 hours
+
+--------------------------------------------------------------------------------
+single-precision floats
+
+[parallel-reproduce/float] ppn=10
+
+s0: fitness=0.994273 @ gen_3872; halted at gen_4500 (6.5 hours)
+    gen_1000 @ 0.25 hours, gen_2000 @ 1 hour, gen_3000 @ 2.5 hours, gen_4000 @ 5 hours
+
+********************************************************************************
+scaled fitness (place more weight on final reporting of sequence)
+
+[scaledfit/100scale]
+
+s0: fitness=1.0 @ gen_1187 (26 minutes)
+        nnodes=41.528, nlinks=458.424, disabled=0.24883
+
+s1: fitness=0.987214 @ gen_1433; halted at gen_3433
+        nnodes=116.519, nlinks=1418.67, disabled=0.00783098
+
+********************************************************************************
+initialize with code, not config files
+
+--------------------------------------------------------------------------------
+startgenes
+
+[codeinit/sg]
+
+s0: fitness=0.938956 @ gen_582; halted at gen_1409
+    nnodes=57.0224, nlinks=619.074, disabled=0.027037
+
+--------------------------------------------------------------------------------
+ne
+
+[codeinit/ne]
+
+s0: fitness=0.938956 @ gen_582; halted at gen_1521
+
+********************************************************************************
+study effect of some parms
+
+--------------------------------------------------------------------------------
+reduce add link probability from 0.3 to 0.05 in order to combat massive brain growth
+
+[mutate/add_link_prob=0.05]
+
+s0: fitness=0.820333 @ gen 802; halted at gen_1200
+
+Seemed like node growth was to fast relative to link growth.
+
+--------------------------------------------------------------------------------
+reduce add node prob from 0.01 to 0.001
+
+so: fitness=0.747919 @ gen 1589; halted at gen 2070
+
+--------------------------------------------------------------------------------
+introduce reenable on add_link
+
+[mutate/add_link_reenable]
+
+s0: 0.913566 @ gen 4108; halted at gen 5000
+        nnodes=76.2541, nlinks=647.643, disabled=0.0659483
+
+--------------------------------------------------------------------------------
+introduce mutate_delete_node (same settings as codeinit/ne)
+
+[mutate/delete_node]
+
+s0: 0.996404 @ gen 750
+        nnodes=14.9729, nlinks=97.7788, disabled=0.29762
+
+failures were all at points of silence.
+
+--------------------------------------------------------------------------------
+give more weight to silence points
+
+[mutate/delte_node-heavier-weight-4,25,55]
+
+s0: 0.927591 @ gen 4666
+        nnodes=15.5124, nlinks=105.684, disabled=0.338734
+
+--------------------------------------------------------------------------------
+delete links instead of disabling
+
+[mutate/delete_link{_50k}]
+
+s1: 1.0 @ gen 7697
+        nnodes=31.0054, nlinks=184.51, disabled=0
+
+s2: 1.0 @ gen 2090
+        nnodes=23.8047, nlinks=191.454, disabled=0
+
+s3: 1.0 @ gen 1736
+        nnodes=26.9842, nlinks=208.996, disabled=0
+
+s4: 1.0 @ gen 14848
+        nnodes=29.0633, nlinks=238.396, disabled=0
+gen_1000 @ 0.25 hours, gen_2000 @ 1 hours, gen_3000 @ 1.25 hours, gen_4000 @ 1.5 hours,
+gen_5000 @ 1.75 hours, gen_10000 @ 3.75 hours, gen_14000 @ 4.75 hours
+
+s5: 1.0 @ gen 1431
+        nnodes=20.5119, nlinks=191.433, disabled=0
+
+s6: 1.0 @ gen 1004
+        nnodes=25.9438, nlinks=192.616, disabled=0
+
+s7: 1.0 @ gen 8958
+        nnodes=37.4216, nlinks=238.632, disabled=0
+
+s8: 1.0 @ gen 5824
+        nnodes=20.5015, nlinks=126.108, disabled=0
+
+s9: 1.0 @ gen 1814
+        nnodes=29.0706, nlinks=236.711, disabled=0
+
+s10: 1.0 @ gen 9775
+        nnodes=27.6211, nlinks=168.426, disabled=0
+
+********************************************************************************
+fixed fitness score, no more negative values.
+
+--------------------------------------------------------------------------------
+demes with equal probability of add/delete node/link
+
+[demes/init]
+
+s1: 0.813553 @ 281, halted at 730
+        fittest [8333]: fitness=0.813553, error=235.268, nnodes=22, nlinks=115
+
+--------------------------------------------------------------------------------
+probability of deleting 0.5 of adding
+
+[demes/delete_probX0.5]
+
+s1: 0.805136 @ gen 980
+        fittest [8617]: fitness=0.805136, error=246.495, nnodes=26, nlinks=216
+
+Made consistent, but very slow, progress
+
+--------------------------------------------------------------------------------
+probability of deleting 0.1 of adding
+
+[demes/delete_probX0.1]
+
+s1: 0.912623 @ gen 2229
+        fittest [2684]: fitness=0.912623, error=107.249, nnodes=31, nlinks=268
+
+Was doing okay... but want to see effect of further reducing delete.
+
+--------------------------------------------------------------------------------
+probability of deleting 0.05 of adding
+
+[demes/delete_probX0.05]
+
+s1: 0.809682 @ gen 884, halted at 1341
+        fittest [9001]: fitness=0.809682, error=240.424, nnodes=25, nlinks=195
+
+Seemed fairly stuck. Net size wasn't exploding, so further reducing delete prob.
+
+--------------------------------------------------------------------------------
+probability of deleting 0.01 of adding
+
+[demes/delete_probX0.01]
+
+s1: 0.82077 @ gen 1956
+        fittest [8427]: fitness=0.82077, error=225.687, nnodes=63, nlinks=759
+
+Nets got way too big.
+
+--------------------------------------------------------------------------------
+0.25 probability of mate_only, probability of deleting 0.1 of adding
+
+[demes/mate_onlyX0.25-delete_probX0.1]
+
+s1: 0.775646 @ gen 620
+        fittest [1252]: fitness=0.775646, error=286.301, nnodes=20, nlinks=139
+
+--------------------------------------------------------------------------------
+1.5 probability of mate_only, probability of deleting 0.1 of adding
+
+[demes/mate_onlyX1.5-delete_probX0.1]
+
+********************************************************************************
+verify species with delete still working, or tweak settings if needed. This is
+necessary because of the "prob_switch" change and fixes to fitness function.
+
+--------------------------------------------------------------------------------
+probability of deleting 0.01 of adding
+
+[species-delete-verify/delete_probX0.1]
+
+s1: 1.0 @ gen 1499
+        fittest [2085]: fitness=1, error=0, nnodes=21, nlinks=166
+
+********************************************************************************
+SWITCH TO SEQUENTIAL OUTPUT
+
+--------------------------------------------------------------------------------
+(3 1-bit elements) sequential input, sequential output with three distinct query signals
+
+[serial-out/init]
+
+NOTE: reported nnodes and nlinks are wrong for s1 & s2!!!
+s1:
+        fittest [8467]: fitness=1, error=0
+        epoch: n=23990, recent=0.712335, mean=0.777441, min=0.148005, max=2.60327, total=18650.8
+
+s2:
+        fittest [386]: fitness=1, error=0
+        epoch: n=10704, recent=2.79821, mean=0.716417, min=0.144769, max=3.83406, total=7668.53
+
+s3:
+        fittest [610]: fitness=1, error=0, nnodes=27, nlinks=215
+        epoch: n=2559, recent=1.6177, mean=0.943475, min=0.134045, max=2.46506, total=2414.35
+
+s4:
+        fittest [5661]: fitness=1, error=0, nnodes=23, nlinks=185
+        epoch: n=15395, recent=1.26597, mean=0.87445, min=0.136834, max=2.98663, total=13462.2
+
+********************************************************************************
+TRY a/b/c instead of just a/b
+
+--------------------------------------------------------------------------------
+2 a/b/c elements, parallel output
+
+[seq-abc/init]
+
+s1:
+    fittest [4]: fitness=0.978816, error=17.6344, nnodes=17, nlinks=122
+    epoch: n=100000, recent=0.524229, mean=0.541226, min=0.0813019, max=2.33725, total=54122.6
+
+0.000000 (0.000000) 0.000002 (0.000000)
+0.000001 (0.000000) 0.000017 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.000068 (0.000000) 0.000005 (0.000000)
+0.007325 (0.000000) 0.006689 (0.000000)
+---
+0.000000 (0.000000) 0.000002 (0.000000)
+0.000001 (0.000000) 0.000017 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.000068 (0.000000) 0.000212 (0.000000)
+0.001634 (0.000000) 0.494908 (0.000000)
+---
+0.000000 (0.000000) 0.000002 (0.000000)
+0.000001 (0.000000) 0.000017 (0.000000)
+0.000000 (0.000000) 0.000042 (0.000000)
+0.000013 (0.000000) 0.000000 (0.000000)
+0.000378 (0.000000) 0.999985 (0.000000)
+---
+0.000000 (0.000000) 0.000029 (0.000000)
+0.000000 (0.000000) 0.000015 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.000000 (0.000000) 0.000005 (0.000000)
+0.485999 (0.000000) 0.013471 (0.000000)
+---
+0.000000 (0.000000) 0.000029 (0.000000)
+0.000000 (0.000000) 0.000015 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.000000 (0.000000) 0.000144 (0.000000)
+0.594051 (0.094051) 0.525205 (0.000000)
+---
+0.000000 (0.000000) 0.000029 (0.000000)
+0.000000 (0.000000) 0.000015 (0.000000)
+0.000000 (0.000000) 0.000061 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.515132 (0.000000) 0.999988 (0.000000)
+---
+0.000000 (0.000000) 0.000056 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.000000 (0.000000) 0.000002 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.986937 (0.000000) 0.000046 (0.000000)
+---
+0.000000 (0.000000) 0.000056 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.000000 (0.000000) 0.000029 (0.000000)
+0.000000 (0.000000) 0.000017 (0.000000)
+0.996094 (0.000000) 0.273425 (0.226575)
+---
+0.000000 (0.000000) 0.000056 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.000000 (0.000000) 0.000056 (0.000000)
+0.000000 (0.000000) 0.000000 (0.000000)
+0.979021 (0.000000) 0.999990 (0.000000)
+---
+
+********************************************************************************
+2 bit
+
+--------------------------------------------------------------------------------
+2 elements with one of 4 2-bit values each
+
+[seq-2bit/init]
+
+s1: 
+fittest [80]: fitness=1, error=0, nnodes=23, nlinks=222
+epoch: n=19692, recent=0.803862, mean=1.16314, min=0.241514, max=3.74211, total=22904.6
