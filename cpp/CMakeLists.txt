@@ -1,6 +1,8 @@
 # CMake Required Version
 cmake_minimum_required (VERSION 2.8.12)
 
+enable_testing()
+
 # Project Name
 project (TriangleOfLife)
 
@@ -54,15 +56,19 @@ find_package(Boost REQUIRED COMPONENTS system)
 
 # Plugin CPP files
 file(GLOB_RECURSE
-	 TOL_WORLD_SRC
-	 tol/plugin/WorldController.cpp
+    TOL_WORLD_SRC
+    tol/plugin/WorldController.cpp
 )
 
 file(GLOB_RECURSE
-	 TOL_ROBOT_SRC
-     tol/plugin/RobotController.cpp
-     tol/plugin/fakebrain.cpp
-     tol/plugin/rlpower.cpp
+    TOL_ROBOT_SRC
+    tol/plugin/RobotController.cpp
+    tol/plugin/fakebrain.cpp
+    tol/plugin/rlpower.cpp
+    tol/plugin/supgbrain.cpp
+    tol/plugin/neat/asyncneat.cpp
+    tol/plugin/neat/neatevaluation.cpp
+#     tol/plugin/supg/supgneuron.cpp
 )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
@@ -124,12 +130,21 @@ foreach(ITR ${GAZEBO_INCLUDE_DIRS})
 endforeach()
 include_directories(${GAZEBO_PROTO_INCLUDE})
 
+# add accneat
+add_subdirectory(tol/plugin/neat/accneat)
+#TODO make include path for accneat nicer
+include_directories(tol/plugin/neat/accneat/src)
+
 # Set include dirs and dependencies
 include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH} ${GAZEBO_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS})
 set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES} ${GAZEBO_LIBRARIES} ${GSL_LIBRARIES})
 
-target_link_libraries(tolrobotcontrol ${TOL_DEPS})
+target_link_libraries(tolrobotcontrol ${TOL_DEPS} accneat)
 target_link_libraries(tolworldcontrol ${TOL_DEPS} tolrobotcontrol)
+
+add_executable(testAsyncNeat tol/plugin/neat/test/testasyncneat.cpp)
+target_link_libraries(testAsyncNeat tolrobotcontrol)
+add_test(testAsyncNeat testAsyncNeat CONFIGURATIONS Debug)
 
 # Evolution keys library
 find_package(Qt4)
