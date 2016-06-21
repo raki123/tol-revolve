@@ -50,4 +50,7 @@ SET_TARGET_PROPERTIES( accneat PROPERTIES
   COMPILE_FLAGS "${OpenMP_CXX_FLAGS}"
 )
 
+add_executable(neat src/main.cpp)
+target_link_libraries(neat accneat)
+
 
