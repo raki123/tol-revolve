@@ -14,7 +14,7 @@ namespace NEAT {
     public:
         Timer(const char *name);
         ~Timer();
-    
+
         void start();
         void stop();
 

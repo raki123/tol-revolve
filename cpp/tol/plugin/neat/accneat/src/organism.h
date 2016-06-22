@@ -22,14 +22,14 @@
 
 namespace NEAT {
 
-	// ---------------------------------------------
-	// ORGANISM CLASS:
-	//   Organisms are Genomes and Networks with fitness
-	//   information
-	//   i.e. The genotype and phenotype together
-	// ---------------------------------------------
-	class Organism {
-	public:
+    // ---------------------------------------------
+    // ORGANISM CLASS:
+    //   Organisms are Genomes and Networks with fitness
+    //   information
+    //   i.e. The genotype and phenotype together
+    // ---------------------------------------------
+    class Organism {
+    public:
         size_t population_index; //Unique within the population,always in [0, env->pop_size).
                                  //Provides client with convenient storage of associated
                                  //data in an array.
@@ -37,11 +37,11 @@ namespace NEAT {
         OrganismEvaluation eval;
         std::unique_ptr<Genome> genome; //The Organism's genotype
         std::unique_ptr<Network> net;  //The Organism's phenotype
-		int generation;  //Tells which generation this Organism is from
+        int generation;  //Tells which generation this Organism is from
 
         Organism(const Organism &other);
         Organism(const Genome &genome);
-		virtual ~Organism();
+        virtual ~Organism();
 
         virtual void init(int gen);
 
@@ -52,7 +52,7 @@ namespace NEAT {
     protected:
         Organism() {}
         virtual void copy_into(Organism &dst) const;
-	};
+    };
 
 } // namespace NEAT
 

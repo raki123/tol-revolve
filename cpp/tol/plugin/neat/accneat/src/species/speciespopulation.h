@@ -21,25 +21,25 @@
 
 namespace NEAT {
 
-	class SpeciesPopulation : public Population {
-	public:
-		// Construct off of a single spawning Genome
-		SpeciesPopulation(rng_t rng,
+    class SpeciesPopulation : public Population {
+    public:
+        // Construct off of a single spawning Genome
+        SpeciesPopulation(rng_t rng,
                           std::vector<std::unique_ptr<Genome>> &seeds);
-		virtual ~SpeciesPopulation();
+        virtual ~SpeciesPopulation();
 
         virtual size_t size() override;
         virtual class Organism *get(size_t index) override;
         virtual std::unique_ptr<Organism> make_copy(size_t index) override;
 
-		virtual void next_generation() override;
-		virtual void verify() override;
+        virtual void next_generation() override;
+        virtual void verify() override;
 
-		virtual void write(std::ostream& out) override;
+        virtual void write(std::ostream& out) override;
 
     private:
-		void spawn();
-		void speciate();
+        void spawn();
+        void speciate();
 
         size_t norgs;
         int generation;
@@ -47,12 +47,12 @@ namespace NEAT {
 
         std::vector<class Species*> species;  // Species in the SpeciesPopulation. Note that the species should comprise all the genomes
 
-		// ******* Member variables used during reproduction *******
-		int last_species;  //The highest species number
+        // ******* Member variables used during reproduction *******
+        int last_species;  //The highest species number
 
-		// ******* When do we need to delta code? *******
-		real_t highest_fitness;  //Stagnation detector
-		int highest_last_changed; //If too high, leads to delta coding
-	};
+        // ******* When do we need to delta code? *******
+        real_t highest_fitness;  //Stagnation detector
+        int highest_last_changed; //If too high, leads to delta coding
+    };
 
 } // namespace NEAT

@@ -32,7 +32,7 @@ namespace NEAT {
             }
         }
 
-        // This checks a POTENTIAL link between a potential in_node and potential out_node to see if it must be recurrent 
+        // This checks a POTENTIAL link between a potential in_node and potential out_node to see if it must be recurrent
         bool is_recur(int in_id, int out_id, int &count, int thresh) {
             ++count;  //Count the node as visited
             if(count > thresh) {
@@ -95,7 +95,7 @@ namespace NEAT {
             */
             return false;
         }
-    
+
     };
 
 }

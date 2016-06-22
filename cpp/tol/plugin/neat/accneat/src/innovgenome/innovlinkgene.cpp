@@ -30,10 +30,10 @@ InnovLinkGene::InnovLinkGene(real_t w,
     _is_recurrent = recur;
     _trait_id = 1;
 
-	innovation_num = innov;
-	mutation_num = mnum;
-	enable = true;
-	frozen = false;
+    innovation_num = innov;
+    mutation_num = mnum;
+    enable = true;
+    frozen = false;
 }
 
 
@@ -51,10 +51,10 @@ InnovLinkGene::InnovLinkGene(int trait_id,
     _is_recurrent = recur;
     _trait_id = trait_id;
 
-	innovation_num=innov;
-	mutation_num=mnum;
-	enable=true;
-	frozen=false;
+    innovation_num=innov;
+    mutation_num=mnum;
+    enable=true;
+    frozen=false;
 }
 
 InnovLinkGene::InnovLinkGene(InnovLinkGene *g,
@@ -67,27 +67,27 @@ InnovLinkGene::InnovLinkGene(InnovLinkGene *g,
     _is_recurrent = g->_is_recurrent;
     _trait_id = trait_id;
 
-	innovation_num=g->innovation_num;
-	mutation_num=g->mutation_num;
-	enable=g->enable;
+    innovation_num=g->innovation_num;
+    mutation_num=g->mutation_num;
+    enable=g->enable;
 
-	frozen=g->frozen;
+    frozen=g->frozen;
 }
 
 //todo: use NodeLookup
 InnovLinkGene::InnovLinkGene(const char *argline) {
-	//InnovLinkGene parameter holders
-	int trait_id;
-	int inodenum;
-	int onodenum;
-	real_t weight;
-	int recur;
+    //InnovLinkGene parameter holders
+    int trait_id;
+    int inodenum;
+    int onodenum;
+    real_t weight;
+    int recur;
 
-	//Get the gene parameters
+    //Get the gene parameters
     std::stringstream ss(argline);
     ss >> trait_id >> inodenum >> onodenum >> weight >> recur >> innovation_num >> mutation_num >> enable;
 
-	frozen=false; //TODO: MAYBE CHANGE
+    frozen=false; //TODO: MAYBE CHANGE
 
     _weight = weight;
     _in_node_id = inodenum;
@@ -98,10 +98,10 @@ InnovLinkGene::InnovLinkGene(const char *argline) {
 
 InnovLinkGene::InnovLinkGene(const InnovLinkGene& gene)
 {
-	innovation_num = gene.innovation_num;
-	mutation_num = gene.mutation_num;
-	enable = gene.enable;
-	frozen = gene.frozen;
+    innovation_num = gene.innovation_num;
+    mutation_num = gene.mutation_num;
+    enable = gene.enable;
+    frozen = gene.frozen;
 
     _weight = gene._weight;
     _in_node_id = gene._in_node_id;
@@ -115,15 +115,15 @@ InnovLinkGene::~InnovLinkGene() {
 
 
 void InnovLinkGene::print_to_file(std::ostream &outFile) {
-	outFile<<"gene ";
+    outFile<<"gene ";
 
-	//Start off with the trait number for this gene
+    //Start off with the trait number for this gene
     outFile << _trait_id << " ";
-	outFile << _in_node_id << " ";
-	outFile << _out_node_id << " ";
-	outFile << _weight << " ";
-	outFile << _is_recurrent << " ";
-	outFile << innovation_num << " ";
-	outFile << mutation_num << " ";
+    outFile << _in_node_id << " ";
+    outFile << _out_node_id << " ";
+    outFile << _weight << " ";
+    outFile << _is_recurrent << " ";
+    outFile << innovation_num << " ";
+    outFile << mutation_num << " ";
     outFile << enable << std::endl;
 }

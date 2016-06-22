@@ -17,23 +17,23 @@
 namespace tol {
 
 class InteractiveEvolutionPlugin : public ::gazebo::GUIPlugin {
-	Q_OBJECT
+    Q_OBJECT
 public:
 
-	InteractiveEvolutionPlugin();
-	~InteractiveEvolutionPlugin();
+    InteractiveEvolutionPlugin();
+    ~InteractiveEvolutionPlugin();
 
 protected slots:
-	void OnReproduceButton();
+    void OnReproduceButton();
 
 private:
-	bool OnKeyDown(const ::gazebo::common::KeyEvent _event);
+    bool OnKeyDown(const ::gazebo::common::KeyEvent _event);
 
-	// Transport nodes for the contact messages
-	::gazebo::transport::NodePtr node_;
+    // Transport nodes for the contact messages
+    ::gazebo::transport::NodePtr node_;
 
-	// Key publisher
-	::gazebo::transport::PublisherPtr keyPub_;
+    // Key publisher
+    ::gazebo::transport::PublisherPtr keyPub_;
 };
 
 }

@@ -33,10 +33,10 @@ namespace NEAT {
         virtual Organism *get(size_t index) = 0;
         virtual std::unique_ptr<Organism> make_copy(size_t index) = 0;
 
-		virtual void next_generation() = 0;
-		virtual void verify() = 0;
+        virtual void next_generation() = 0;
+        virtual void verify() = 0;
 
-		virtual void write(std::ostream& out) = 0;
+        virtual void write(std::ostream& out) = 0;
     };
 
     extern Population *debug_population;

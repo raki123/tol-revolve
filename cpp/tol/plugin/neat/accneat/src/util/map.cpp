@@ -83,7 +83,7 @@ namespace NEAT {
             if(in.bad()) {
                 error("Failed reading from " << path);
             }
-        
+
             lineno++;
 
             string text{buf};
@@ -243,7 +243,7 @@ namespace NEAT {
                 line.err("Duplicate attr definition");
             }
             obj->attrs[lhs_tokens[2]] = def.second;
-        }    
+        }
     }
 
     static Map parse_objects(Section &section,

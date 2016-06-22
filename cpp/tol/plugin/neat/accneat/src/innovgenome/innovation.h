@@ -22,18 +22,18 @@
 
 namespace NEAT {
 
-	enum innovtype {
-		NEWNODE = 0,
-		NEWLINK = 1
-	};
+    enum innovtype {
+        NEWNODE = 0,
+        NEWLINK = 1
+    };
 
     class InnovationId {
     public:
-		innovtype innovation_type;
-		int node_in_id;
-		int node_out_id;
-		int old_innov_num;
-		bool recur_flag;
+        innovtype innovation_type;
+        int node_in_id;
+        int node_out_id;
+        int old_innov_num;
+        bool recur_flag;
 
         // Node
         InnovationId(int nin, int nout, int oldinnov);
@@ -46,8 +46,8 @@ namespace NEAT {
 
     class InnovationParms {
     public:
-		real_t new_weight;
-		int new_trait_id;
+        real_t new_weight;
+        int new_trait_id;
 
         InnovationParms();
         InnovationParms(real_t w, int t);
@@ -72,14 +72,14 @@ namespace NEAT {
                                 InnovationParms parms,
                                 IndividualInnovation::ApplyFunc func )> CreateInnovationFunc;
 
-	class Innovation {
-	public:
+    class Innovation {
+    public:
         InnovationId id;
         InnovationParms parms;
 
-		int innovation_num1;  //The number assigned to the innovation
-		int innovation_num2;  // If this is a new node innovation, then there are 2 innovations (links) added for the new node
-		int newnode_id;  // If a new node was created, this is its node_id
+        int innovation_num1;  //The number assigned to the innovation
+        int innovation_num2;  // If this is a new node innovation, then there are 2 innovations (links) added for the new node
+        int newnode_id;  // If a new node was created, this is its node_id
 
         // Link
         Innovation(InnovationId id_,
@@ -92,13 +92,13 @@ namespace NEAT {
                    int innovation_num1_,
                    int innovation_num2_,
                    int newnode_id_);
-	};
+    };
 
     class PopulationInnovations {
         std::vector<std::vector<IndividualInnovation>> innovations;  // For holding the genetic innovations of the newest generation
         std::map<InnovationId, std::vector<IndividualInnovation>> id2inds;
-		int cur_node_id;
-		int cur_innov_num;
+        int cur_node_id;
+        int cur_innov_num;
 
     public:
         void init(int node_id, int innov_num);

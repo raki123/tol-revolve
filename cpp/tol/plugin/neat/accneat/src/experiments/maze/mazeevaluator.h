@@ -9,7 +9,7 @@ namespace NEAT {
         sensor_sound = 3,
         sensor_freq = 4,
         sensor_go = 5,
-        __sensor_N = 6 
+        __sensor_N = 6
     };
 
     enum output_t {

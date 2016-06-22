@@ -18,10 +18,10 @@
 using namespace NEAT;
 
 InnovNodeGene::InnovNodeGene(nodetype ntype,int nodeid) {
-	type=ntype; //NEURON or SENSOR type
-	node_id=nodeid;
-	frozen=false;
-	trait_id=1;
+    type=ntype; //NEURON or SENSOR type
+    node_id=nodeid;
+    frozen=false;
+    trait_id=1;
 }
 
 InnovNodeGene::InnovNodeGene (const char *argline) {

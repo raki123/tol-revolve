@@ -22,31 +22,31 @@ using namespace NEAT;
 using std::vector;
 
 Species::Species(int i) {
-	id=i;
-	age=1;
-	ave_fitness=0.0;
-	expected_offspring=0;
-	novel=false;
-	age_of_last_improvement=0;
-	max_fitness=0;
-	max_fitness_ever=0;
-	obliterate=false;
+    id=i;
+    age=1;
+    ave_fitness=0.0;
+    expected_offspring=0;
+    novel=false;
+    age_of_last_improvement=0;
+    max_fitness=0;
+    max_fitness_ever=0;
+    obliterate=false;
 
-	average_est=0;
+    average_est=0;
 }
 
 Species::Species(int i,bool n) {
-	id=i;
-	age=1;
-	ave_fitness=0.0;
-	expected_offspring=0;
-	novel=n;
-	age_of_last_improvement=0;
-	max_fitness=0;
-	max_fitness_ever=0;
-	obliterate=false;
+    id=i;
+    age=1;
+    ave_fitness=0.0;
+    expected_offspring=0;
+    novel=n;
+    age_of_last_improvement=0;
+    max_fitness=0;
+    max_fitness_ever=0;
+    obliterate=false;
 
-	average_est=0;
+    average_est=0;
 }
 
 
@@ -54,8 +54,8 @@ Species::~Species() {
 }
 
 bool Species::add_Organism(SpeciesOrganism *o){
-	organisms.push_back(o);
-	return true;
+    organisms.push_back(o);
+    return true;
 }
 
 void Species::remove_eliminated() {
@@ -67,7 +67,7 @@ void Species::remove_generation(int gen) {
 }
 
 SpeciesOrganism *Species::first() {
-	return *(organisms.begin());
+    return *(organisms.begin());
 }
 
 //Print Species to a file outFile
@@ -87,130 +87,130 @@ bool Species::print_to_file(std::ostream &outFile) {
 }
 
 void Species::adjust_fitness() {
-	std::vector<SpeciesOrganism*>::iterator curorg;
+    std::vector<SpeciesOrganism*>::iterator curorg;
 
-	int num_parents;
-	int count;
+    int num_parents;
+    int count;
 
-	int age_debt;
+    int age_debt;
 
-	age_debt=(age-age_of_last_improvement+1)-env->dropoff_age;
+    age_debt=(age-age_of_last_improvement+1)-env->dropoff_age;
 
-	if (age_debt==0) age_debt=1;
+    if (age_debt==0) age_debt=1;
 
-	for(curorg=organisms.begin();curorg!=organisms.end();++curorg) {
+    for(curorg=organisms.begin();curorg!=organisms.end();++curorg) {
 
-		//Remember the original fitness before it gets modified
+        //Remember the original fitness before it gets modified
         (*curorg)->adjusted_fitness = (*curorg)->eval.fitness;
 
-		//Make fitness decrease after a stagnation point dropoff_age
-		//Added an if to keep species pristine until the dropoff point
-		//obliterate is used in competitive coevolution to mark stagnation
-		//by obliterating the worst species over a certain age
-		if ((age_debt>=1)||obliterate) {
-			//Extreme penalty for a long period of stagnation (divide fitness by 100)
-			((*curorg)->adjusted_fitness)=((*curorg)->adjusted_fitness)*0.01;
-		}
+        //Make fitness decrease after a stagnation point dropoff_age
+        //Added an if to keep species pristine until the dropoff point
+        //obliterate is used in competitive coevolution to mark stagnation
+        //by obliterating the worst species over a certain age
+        if ((age_debt>=1)||obliterate) {
+            //Extreme penalty for a long period of stagnation (divide fitness by 100)
+            ((*curorg)->adjusted_fitness)=((*curorg)->adjusted_fitness)*0.01;
+        }
 
-		//Give a fitness boost up to some young age (niching)
-		//The age_significance parameter is a system parameter
-		//  if it is 1, then young species get no fitness boost
-		if (age<=10) ((*curorg)->adjusted_fitness)=((*curorg)->adjusted_fitness)*env->age_significance;
+        //Give a fitness boost up to some young age (niching)
+        //The age_significance parameter is a system parameter
+        //  if it is 1, then young species get no fitness boost
+        if (age<=10) ((*curorg)->adjusted_fitness)=((*curorg)->adjusted_fitness)*env->age_significance;
 
-		//Do not allow negative fitness
-		if (((*curorg)->adjusted_fitness)<0.0) (*curorg)->adjusted_fitness=0.0001;
+        //Do not allow negative fitness
+        if (((*curorg)->adjusted_fitness)<0.0) (*curorg)->adjusted_fitness=0.0001;
 
-		//Share fitness with the species
-		(*curorg)->adjusted_fitness=((*curorg)->adjusted_fitness)/(organisms.size());
-	}
+        //Share fitness with the species
+        (*curorg)->adjusted_fitness=((*curorg)->adjusted_fitness)/(organisms.size());
+    }
 
-	//Sort the population and mark for death those after survival_thresh*pop_size
-	std::sort(organisms.begin(), organisms.end(),
+    //Sort the population and mark for death those after survival_thresh*pop_size
+    std::sort(organisms.begin(), organisms.end(),
               [] (SpeciesOrganism *x, SpeciesOrganism *y) {
                   return x->adjusted_fitness > y->adjusted_fitness;
               });
 
-	//Update age_of_last_improvement here
-	if (((*(organisms.begin()))->eval.fitness)>
-	    max_fitness_ever) {
-	  age_of_last_improvement=age;
-	  max_fitness_ever=((*(organisms.begin()))->eval.fitness);
-	}
+    //Update age_of_last_improvement here
+    if (((*(organisms.begin()))->eval.fitness)>
+        max_fitness_ever) {
+      age_of_last_improvement=age;
+      max_fitness_ever=((*(organisms.begin()))->eval.fitness);
+    }
 
-	//Decide how many get to reproduce based on survival_thresh*pop_size
-	//Adding 1.0 ensures that at least one will survive
-	num_parents=(int) floor((env->survival_thresh*((real_t) organisms.size()))+1.0);
+    //Decide how many get to reproduce based on survival_thresh*pop_size
+    //Adding 1.0 ensures that at least one will survive
+    num_parents=(int) floor((env->survival_thresh*((real_t) organisms.size()))+1.0);
 
-	//Mark for death those who are ranked too low to be parents
-	curorg=organisms.begin();
-	(*curorg)->champion=true;  //Mark the champ as such
-	for(count=1;count<=num_parents;count++) {
-	  if (curorg!=organisms.end())
-	    ++curorg;
-	}
-	while(curorg!=organisms.end()) {
-	  (*curorg)->eliminate=true;  //Mark for elimination
-	  ++curorg;
-	}
+    //Mark for death those who are ranked too low to be parents
+    curorg=organisms.begin();
+    (*curorg)->champion=true;  //Mark the champ as such
+    for(count=1;count<=num_parents;count++) {
+      if (curorg!=organisms.end())
+        ++curorg;
+    }
+    while(curorg!=organisms.end()) {
+      (*curorg)->eliminate=true;  //Mark for elimination
+      ++curorg;
+    }
 
 }
 
 real_t Species::compute_average_fitness() {
-	std::vector<SpeciesOrganism*>::iterator curorg;
+    std::vector<SpeciesOrganism*>::iterator curorg;
 
-	real_t total=0.0;
+    real_t total=0.0;
 
-	for(curorg=organisms.begin();curorg!=organisms.end();++curorg) {
-		total+=(*curorg)->eval.fitness;
-	}
+    for(curorg=organisms.begin();curorg!=organisms.end();++curorg) {
+        total+=(*curorg)->eval.fitness;
+    }
 
-	ave_fitness=total/(organisms.size());
+    ave_fitness=total/(organisms.size());
 
-	return ave_fitness;
+    return ave_fitness;
 
 }
 
 real_t Species::compute_max_fitness() {
-	real_t max=0.0;
-	std::vector<SpeciesOrganism*>::iterator curorg;
+    real_t max=0.0;
+    std::vector<SpeciesOrganism*>::iterator curorg;
 
-	for(curorg=organisms.begin();curorg!=organisms.end();++curorg) {
-		if (((*curorg)->eval.fitness)>max)
-			max=(*curorg)->eval.fitness;
-	}
+    for(curorg=organisms.begin();curorg!=organisms.end();++curorg) {
+        if (((*curorg)->eval.fitness)>max)
+            max=(*curorg)->eval.fitness;
+    }
 
-	max_fitness=max;
+    max_fitness=max;
 
-	return max;
+    return max;
 }
 
 real_t Species::count_offspring(real_t skim) {
-	std::vector<SpeciesOrganism*>::iterator curorg;
-	int e_o_intpart;  //The floor of an organism's expected offspring
-	real_t e_o_fracpart; //Expected offspring fractional part
-	real_t skim_intpart;  //The whole offspring in the skim
+    std::vector<SpeciesOrganism*>::iterator curorg;
+    int e_o_intpart;  //The floor of an organism's expected offspring
+    real_t e_o_fracpart; //Expected offspring fractional part
+    real_t skim_intpart;  //The whole offspring in the skim
 
-	expected_offspring=0;
+    expected_offspring=0;
 
-	for(curorg=organisms.begin();curorg!=organisms.end();++curorg) {
-		e_o_intpart=(int) floor((*curorg)->expected_offspring);
-		e_o_fracpart=fmod((*curorg)->expected_offspring,1.0);
+    for(curorg=organisms.begin();curorg!=organisms.end();++curorg) {
+        e_o_intpart=(int) floor((*curorg)->expected_offspring);
+        e_o_fracpart=fmod((*curorg)->expected_offspring,1.0);
 
-		expected_offspring+=e_o_intpart;
+        expected_offspring+=e_o_intpart;
 
-		//Skim off the fractional offspring
-		skim+=e_o_fracpart;
+        //Skim off the fractional offspring
+        skim+=e_o_fracpart;
 
-		//NOTE:  Some precision is lost by computer
-		//       Must be remedied later
-		if (skim>1.0) {
-			skim_intpart=floor(skim);
-			expected_offspring+=(int) skim_intpart;
-			skim-=skim_intpart;
-		}
-	}
+        //NOTE:  Some precision is lost by computer
+        //       Must be remedied later
+        if (skim>1.0) {
+            skim_intpart=floor(skim);
+            expected_offspring+=(int) skim_intpart;
+            skim-=skim_intpart;
+        }
+    }
 
-	return skim;
+    return skim;
 
 }
 
@@ -287,11 +287,11 @@ void Species::reproduce(int ioffspring,
 }
 
 bool NEAT::order_species(Species *x, Species *y) {
-	return (((*((x->organisms).begin()))->eval.fitness) > ((*((y->organisms).begin()))->eval.fitness));
+    return (((*((x->organisms).begin()))->eval.fitness) > ((*((y->organisms).begin()))->eval.fitness));
 }
 
 bool NEAT::order_new_species(Species *x, Species *y) {
-	return (x->compute_max_fitness() > y->compute_max_fitness());
+    return (x->compute_max_fitness() > y->compute_max_fitness());
 }
 
 

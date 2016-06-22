@@ -79,10 +79,10 @@ void rng_t::test() {
 
         rng_t rng;
         size_t count[NBINS] = {0};
-        
+
         for(size_t i = 0; i < N; i++) {
             real_t x = rng.prob();
-            
+
             assert(x >= 0.0 && x <= 1.0);
 
             size_t bin = min(x * NBINS, real_t(NBINS - 1));
@@ -117,7 +117,7 @@ void rng_t::test() {
     {
         const size_t N = 10000000;
         const size_t NBINS = 3;
-        
+
         rng_t rng;
         size_t count_neg[NBINS] = {0};
         size_t count_pos[NBINS] = {0};

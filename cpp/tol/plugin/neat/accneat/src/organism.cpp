@@ -43,7 +43,7 @@ Organism::~Organism() {
 }
 
 void Organism::init(int gen) {
-	generation=gen;
+    generation=gen;
     eval.reset();
 }
 

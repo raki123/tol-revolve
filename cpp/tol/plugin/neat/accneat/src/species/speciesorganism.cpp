@@ -24,12 +24,12 @@ SpeciesOrganism::~SpeciesOrganism() {
 void SpeciesOrganism::init(int gen) {
     Organism::init(gen);
 
-	species = nullptr;  //Start it in no Species
-	adjusted_fitness=0.0;
-	expected_offspring=0;
-	eliminate=false;
-	champion=false;
-	super_champ_offspring=0;
+    species = nullptr;  //Start it in no Species
+    adjusted_fitness=0.0;
+    expected_offspring=0;
+    eliminate=false;
+    champion=false;
+    super_champ_offspring=0;
 }
 
 void SpeciesOrganism::copy_into(Organism &dst_) const {

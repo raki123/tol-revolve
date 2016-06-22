@@ -31,7 +31,7 @@ namespace NEAT {
                           Genome &offspring,
                           real_t fitness1,
                           real_t fitness2) override;
- 
+
         virtual void mutate(Genome &genome,
                             MutationOperation op = MUTATE_OP_ANY) override;
 

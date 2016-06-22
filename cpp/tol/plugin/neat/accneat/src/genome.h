@@ -22,7 +22,7 @@ namespace NEAT {
     class Genome {
     public:
         rng_t rng;
-		int genome_id;
+        int genome_id;
 
         virtual ~Genome() {}
 
@@ -31,7 +31,7 @@ namespace NEAT {
         virtual void init_phenotype(class Network &net) = 0;
 
         virtual void print(std::ostream &out) = 0;
-		virtual void verify() = 0;
+        virtual void verify() = 0;
 
         struct Stats {
             size_t nnodes;

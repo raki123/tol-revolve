@@ -8,18 +8,18 @@ namespace NEAT {
     //---
     //--- CLASS CpuNetwork
     //---
-	class CpuNetwork : public Network {
+    class CpuNetwork : public Network {
     private:
         NetDims dims;
-		std::vector<NetNode> nodes;
-		std::vector<NetLink> links;
+        std::vector<NetNode> nodes;
+        std::vector<NetLink> links;
         std::vector<real_t> activations;
 
     public:
         CpuNetwork() {}
-		virtual ~CpuNetwork() {}
+        virtual ~CpuNetwork() {}
 
-		void activate(size_t ncycles);
+        void activate(size_t ncycles);
         std::vector<real_t> &get_activations(accneat_out std::vector<real_t> &result);
         void set_activations(accneat_in std::vector<real_t> &newacts);
 
@@ -32,6 +32,6 @@ namespace NEAT {
                                NetLink *links);
 
         virtual NetDims get_dims() { return dims; }
-	};
+    };
 
 }

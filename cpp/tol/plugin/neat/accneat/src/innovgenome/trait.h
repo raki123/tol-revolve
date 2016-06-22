@@ -23,46 +23,46 @@ namespace NEAT {
 
     const int NUM_TRAIT_PARAMS = 8;
 
-	// ------------------------------------------------------------------
-	// TRAIT: A Trait is a group of parameters that can be expressed
-	//        as a group more than one time.  Traits save a genetic
-	//        algorithm from having to search vast parameter landscapes
-	//        on every node.  Instead, each node can simply point to a trait
-	//        and those traits can evolve on their own
-	class Trait {
+    // ------------------------------------------------------------------
+    // TRAIT: A Trait is a group of parameters that can be expressed
+    //        as a group more than one time.  Traits save a genetic
+    //        algorithm from having to search vast parameter landscapes
+    //        on every node.  Instead, each node can simply point to a trait
+    //        and those traits can evolve on their own
+    class Trait {
 
-		// ************ LEARNING PARAMETERS ***********
-		// The following parameters are for use in
-		//   neurons that learn through habituation,
-		//   sensitization, or Hebbian-type processes
+        // ************ LEARNING PARAMETERS ***********
+        // The following parameters are for use in
+        //   neurons that learn through habituation,
+        //   sensitization, or Hebbian-type processes
 
-	public:
-		int trait_id; // Used in file saving and loading
-		real_t params[NUM_TRAIT_PARAMS]; // Keep traits in an array
+    public:
+        int trait_id; // Used in file saving and loading
+        real_t params[NUM_TRAIT_PARAMS]; // Keep traits in an array
 
-		Trait ();
+        Trait ();
 
-		Trait(int id,real_t p1,real_t p2,real_t p3,real_t p4,real_t p5,real_t p6,real_t p7,real_t p8,real_t p9);
+        Trait(int id,real_t p1,real_t p2,real_t p3,real_t p4,real_t p5,real_t p6,real_t p7,real_t p8,real_t p9);
 
-		// Copy Constructor
-		Trait(const Trait& t);
+        // Copy Constructor
+        Trait(const Trait& t);
 
-		// Create a trait exactly like another trait
-		Trait(Trait *t);
+        // Create a trait exactly like another trait
+        Trait(Trait *t);
 
-		// Special constructor off a file assume word "trait" has been read in
-		Trait(const char *argline);
+        // Special constructor off a file assume word "trait" has been read in
+        Trait(const char *argline);
 
-		// Special Constructor creates a new Trait which is the average of 2 existing traits passed in
-		Trait(const Trait &t1, const Trait &t2);
+        // Special Constructor creates a new Trait which is the average of 2 existing traits passed in
+        Trait(const Trait &t1, const Trait &t2);
 
-		// Dump trait to a stream
+        // Dump trait to a stream
         void print_to_file(std::ostream &outFile);
 
-		// Perturb the trait parameters slightly
-		void mutate(rng_t &rng);
+        // Perturb the trait parameters slightly
+        void mutate(rng_t &rng);
 
-	};
+    };
 
 } // namespace NEAT
 

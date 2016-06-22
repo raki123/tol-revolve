@@ -25,7 +25,7 @@ namespace NEAT {
 
             memset(&lens, 0, sizeof(lens));
             sizeof_shared = 0;
-            
+
             Offsets nets_offs[nnets];
 
             for(uint i = 0; i < nnets; i++) {
@@ -64,7 +64,7 @@ namespace NEAT {
 
                 //output buffer
                 {
-                    uint sizeof_evals = 
+                    uint sizeof_evals =
                         sizeof(OrganismEvaluation);
 
                     net_lens.output = sizeof_evals;
@@ -75,7 +75,7 @@ namespace NEAT {
                 }
 
                 sizeof_shared = max(sizeof_shared, net_sizeof_shared);
-            }            
+            }
 
             if(lens.main > capacity.main) {
                 uint newlen = uint(lens.main * 1.4);
@@ -92,7 +92,7 @@ namespace NEAT {
                 p("alloc output: " << newlen);
                 grow_buffers(h_bufs.output, d_bufs.output, capacity.output, newlen);
             }
-            
+
             for(uint i = 0; i < nnets; i++) {
                 CudaNetwork *net = nets[i];
                 net->configure_batch(h_bufs, nets_offs[i]);
@@ -151,7 +151,7 @@ namespace NEAT {
             configure(nets, nnets);
 
             cudanetwork_activate<Evaluator><<<nnets, Threads_Per_Block, sizeof_shared>>>(d_config, d_bufs, ncycles);
-            
+
             xcuda( cudaMemcpy(h_bufs.output,
                               d_bufs.output,
                               lens.output,

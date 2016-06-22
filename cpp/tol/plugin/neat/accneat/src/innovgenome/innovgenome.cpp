@@ -136,7 +136,7 @@ void InnovGenome::verify() {
     return;
 #else
 
-	//Check for InnovNodeGenes being out of order
+    //Check for InnovNodeGenes being out of order
     for(size_t i = 1, n = nodes.size(); i < n; i++) {
         assert( nodes[i-1].node_id < nodes[i].node_id );
     }
@@ -149,16 +149,16 @@ void InnovGenome::verify() {
         }
     }
 
-	//Make sure there are no duplicate genes
-	for(InnovLinkGene &gene: links) {
-		for(InnovLinkGene &gene2: links) {
+    //Make sure there are no duplicate genes
+    for(InnovLinkGene &gene: links) {
+        for(InnovLinkGene &gene2: links) {
             if(&gene != &gene2) {
                 assert( (gene.is_recurrent() != gene2.is_recurrent())
                         || (gene2.in_node_id() != gene.in_node_id())
                         || (gene2.out_node_id() != gene.out_node_id()) );
             }
-		}
-	}
+        }
+    }
 #endif
 }
 
@@ -169,7 +169,7 @@ Genome::Stats InnovGenome::get_stats() {
 void InnovGenome::print(std::ostream &out) {
     out<<"genomestart "<<genome_id<<std::endl;
 
-	//Output the traits
+    //Output the traits
     for(auto &t: traits)
         t.print_to_file(out);
 
@@ -238,76 +238,76 @@ void InnovGenome::mutate_node_trait(int times) {
 }
 
 void InnovGenome::mutate_link_weights(real_t power,real_t rate,mutator mut_type) {
-	//Go through all the InnovLinkGenes and perturb their link's weights
+    //Go through all the InnovLinkGenes and perturb their link's weights
 
-	real_t num = 0.0; //counts gene placement
-	real_t gene_total = (real_t)links.size();
-	real_t endpart = gene_total*0.8; //Signifies the last part of the genome
-	real_t powermod = 1.0; //Modified power by gene number
-	//The power of mutation will rise farther into the genome
-	//on the theory that the older genes are more fit since
-	//they have stood the test of time
+    real_t num = 0.0; //counts gene placement
+    real_t gene_total = (real_t)links.size();
+    real_t endpart = gene_total*0.8; //Signifies the last part of the genome
+    real_t powermod = 1.0; //Modified power by gene number
+    //The power of mutation will rise farther into the genome
+    //on the theory that the older genes are more fit since
+    //they have stood the test of time
 
-	bool severe = rng.prob() > 0.5;  //Once in a while really shake things up
+    bool severe = rng.prob() > 0.5;  //Once in a while really shake things up
 
-	//Loop on all links  (ORIGINAL METHOD)
-	for(InnovLinkGene &gene: links) {
+    //Loop on all links  (ORIGINAL METHOD)
+    for(InnovLinkGene &gene: links) {
 
-		//The following if determines the probabilities of doing cold gaussian
-		//mutation, meaning the probability of replacing a link weight with
-		//another, entirely random weight.  It is meant to bias such mutations
-		//to the tail of a genome, because that is where less time-tested links
-		//reside.  The gausspoint and coldgausspoint represent values above
-		//which a random float will signify that kind of mutation.
+        //The following if determines the probabilities of doing cold gaussian
+        //mutation, meaning the probability of replacing a link weight with
+        //another, entirely random weight.  It is meant to bias such mutations
+        //to the tail of a genome, because that is where less time-tested links
+        //reside.  The gausspoint and coldgausspoint represent values above
+        //which a random float will signify that kind of mutation.
 
-		//Don't mutate weights of frozen links
-		if (!(gene.frozen)) {
+        //Don't mutate weights of frozen links
+        if (!(gene.frozen)) {
             real_t gausspoint;
             real_t coldgausspoint;
 
-			if (severe) {
-				gausspoint=0.3;
-				coldgausspoint=0.1;
-			}
-			else if ((gene_total>=10.0)&&(num>endpart)) {
-				gausspoint=0.5;  //Mutate by modification % of connections
-				coldgausspoint=0.3; //Mutate the rest by replacement % of the time
-			}
-			else {
-				//Half the time don't do any cold mutations
-				if (rng.prob()>0.5) {
-					gausspoint=1.0-rate;
-					coldgausspoint=1.0-rate-0.1;
-				}
-				else {
-					gausspoint=1.0-rate;
-					coldgausspoint=1.0-rate;
-				}
-			}
+            if (severe) {
+                gausspoint=0.3;
+                coldgausspoint=0.1;
+            }
+            else if ((gene_total>=10.0)&&(num>endpart)) {
+                gausspoint=0.5;  //Mutate by modification % of connections
+                coldgausspoint=0.3; //Mutate the rest by replacement % of the time
+            }
+            else {
+                //Half the time don't do any cold mutations
+                if (rng.prob()>0.5) {
+                    gausspoint=1.0-rate;
+                    coldgausspoint=1.0-rate-0.1;
+                }
+                else {
+                    gausspoint=1.0-rate;
+                    coldgausspoint=1.0-rate;
+                }
+            }
 
-			//Possible methods of setting the perturbation:
-			real_t randnum = rng.posneg()*rng.prob()*power*powermod;
-			if (mut_type==GAUSSIAN) {
-				real_t randchoice = rng.prob();
-				if (randchoice > gausspoint)
-					gene.weight()+=randnum;
-				else if (randchoice > coldgausspoint)
-					gene.weight()=randnum;
-			}
-			else if (mut_type==COLDGAUSSIAN)
-				gene.weight()=randnum;
+            //Possible methods of setting the perturbation:
+            real_t randnum = rng.posneg()*rng.prob()*power*powermod;
+            if (mut_type==GAUSSIAN) {
+                real_t randchoice = rng.prob();
+                if (randchoice > gausspoint)
+                    gene.weight()+=randnum;
+                else if (randchoice > coldgausspoint)
+                    gene.weight()=randnum;
+            }
+            else if (mut_type==COLDGAUSSIAN)
+                gene.weight()=randnum;
 
-			//Cap the weights at 8.0 (experimental)
-			if (gene.weight() > 8.0) gene.weight() = 8.0;
-			else if (gene.weight() < -8.0) gene.weight() = -8.0;
+            //Cap the weights at 8.0 (experimental)
+            if (gene.weight() > 8.0) gene.weight() = 8.0;
+            else if (gene.weight() < -8.0) gene.weight() = -8.0;
 
-			//Record the innovation
-			gene.mutation_num = gene.weight();
+            //Record the innovation
+            gene.mutation_num = gene.weight();
 
-			num+=1.0;
-		}
+            num+=1.0;
+        }
 
-	} //end for loop
+    } //end for loop
 }
 
 void InnovGenome::mutate_toggle_enable(int times) {
@@ -317,8 +317,8 @@ void InnovGenome::mutate_toggle_enable(int times) {
         if(!gene.enable) {
             gene.enable = true;
         } else {
-			//We need to make sure that another gene connects out of the in-node
-			//Because if not a section of network will break off and become isolated
+            //We need to make sure that another gene connects out of the in-node
+            //Because if not a section of network will break off and become isolated
             bool found = false;
             for(InnovLinkGene &checkgene: links) {
                 if( (checkgene.in_node_id() == gene.in_node_id())
@@ -329,15 +329,15 @@ void InnovGenome::mutate_toggle_enable(int times) {
                 }
             }
 
-			//Disable the gene if it's safe to do so
-			if(found)
-				gene.enable = false;
+            //Disable the gene if it's safe to do so
+            if(found)
+                gene.enable = false;
         }
     }
 }
 
 void InnovGenome::mutate_gene_reenable() {
-	//Search for a disabled gene
+    //Search for a disabled gene
     for(InnovLinkGene &g: links) {
         if(!g.enable) {
             g.enable = true;
@@ -401,7 +401,7 @@ bool InnovGenome::mutate_add_node(CreateInnovationFunc create_innov,
 
     create_innov(innov_id, innov_parms, innov_apply);
 
-	return true;
+    return true;
 }
 
 void InnovGenome::mutate_delete_node() {
@@ -450,11 +450,11 @@ bool InnovGenome::mutate_add_link(CreateInnovationFunc create_innov,
     InnovLinkGene *recur_checker_buf[links.size()];
     RecurrencyChecker recur_checker(nodes.size(), links, recur_checker_buf);
 
-	InnovNodeGene *in_node = nullptr; //Pointers to the nodes
-	InnovNodeGene *out_node = nullptr; //Pointers to the nodes
+    InnovNodeGene *in_node = nullptr; //Pointers to the nodes
+    InnovNodeGene *out_node = nullptr; //Pointers to the nodes
 
-	//Decide whether to make this recurrent
-	bool do_recur = rng.prob() < env->recur_only_prob;
+    //Decide whether to make this recurrent
+    bool do_recur = rng.prob() < env->recur_only_prob;
 
     // Try to find nodes for link.
     {
@@ -581,58 +581,58 @@ void InnovGenome::mate_multipoint(InnovGenome *genome1,
     vector<InnovLinkGene> &links1 = genome1->links;
     vector<InnovLinkGene> &links2 = genome2->links;
 
-	//The baby InnovGenome will contain these new Traits, InnovNodeGenes, and InnovLinkGenes
+    //The baby InnovGenome will contain these new Traits, InnovNodeGenes, and InnovLinkGenes
     offspring->reset();
-	vector<Trait> &newtraits = offspring->traits;
-	vector<InnovNodeGene> &newnodes = offspring->nodes;
-	vector<InnovLinkGene> &newlinks = offspring->links;
+    vector<Trait> &newtraits = offspring->traits;
+    vector<InnovNodeGene> &newnodes = offspring->nodes;
+    vector<InnovLinkGene> &newlinks = offspring->links;
 
-	vector<InnovLinkGene>::iterator curgene2;  //Checks for link duplication
+    vector<InnovLinkGene>::iterator curgene2;  //Checks for link duplication
 
-	//iterators for moving through the two parents' traits
-	vector<Trait*>::iterator p1trait;
-	vector<Trait*>::iterator p2trait;
+    //iterators for moving through the two parents' traits
+    vector<Trait*>::iterator p1trait;
+    vector<Trait*>::iterator p2trait;
 
-	//iterators for moving through the two parents' links
-	vector<InnovLinkGene>::iterator p1gene;
-	vector<InnovLinkGene>::iterator p2gene;
-	real_t p1innov;  //Innovation numbers for links inside parents' InnovGenomes
-	real_t p2innov;
-	vector<InnovNodeGene>::iterator curnode;  //For checking if InnovNodeGenes exist already
+    //iterators for moving through the two parents' links
+    vector<InnovLinkGene>::iterator p1gene;
+    vector<InnovLinkGene>::iterator p2gene;
+    real_t p1innov;  //Innovation numbers for links inside parents' InnovGenomes
+    real_t p2innov;
+    vector<InnovNodeGene>::iterator curnode;  //For checking if InnovNodeGenes exist already
 
-	bool disable;  //Set to true if we want to disabled a chosen gene
+    bool disable;  //Set to true if we want to disabled a chosen gene
 
-	disable=false;
-	InnovLinkGene newgene;
+    disable=false;
+    InnovLinkGene newgene;
 
-	bool p1better; //Tells if the first genome (this one) has better fitness or not
+    bool p1better; //Tells if the first genome (this one) has better fitness or not
 
-	bool skip;
+    bool skip;
 
-	//First, average the Traits from the 2 parents to form the baby's Traits
-	//It is assumed that trait lists are the same length
-	//In the future, may decide on a different method for trait mating
+    //First, average the Traits from the 2 parents to form the baby's Traits
+    //It is assumed that trait lists are the same length
+    //In the future, may decide on a different method for trait mating
     assert(genome1->traits.size() == genome2->traits.size());
     for(size_t i = 0, n = genome1->traits.size(); i < n; i++) {
         newtraits.emplace_back(genome1->traits[i], genome2->traits[i]);
     }
 
-	//Figure out which genome is better
-	//The worse genome should not be allowed to add extra structural baggage
-	//If they are the same, use the smaller one's disjoint and excess genes only
-	if (fitness1>fitness2)
-		p1better=true;
-	else if (fitness1==fitness2) {
-		if (links1.size()<(links2.size()))
-			p1better=true;
-		else p1better=false;
-	}
-	else
-		p1better=false;
+    //Figure out which genome is better
+    //The worse genome should not be allowed to add extra structural baggage
+    //If they are the same, use the smaller one's disjoint and excess genes only
+    if (fitness1>fitness2)
+        p1better=true;
+    else if (fitness1==fitness2) {
+        if (links1.size()<(links2.size()))
+            p1better=true;
+        else p1better=false;
+    }
+    else
+        p1better=false;
 
-	//Make sure all sensors and outputs are included
+    //Make sure all sensors and outputs are included
     for(InnovNodeGene &node: genome1->nodes) {
-		if(node.type != NT_HIDDEN) {
+        if(node.type != NT_HIDDEN) {
             //Add the new node
             add_node(newnodes, node);
         } else {
@@ -640,10 +640,10 @@ void InnovGenome::mate_multipoint(InnovGenome *genome1,
         }
     }
 
-	//Now move through the InnovLinkGenes of each parent until both genomes end
-	p1gene = links1.begin();
-	p2gene = links2.begin();
-	while( !((p1gene==links1.end()) && (p2gene==(links2).end())) ) {
+    //Now move through the InnovLinkGenes of each parent until both genomes end
+    p1gene = links1.begin();
+    p2gene = links2.begin();
+    while( !((p1gene==links1.end()) && (p2gene==(links2).end())) ) {
         ProtoInnovLinkGene protogene;
 
         skip=false;  //Default to not skipping a chosen gene
@@ -813,63 +813,63 @@ void InnovGenome::mate_multipoint_avg(InnovGenome *genome1,
     vector<InnovLinkGene> &links1 = genome1->links;
     vector<InnovLinkGene> &links2 = genome2->links;
 
-	//The baby InnovGenome will contain these new Traits, InnovNodeGenes, and InnovLinkGenes
+    //The baby InnovGenome will contain these new Traits, InnovNodeGenes, and InnovLinkGenes
     offspring->reset();
-	vector<Trait> &newtraits = offspring->traits;
-	vector<InnovNodeGene> &newnodes = offspring->nodes;
-	vector<InnovLinkGene> &newlinks = offspring->links;
+    vector<Trait> &newtraits = offspring->traits;
+    vector<InnovNodeGene> &newnodes = offspring->nodes;
+    vector<InnovLinkGene> &newlinks = offspring->links;
 
-	vector<InnovLinkGene>::iterator curgene2; //Checking for link duplication
+    vector<InnovLinkGene>::iterator curgene2; //Checking for link duplication
 
-	//iterators for moving through the two parents' links
-	vector<InnovLinkGene>::iterator p1gene;
-	vector<InnovLinkGene>::iterator p2gene;
-	real_t p1innov;  //Innovation numbers for links inside parents' InnovGenomes
-	real_t p2innov;
-	vector<InnovNodeGene>::iterator curnode;  //For checking if InnovNodeGenes exist already
+    //iterators for moving through the two parents' links
+    vector<InnovLinkGene>::iterator p1gene;
+    vector<InnovLinkGene>::iterator p2gene;
+    real_t p1innov;  //Innovation numbers for links inside parents' InnovGenomes
+    real_t p2innov;
+    vector<InnovNodeGene>::iterator curnode;  //For checking if InnovNodeGenes exist already
 
-	//This InnovLinkGene is used to hold the average of the two links to be averaged
-	InnovLinkGene avgene(0,0,0,0,0,0,0);
-	InnovLinkGene newgene;
+    //This InnovLinkGene is used to hold the average of the two links to be averaged
+    InnovLinkGene avgene(0,0,0,0,0,0,0);
+    InnovLinkGene newgene;
 
-	bool skip;
+    bool skip;
 
-	bool p1better;  //Designate the better genome
+    bool p1better;  //Designate the better genome
 
-	//First, average the Traits from the 2 parents to form the baby's Traits
-	//It is assumed that trait lists are the same length
-	//In future, could be done differently
+    //First, average the Traits from the 2 parents to form the baby's Traits
+    //It is assumed that trait lists are the same length
+    //In future, could be done differently
     for(size_t i = 0, n = genome1->traits.size(); i < n; i++) {
         newtraits.emplace_back(genome1->traits[i], genome2->traits[i]);
-	}
+    }
 
-	//NEW 3/17/03 Make sure all sensors and outputs are included
+    //NEW 3/17/03 Make sure all sensors and outputs are included
     for(InnovNodeGene &node: genome1->nodes) {
-		if(node.type != NT_HIDDEN) {
+        if(node.type != NT_HIDDEN) {
             add_node(newnodes, node);
         } else {
             break;
         }
-	}
+    }
 
-	//Figure out which genome is better
-	//The worse genome should not be allowed to add extra structural baggage
-	//If they are the same, use the smaller one's disjoint and excess genes only
-	if (fitness1>fitness2)
-		p1better=true;
-	else if (fitness1==fitness2) {
-		if (links1.size()<(links2.size()))
-			p1better=true;
-		else p1better=false;
-	}
-	else
-		p1better=false;
+    //Figure out which genome is better
+    //The worse genome should not be allowed to add extra structural baggage
+    //If they are the same, use the smaller one's disjoint and excess genes only
+    if (fitness1>fitness2)
+        p1better=true;
+    else if (fitness1==fitness2) {
+        if (links1.size()<(links2.size()))
+            p1better=true;
+        else p1better=false;
+    }
+    else
+        p1better=false;
 
 
-	//Now move through the InnovLinkGenes of each parent until both genomes end
-	p1gene=links1.begin();
-	p2gene=links2.begin();
-	while(!((p1gene==links1.end()) && (p2gene==(links2).end()))) {
+    //Now move through the InnovLinkGenes of each parent until both genomes end
+    p1gene=links1.begin();
+    p2gene=links2.begin();
+    while(!((p1gene==links1.end()) && (p2gene==(links2).end()))) {
         ProtoInnovLinkGene protogene;
 
         avgene.enable=true;  //Default to enabled
@@ -1061,25 +1061,25 @@ real_t InnovGenome::compatibility(InnovGenome *g) {
     vector<InnovLinkGene> &links2 = g->links;
 
 
-	//Innovation numbers
-	real_t p1innov;
-	real_t p2innov;
+    //Innovation numbers
+    real_t p1innov;
+    real_t p2innov;
 
-	//Intermediate value
-	real_t mut_diff;
+    //Intermediate value
+    real_t mut_diff;
 
-	//Set up the counters
-	real_t num_disjoint=0.0;
-	real_t num_excess=0.0;
-	real_t mut_diff_total=0.0;
-	real_t num_matching=0.0;  //Used to normalize mutation_num differences
+    //Set up the counters
+    real_t num_disjoint=0.0;
+    real_t num_excess=0.0;
+    real_t mut_diff_total=0.0;
+    real_t num_matching=0.0;  //Used to normalize mutation_num differences
 
-	//Now move through the InnovLinkGenes of each potential parent
-	//until both InnovGenomes end
-	vector<InnovLinkGene>::iterator p1gene = links1.begin();
-	vector<InnovLinkGene>::iterator p2gene = links2.begin();
+    //Now move through the InnovLinkGenes of each potential parent
+    //until both InnovGenomes end
+    vector<InnovLinkGene>::iterator p1gene = links1.begin();
+    vector<InnovLinkGene>::iterator p2gene = links2.begin();
 
-	while(!((p1gene==links1.end())&&
+    while(!((p1gene==links1.end())&&
             (p2gene==links2.end()))) {
 
         if (p1gene==links1.end()) {
@@ -1129,45 +1129,45 @@ real_t InnovGenome::compatibility(InnovGenome *g) {
     //Look at disjointedness and excess in the absolute (ignoring size)
 
     return (env->disjoint_coeff*(num_disjoint/1.0)+
-			env->excess_coeff*(num_excess/1.0)+
-			env->mutdiff_coeff*(mut_diff_total/num_matching));
+            env->excess_coeff*(num_excess/1.0)+
+            env->mutdiff_coeff*(mut_diff_total/num_matching));
 }
 
 real_t InnovGenome::trait_compare(Trait *t1,Trait *t2) {
 
-	int id1=t1->trait_id;
-	int id2=t2->trait_id;
-	int count;
-	real_t params_diff=0.0; //Measures parameter difference
+    int id1=t1->trait_id;
+    int id2=t2->trait_id;
+    int count;
+    real_t params_diff=0.0; //Measures parameter difference
 
-	//See if traits represent different fundamental types of connections
-	if ((id1==1)&&(id2>=2)) {
-		return 0.5;
-	}
-	else if ((id2==1)&&(id1>=2)) {
-		return 0.5;
-	}
-	//Otherwise, when types are same, compare the actual parameters
-	else {
-		if (id1>=2) {
-			for (count=0;count<=2;count++) {
-				params_diff += fabs(t1->params[count]-t2->params[count]);
-			}
-			return params_diff/4.0;
-		}
-		else return 0.0; //For type 1, params are not applicable
-	}
+    //See if traits represent different fundamental types of connections
+    if ((id1==1)&&(id2>=2)) {
+        return 0.5;
+    }
+    else if ((id2==1)&&(id1>=2)) {
+        return 0.5;
+    }
+    //Otherwise, when types are same, compare the actual parameters
+    else {
+        if (id1>=2) {
+            for (count=0;count<=2;count++) {
+                params_diff += fabs(t1->params[count]-t2->params[count]);
+            }
+            return params_diff/4.0;
+        }
+        else return 0.0; //For type 1, params are not applicable
+    }
 
 }
 
 void InnovGenome::randomize_traits() {
     for(InnovNodeGene &node: nodes) {
-		node.set_trait_id(1 + rng.index(traits));
-	}
+        node.set_trait_id(1 + rng.index(traits));
+    }
 
     for(InnovLinkGene &gene: links) {
-		gene.set_trait_id(1 + rng.index(traits));
-	}
+        gene.set_trait_id(1 + rng.index(traits));
+    }
 }
 
 inline Trait &get_trait(vector<Trait> &traits, int trait_id) {
@@ -1227,7 +1227,7 @@ void InnovGenome::init_phenotype(Network &net) {
     memset(node_nlinks, 0, sizeof(size_t) * nnodes);
 
     for(InnovLinkGene &link: links) {
-		if(link.enable) {
+        if(link.enable) {
             NetLink &netlink = netlinks[nlinks++];
 
             netlink.weight = link.weight();
@@ -1235,7 +1235,7 @@ void InnovGenome::init_phenotype(Network &net) {
             netlink.out_node_index = get_node_index(link.out_node_id());
 
             node_nlinks[netlink.out_node_index]++;
-		}
+        }
     }
     assert(nlinks <= LINKS_MAX);
 

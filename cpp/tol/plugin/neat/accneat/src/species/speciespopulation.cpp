@@ -34,18 +34,18 @@ SpeciesPopulation::SpeciesPopulation(rng_t rng,
     , highest_fitness(0.0)
     , highest_last_changed(0) {
 
-	spawn();
+    spawn();
 }
 
 SpeciesPopulation::~SpeciesPopulation() {
-	std::vector<Species*>::iterator curspec;
-	std::vector<SpeciesOrganism*>::iterator curorg;
+    std::vector<Species*>::iterator curspec;
+    std::vector<SpeciesOrganism*>::iterator curorg;
 
-	if (species.begin()!=species.end()) {
-		for(curspec=species.begin();curspec!=species.end();++curspec) {
-			delete (*curspec);
-		}
-	}
+    if (species.begin()!=species.end()) {
+        for(curspec=species.begin();curspec!=species.end();++curspec) {
+            delete (*curspec);
+        }
+    }
 }
 
 size_t SpeciesPopulation::size() {
@@ -69,8 +69,8 @@ void SpeciesPopulation::verify() {
 void SpeciesPopulation::spawn() {
     orgs.init_phenotypes();
 
-	//Separate the new SpeciesPopulation into species
-	speciate();
+    //Separate the new SpeciesPopulation into species
+    speciate();
 }
 
 void SpeciesPopulation::speciate() {
@@ -107,43 +107,43 @@ void SpeciesPopulation::next_generation() {
 
     generation++;
 
-	real_t total=0.0; //Used to compute average fitness over all Organisms
-	real_t overall_average;  //The average modified fitness among ALL organisms
+    real_t total=0.0; //Used to compute average fitness over all Organisms
+    real_t overall_average;  //The average modified fitness among ALL organisms
 
-	//The fractional parts of expected offspring that can be
-	//Used only when they accumulate above 1 for the purposes of counting
-	//Offspring
-	real_t skim;
-	int total_expected;  //precision checking
-	int total_organisms = norgs; // todo: get rid of this variable
+    //The fractional parts of expected offspring that can be
+    //Used only when they accumulate above 1 for the purposes of counting
+    //Offspring
+    real_t skim;
+    int total_expected;  //precision checking
+    int total_organisms = norgs; // todo: get rid of this variable
     assert(total_organisms == env->pop_size);
-	int max_expected;
-	Species *best_species = nullptr;
-	int final_expected;
+    int max_expected;
+    Species *best_species = nullptr;
+    int final_expected;
 
-	std::vector<Species*> sorted_species;  //Species sorted by max fit org in Species
-	int half_pop;
+    std::vector<Species*> sorted_species;  //Species sorted by max fit org in Species
+    int half_pop;
 
-	//We can try to keep the number of species constant at this number
-	int num_species=species.size();
+    //We can try to keep the number of species constant at this number
+    int num_species=species.size();
 
     for(Species *s: species) {
         s->compute_average_fitness();
         s->compute_max_fitness();
     }
 
-	//Stick the Species pointers into a new Species list for sorting
-	for(Species *s: species) {
-		sorted_species.push_back(s);
-	}
+    //Stick the Species pointers into a new Species list for sorting
+    for(Species *s: species) {
+        sorted_species.push_back(s);
+    }
 
-	//Sort the Species by max fitness (Use an extra list to do this)
-	//These need to use ORIGINAL fitness
-	//sorted_species.qsort(order_species);
+    //Sort the Species by max fitness (Use an extra list to do this)
+    //These need to use ORIGINAL fitness
+    //sorted_species.qsort(order_species);
     std::sort(sorted_species.begin(), sorted_species.end(), order_species);
 
-	//Flag the lowest performing species over age 20 every 30 generations
-	//NOTE: THIS IS FOR COMPETITIVE COEVOLUTION STAGNATION DETECTION
+    //Flag the lowest performing species over age 20 every 30 generations
+    //NOTE: THIS IS FOR COMPETITIVE COEVOLUTION STAGNATION DETECTION
     if(generation % 30 == 0) {
         for(size_t i = sorted_species.size(); i > 0; i--) {
             Species *s = sorted_species[i - 1];
@@ -154,79 +154,79 @@ void SpeciesPopulation::next_generation() {
         }
     }
 
-	std::cout<<"Number of Species: "<<num_species<<std::endl;
+    std::cout<<"Number of Species: "<<num_species<<std::endl;
 
-	//Use Species' ages to modify the objective fitness of organisms
-	// in other words, make it more fair for younger species
-	// so they have a chance to take hold
-	//Also penalize stagnant species
-	//Then adjust the fitness using the species size to "share" fitness
-	//within a species.
-	//Then, within each Species, mark for death
-	//those below survival_thresh*average
+    //Use Species' ages to modify the objective fitness of organisms
+    // in other words, make it more fair for younger species
+    // so they have a chance to take hold
+    //Also penalize stagnant species
+    //Then adjust the fitness using the species size to "share" fitness
+    //within a species.
+    //Then, within each Species, mark for death
+    //those below survival_thresh*average
     for(Species *s: species) {
         s->adjust_fitness();
     }
 
-	//Go through the organisms and add up their fitnesses to compute the
-	//overall average
+    //Go through the organisms and add up their fitnesses to compute the
+    //overall average
     for(SpeciesOrganism &o: orgs.curr()) {
         total += o.adjusted_fitness;
     }
-	overall_average=total/total_organisms;
-	std::cout<<"Generation "<<generation<<": "<<"overall_average = "<<overall_average<<std::endl;
+    overall_average=total/total_organisms;
+    std::cout<<"Generation "<<generation<<": "<<"overall_average = "<<overall_average<<std::endl;
 
-	//Now compute expected number of offspring for each individual organism
+    //Now compute expected number of offspring for each individual organism
     for(SpeciesOrganism &o: orgs.curr()) {
-		o.expected_offspring = o.adjusted_fitness / overall_average;
-	}
+        o.expected_offspring = o.adjusted_fitness / overall_average;
+    }
 
-	//Now add those offspring up within each Species to get the number of
-	//offspring per Species
-	skim=0.0;
-	total_expected=0;
+    //Now add those offspring up within each Species to get the number of
+    //offspring per Species
+    skim=0.0;
+    total_expected=0;
     for(Species *s: species) {
-		skim = s->count_offspring(skim);
-		total_expected += s->expected_offspring;
-	}
+        skim = s->count_offspring(skim);
+        total_expected += s->expected_offspring;
+    }
 
-	//Need to make up for lost foating point precision in offspring assignment
-	//If we lost precision, give an extra baby to the best Species
-	if (total_expected<total_organisms) {
-		//Find the Species expecting the most
-		max_expected=0;
-		final_expected=0;
-		for(Species *s: species) {
-			if (s->expected_offspring >= max_expected) {
-				max_expected = s->expected_offspring;
-				best_species = s;
-			}
-			final_expected += s->expected_offspring;
-		}
-		//Give the extra offspring to the best species
-		++(best_species->expected_offspring);
-		final_expected++;
+    //Need to make up for lost foating point precision in offspring assignment
+    //If we lost precision, give an extra baby to the best Species
+    if (total_expected<total_organisms) {
+        //Find the Species expecting the most
+        max_expected=0;
+        final_expected=0;
+        for(Species *s: species) {
+            if (s->expected_offspring >= max_expected) {
+                max_expected = s->expected_offspring;
+                best_species = s;
+            }
+            final_expected += s->expected_offspring;
+        }
+        //Give the extra offspring to the best species
+        ++(best_species->expected_offspring);
+        final_expected++;
 
-		//If we still arent at total, there is a problem
-		//Note that this can happen if a stagnant Species
-		//dominates the population and then gets killed off by its age
-		//Then the whole population plummets in fitness
-		//If the average fitness is allowed to hit 0, then we no longer have
-		//an average we can use to assign offspring.
-		if (final_expected < total_organisms) {
+        //If we still arent at total, there is a problem
+        //Note that this can happen if a stagnant Species
+        //dominates the population and then gets killed off by its age
+        //Then the whole population plummets in fitness
+        //If the average fitness is allowed to hit 0, then we no longer have
+        //an average we can use to assign offspring.
+        if (final_expected < total_organisms) {
             for(Species *s: species) {
                 s->expected_offspring = 0;
             }
-			best_species->expected_offspring = total_organisms;
-		}
-	}
+            best_species->expected_offspring = total_organisms;
+        }
+    }
 
-	//Sort the Species by max fitness (Use an extra list to do this)
-	//These need to use ORIGINAL fitness
-	//sorted_species.qsort(order_species);
+    //Sort the Species by max fitness (Use an extra list to do this)
+    //These need to use ORIGINAL fitness
+    //sorted_species.qsort(order_species);
     std::sort(sorted_species.begin(), sorted_species.end(), order_species);
 
-	//Check for SpeciesPopulation-level stagnation
+    //Check for SpeciesPopulation-level stagnation
     bool new_highest_fitness = false;
     {
         SpeciesOrganism *pop_champ = sorted_species[0]->first();
@@ -247,32 +247,32 @@ void SpeciesPopulation::next_generation() {
         }
     }
 
-	//Check for stagnation- if there is stagnation, perform delta-coding
-	if (highest_last_changed >= env->dropoff_age+5) {
-		highest_last_changed = 0;
-		half_pop = total_organisms / 2;
+    //Check for stagnation- if there is stagnation, perform delta-coding
+    if (highest_last_changed >= env->dropoff_age+5) {
+        highest_last_changed = 0;
+        half_pop = total_organisms / 2;
 
-		sorted_species[0]->first()->super_champ_offspring = half_pop;
-		sorted_species[0]->expected_offspring = half_pop;
-		sorted_species[0]->age_of_last_improvement = sorted_species[0]->age;
+        sorted_species[0]->first()->super_champ_offspring = half_pop;
+        sorted_species[0]->expected_offspring = half_pop;
+        sorted_species[0]->age_of_last_improvement = sorted_species[0]->age;
 
         if(sorted_species.size() > 1) {
             sorted_species[1]->first()->super_champ_offspring = total_organisms - half_pop;
-			sorted_species[1]->expected_offspring = total_organisms - half_pop;
-			sorted_species[1]->age_of_last_improvement = sorted_species[1]->age;
+            sorted_species[1]->expected_offspring = total_organisms - half_pop;
+            sorted_species[1]->age_of_last_improvement = sorted_species[1]->age;
 
-			//Get rid of all species under the first 2
+            //Get rid of all species under the first 2
             for(size_t i = 2, n = sorted_species.size(); i < n; i++) {
                 sorted_species[i]->expected_offspring = 0;
-			}
-		} else {
+            }
+        } else {
             sorted_species[0]->first()->super_champ_offspring += total_organisms - half_pop;
             sorted_species[0]->expected_offspring += total_organisms - half_pop;
-		}
-	}
+        }
+    }
 
-	//Kill off all Organisms marked for death.  The remainder
-	//will be allowed to reproduce.
+    //Kill off all Organisms marked for death.  The remainder
+    //will be allowed to reproduce.
     for(Species *s: species) {
         s->remove_eliminated();
     }
@@ -385,13 +385,13 @@ void SpeciesPopulation::next_generation() {
         timer.stop();
     }
 
-	//Destroy and remove the old generation from the organisms and species
+    //Destroy and remove the old generation from the organisms and species
     for(Species *s: species) {
         s->remove_generation(generation - 1);
     }
 
-	//Remove all empty Species and age ones that survive
-	//As this happens, create master organism list for the new generation
+    //Remove all empty Species and age ones that survive
+    //As this happens, create master organism list for the new generation
     {
         size_t nspecies = 0;
 
