@@ -25,6 +25,8 @@ from sdfbuilder.math import Vector3
 
 from revolve.util import wait_for
 
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+
 from tol.manage.robot import Robot
 from tol.config import parser
 from tol.manage import World
