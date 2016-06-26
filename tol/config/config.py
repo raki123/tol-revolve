@@ -198,6 +198,12 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--gazebo-cmd',
+    default='gzserver', type=str,
+    help="Determine wether to use gzserver or gazebo."
+)
+
+parser.add_argument(
     '--world',
     default='offline-evolve.world', type=str,
     help="Determine which world to use."
