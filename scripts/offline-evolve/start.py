@@ -47,8 +47,9 @@ supervisor = OfflineEvolutionSupervisor(
     analyzer_cmd=os.path.join(rv_path, 'tools', 'analyzer', 'run-analyzer'),
     world_file=os.path.join(here, args.world),
     output_directory=args.output_directory,
-    manager_args=sys.argv[1:],
-    restore_directory=args.restore_directory
+    restore_directory=args.restore_directory,
+    gazebo_cmd=args.gazebo_cmd,
+    manager_args=sys.argv[1:]
 )
 
 supervisor.launch()

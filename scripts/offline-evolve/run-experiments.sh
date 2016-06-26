@@ -6,4 +6,4 @@ OUT=output
 RST=restore
 
 RNAME=spider
-python start.py --manager ${MGR} --world ${WORLD} --output ${OUT} --restore ${RST} --robot-name robots/${RNAME}9 --experiment-round
+python start.py --manager ${MGR} --world ${WORLD} --output ${OUT} --restore ${RST} --robot-name robots/${RNAME}9 --experiment-round 1 --gazebo-cmd gazebo
