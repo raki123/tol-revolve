@@ -53,7 +53,7 @@ def run():
     # request is sent, the future it returns resolves when the robot insert
     # is actually confirmed and a robot manager object has been created
     pose = Pose(position=Vector3(1.0, 0, 0))
-    future = yield From(world.insert_robot(robot_tree, pose))
+    future = yield From(world.insert_robot(robot_tree, pose, "{}-{}".format(conf.robot_name, conf.experiment_round)))
     robot_manager = yield From(future)
 
     # I usually start the world paused, un-pause it here. Note that
@@ -62,7 +62,7 @@ def run():
     # This is the general convention for all message actions in the
     # world manager. `wait_for` saves the hassle of grabbing the
     # intermediary future in this case.
-    yield From(wait_for(world.pause(True)))
+    yield From(wait_for(world.pause(False)))
 
     # Start a run loop to do some stuff
     while True:
