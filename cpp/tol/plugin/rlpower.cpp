@@ -89,7 +89,7 @@ namespace tol {
         }
 
         // generate outputs
-        double output_vector[nActuators_];
+        double *output_vector = new double[nActuators_];
         this->generateOutput(t, output_vector);
 
         // Send new signals to the actuators
@@ -98,6 +98,8 @@ namespace tol {
             actuator->update(&output_vector[p], step);
             p += actuator->outputs();
         }
+
+        delete[] output_vector;
     }
 
     void RLPower::generatePolicy() {
