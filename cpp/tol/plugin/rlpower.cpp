@@ -169,30 +169,39 @@ namespace tol {
         std::normal_distribution<double> dist(0, noise_sigma_);
         noise_sigma_ *= SIGMA_DECAY_SQUARED;
 
-        double total_fitness = 0;
-        for (auto it = ranked_policies_.begin(); it != ranked_policies_.end(); it++) {
-            // first is fitness
-            total_fitness += it->fitness_;
-        }
-
-        // for actuator
-        for (unsigned int i = 0; i < nActuators_; i++) {
-            // for column
-            for (unsigned int j = 0; j < source_y_size; j++) {
-
-                // modifier ...
-                double spline_point = 0;
-                for (auto it = ranked_policies_.begin(); it != ranked_policies_.end(); it++) {
-                    // first → fitness
-                    // second → policy
-                    spline_point += ((it->policy_->at(i)[j] - (*current_policy_)[i][j])) * it->fitness_;
+        if (ranked_policies_.size() < RLPower::MAX_RANKED_POLICIES) {
+            // Init random controller
+            for (unsigned int i = 0; i < nActuators_; i++) {
+                for (unsigned int j = 0; j < source_y_size; j++) {
+                    (*current_policy_)[i][j] = dist(mt);
                 }
-                spline_point /= total_fitness;
+            }
+        } else {
+            double total_fitness = 0;
+            for (auto it = ranked_policies_.begin(); it != ranked_policies_.end(); it++) {
+                // first is fitness
+                total_fitness += it->fitness_;
+            }
 
-                // ... + noise + current
-                spline_point += dist(mt) + (*current_policy_)[i][j];
+            // for actuator
+            for (unsigned int i = 0; i < nActuators_; i++) {
+                // for column
+                for (unsigned int j = 0; j < source_y_size; j++) {
 
-                (*current_policy_)[i][j] = spline_point;
+                    // modifier ...
+                    double spline_point = 0;
+                    for (auto it = ranked_policies_.begin(); it != ranked_policies_.end(); it++) {
+                        // first → fitness
+                        // second → policy
+                        spline_point += ((it->policy_->at(i)[j] - (*current_policy_)[i][j])) * it->fitness_;
+                    }
+                    spline_point /= total_fitness;
+
+                    // ... + noise + current
+                    spline_point += dist(mt) + (*current_policy_)[i][j];
+
+                    (*current_policy_)[i][j] = spline_point;
+                }
             }
         }
 
