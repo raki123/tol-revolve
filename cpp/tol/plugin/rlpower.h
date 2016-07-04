@@ -78,8 +78,7 @@ namespace tol {
             }
         };
 
-        std::vector <PolicySave> ranked_policies_;
-        //std::map<double, PolicyPtr, std::greater<double>> ranked_policies_;
+        std::map<double, PolicyPtr, std::greater<double>> ranked_policies_;
 
         unsigned int nActuators_;
         unsigned int nSensors_;

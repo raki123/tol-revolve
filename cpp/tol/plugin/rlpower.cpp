@@ -107,17 +107,19 @@ namespace tol {
         double curr_fitness = this->getFitness();
 
         // Insert ranked policy in list
-        ranked_policies_.push_back(PolicySave(curr_fitness, current_policy_));
-        std::sort(ranked_policies_.begin(), ranked_policies_.end(), std::greater<PolicySave>());
+        ranked_policies_.insert({curr_fitness, current_policy_});
 
         // Remove worst policies
         while (ranked_policies_.size() > RLPower::MAX_RANKED_POLICIES) {
-            ranked_policies_.pop_back();
+            auto last = std::prev(ranked_policies_.end());
+            ranked_policies_.erase(last);
         }
 
         std::cout << robot_name_ << ":" << generation_counter_ << " ranked_policies_:";
-        for (const PolicySave &p : ranked_policies_) {
-            std::cout << " " << p.fitness_;
+
+        for (auto const &it : ranked_policies_) {
+            double &fitness = it.first
+            std::cout << " " << fitness;
         }
         std::cout << std::endl;
 
@@ -150,8 +152,8 @@ namespace tol {
             this->interpolateCubic(&policy_copy, current_policy_.get());
 
             //for every ranked policy
-            for (auto policy_it = ranked_policies_.begin(); policy_it != ranked_policies_.end(); policy_it++) {
-                PolicyPtr policy = policy_it->policy_;
+            for (auto &it : ranked_policies_) {
+                PolicyPtr policy = it.second;
 
                 for (unsigned int j = 0; j < nActuators_; j++) {
                     Spline &spline = policy->at(j);
@@ -178,9 +180,9 @@ namespace tol {
             }
         } else {
             double total_fitness = 0;
-            for (auto it = ranked_policies_.begin(); it != ranked_policies_.end(); it++) {
-                // first is fitness
-                total_fitness += it->fitness_;
+            for (auto const &it : ranked_policies_) {
+                double &fitness = it.first;
+                total_fitness += fitness;
             }
 
             // for actuator
@@ -190,10 +192,11 @@ namespace tol {
 
                     // modifier ...
                     double spline_point = 0;
-                    for (auto it = ranked_policies_.begin(); it != ranked_policies_.end(); it++) {
-                        // first → fitness
-                        // second → policy
-                        spline_point += ((it->policy_->at(i)[j] - (*current_policy_)[i][j])) * it->fitness_;
+                    for (auto const &it : ranked_policies_) {
+                        double &fitness = it.first;
+                        PolicyPtr policy = it.second;
+
+                        spline_point += ((policy->at(i)[j] - (*current_policy_)[i][j])) * fitness;
                     }
                     spline_point /= total_fitness;
 
@@ -332,8 +335,9 @@ namespace tol {
         outputFile.open(robot_name_ + ".log", std::ios::app | std::ios::out | std::ios::ate);
         outputFile << "- generation: " << generation_counter_ << std::endl;
         outputFile << "  velocities:" << std::endl;
-        for (const PolicySave &p : ranked_policies_) {
-            outputFile << "  - " << p.fitness_ << std::endl;
+        for (auto const &it : ranked_policies_) {
+            double &fitness = it.first;
+            outputFile << "  - " << fitness << std::endl;
         }
         outputFile.close();
     }
