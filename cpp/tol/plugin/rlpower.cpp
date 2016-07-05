@@ -118,7 +118,7 @@ namespace tol {
         std::cout << robot_name_ << ":" << generation_counter_ << " ranked_policies_:";
 
         for (auto const &it : ranked_policies_) {
-            double &fitness = it.first
+            double fitness = it.first;
             std::cout << " " << fitness;
         }
         std::cout << std::endl;
@@ -181,7 +181,7 @@ namespace tol {
         } else {
             double total_fitness = 0;
             for (auto const &it : ranked_policies_) {
-                double &fitness = it.first;
+                double fitness = it.first;
                 total_fitness += fitness;
             }
 
@@ -193,7 +193,7 @@ namespace tol {
                     // modifier ...
                     double spline_point = 0;
                     for (auto const &it : ranked_policies_) {
-                        double &fitness = it.first;
+                        double fitness = it.first;
                         PolicyPtr policy = it.second;
 
                         spline_point += ((policy->at(i)[j] - (*current_policy_)[i][j])) * fitness;
@@ -336,7 +336,7 @@ namespace tol {
         outputFile << "- generation: " << generation_counter_ << std::endl;
         outputFile << "  velocities:" << std::endl;
         for (auto const &it : ranked_policies_) {
-            double &fitness = it.first;
+            double fitness = it.first;
             outputFile << "  - " << fitness << std::endl;
         }
         outputFile.close();
