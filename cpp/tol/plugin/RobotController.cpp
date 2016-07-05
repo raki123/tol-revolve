@@ -6,15 +6,21 @@
  */
 
 #include "RobotController.h"
-#include "rlpower.h"
+#include "neat/accneat/src/neat.h"
 
 #include <iostream>
 
 namespace tol {
 
-RobotController::RobotController() {}
+RobotController::RobotController() {
+    AsyncNeat::Init();
+    AsyncNeat::SetPopulationSize(10); // 10 - 25 - 50 - 75 - 100 - 1000
+    AsyncNeat::SetSearchType(NEAT::GeneticSearchType::PHASED);
+}
 
-RobotController::~RobotController() {}
+RobotController::~RobotController() {
+    AsyncNeat::CleanUp();
+}
 
 void RobotController::Load(::gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf) {
     ::revolve::gazebo::RobotController::Load(_parent, _sdf);
@@ -25,7 +31,22 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
     //revolve::gazebo::RobotController::LoadBrain(sdf);
     evaluator_ = std::make_shared<Evaluator>();
-    brain_.reset(new RLPower(this->model->GetName(), evaluator_, motors_, sensors_));
+//     brain_.reset(new RLPower(this->model->GetName(), evaluator_, motors_, sensors_));
+
+    // joints 00 and 10 are opposites, therefore on the same axis
+    std::vector< std::vector< float> > coordinates
+    ( {
+      // Leg00Joint Leg01Joint
+         {  1,  0}, { .5,  0},
+      // Leg10Joint Leg11Joint
+         { -1,  0}, {-.5,  0},
+      // Leg20Joint Leg21Joint
+         {  0,  1}, {  0, .5},
+      // Leg30Joint Leg31Joint
+         {  0, -1}, {  0,-.5}
+    } );
+
+    brain_.reset(new SUPGBrain(evaluator_, coordinates, motors_, sensors_));
 }
 
 void RobotController::DoUpdate(const gazebo::common::UpdateInfo info)

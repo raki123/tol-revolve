@@ -43,7 +43,6 @@ AsyncNeat::~AsyncNeat()
     delete population;
 }
 
-
 std::shared_ptr<NeatEvaluation> AsyncNeat::getEvaluation()
 {
     if (this->evaluatingQueue.empty()) {

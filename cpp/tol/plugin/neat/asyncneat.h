@@ -58,6 +58,10 @@ public:
         NEAT::env->pop_size = n;
     }
 
+    static void SetPopulationType(NEAT::PopulationType type) {
+        NEAT::env->population_type = type;
+    }
+
     std::shared_ptr<NeatEvaluation> getFittest() const {
         return fittest;
     }

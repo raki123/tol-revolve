@@ -15,6 +15,7 @@
 */
 #include "population.h"
 #include "species/speciespopulation.h"
+#include "multinnspecies/multinnspeciespopulation.h"
 #include "util/util.h"
 
 using namespace NEAT;
@@ -29,6 +30,9 @@ Population *Population::create(rng_t rng,
     switch(env->population_type) {
     case PopulationType::SPECIES:
         result = new SpeciesPopulation(rng, seeds);
+        break;
+    case PopulationType::MULTI_NN_SPECIES:
+        result = new MultiNNSpeciesPopulation(rng, seeds);
         break;
     default:
         panic();

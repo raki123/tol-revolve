@@ -22,6 +22,7 @@ SET(accneat_sources
     src/innovgenome/innovlinkgene.cpp
     src/innovgenome/innovnodegene.cpp
     src/innovgenome/trait.cpp
+    src/multiinnovgenome/multiinnovgenome.cpp
 #     src/main.cpp
     src/neat.cpp
     src/network/cpu/cpunetwork.cpp
@@ -30,6 +31,9 @@ SET(accneat_sources
     src/species/species.cpp
     src/species/speciesorganism.cpp
     src/species/speciespopulation.cpp
+    src/multinnspecies/multinnspecies.cpp
+    src/multinnspecies/multinnspeciesorganism.cpp
+    src/multinnspecies/multinnspeciespopulation.cpp
     src/util/map.cpp
     src/util/resource.cpp
     src/util/rng.cpp

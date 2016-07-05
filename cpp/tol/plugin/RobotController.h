@@ -10,6 +10,7 @@
 
 #include <revolve/gazebo/plugin/RobotController.h>
 #include "rlpower.h"
+#include "supgbrain.h"
 
 namespace tol {
 
@@ -23,7 +24,8 @@ public:
     virtual void DoUpdate(const gazebo::common::UpdateInfo info);
 
 private:
-    class Evaluator : public RLPower::Evaluator {
+//     class Evaluator : public RLPower::Evaluator {
+    class Evaluator : public SUPGBrain::Evaluator {
     public:
         Evaluator();
         virtual void start();

@@ -35,7 +35,7 @@ public:
      * @param Sensor list
      */
     virtual void update(const std::vector< revolve::gazebo::MotorPtr > &actuators, const std::vector< revolve::gazebo::SensorPtr > &sensors,
-                        double t, double step);
+                        double t, double step) override;
 
 protected:
 

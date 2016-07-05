@@ -32,7 +32,10 @@ namespace NEAT {
     };
 
     enum class GeneticSearchType {PHASED, BLENDED, COMPLEXIFY};
-    enum class PopulationType {SPECIES};
+    enum class PopulationType {
+        SPECIES,
+        MULTI_NN_SPECIES
+    };
     enum class GenomeType {INNOV};
 
     extern const std::vector<nodetype> nodetypes;

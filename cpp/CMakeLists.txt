@@ -68,7 +68,7 @@ file(GLOB_RECURSE
     tol/plugin/supgbrain.cpp
     tol/plugin/neat/asyncneat.cpp
     tol/plugin/neat/neatevaluation.cpp
-#     tol/plugin/supg/supgneuron.cpp
+    tol/plugin/supg/supgneuron.cpp
 )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
@@ -143,8 +143,14 @@ target_link_libraries(tolrobotcontrol ${TOL_DEPS} accneat)
 target_link_libraries(tolworldcontrol ${TOL_DEPS} tolrobotcontrol)
 
 add_executable(testAsyncNeat tol/plugin/neat/test/testasyncneat.cpp)
+add_executable(testMultiNNSpecies tol/plugin/neat/test/testmultinnspeciesneat.cpp)
+add_executable(testSUPGBrain tol/plugin/test/testsupgbrain.cpp)
 target_link_libraries(testAsyncNeat tolrobotcontrol)
-add_test(testAsyncNeat testAsyncNeat CONFIGURATIONS Debug)
+target_link_libraries(testMultiNNSpecies tolrobotcontrol)
+target_link_libraries(testSUPGBrain tolrobotcontrol)
+add_test(testAsyncNeat testAsyncNeat)
+add_test(testMultiNNSpecies testMultiNNSpecies)
+add_test(testSUPGBrain testSUPGBrain)
 
 # Evolution keys library
 find_package(Qt4)
@@ -155,3 +161,5 @@ QT4_WRAP_CPP(headers_MOC tol/plugin/InteractiveEvolutionPlugin.h)
 add_library(tolinteractiveevolution SHARED ${headers_MOC} tol/plugin/InteractiveEvolutionPlugin.cpp)
 
 target_link_libraries(tolinteractiveevolution ${GAZEBO_LIBRARIES} ${QT_LIBRARIES} ${PROTOBUF_LIBRARIES})
+
+add_subdirectory(tol/plugin/test)
