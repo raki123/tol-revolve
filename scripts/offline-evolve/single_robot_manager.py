@@ -52,7 +52,7 @@ def run():
     # Insert the robot into the world. `insert_robot` resolves when the insert
     # request is sent, the future it returns resolves when the robot insert
     # is actually confirmed and a robot manager object has been created
-    pose = Pose(position=Vector3(1.0, 0, 0))
+    pose = Pose(position=Vector3(0, 0, 0.05))
     future = yield From(world.insert_robot(robot_tree, pose, "{}-{}".format(conf.robot_name, conf.experiment_round)))
     robot_manager = yield From(future)
 
