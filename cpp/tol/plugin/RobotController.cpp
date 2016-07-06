@@ -9,13 +9,71 @@
 #include "neat/accneat/src/neat.h"
 
 #include <iostream>
+#include <cstdlib>
+#include <string>
 
 namespace tol {
 
+
+const char* getVARenv(const char* var_name)
+{
+    const char* env_p = std::getenv(var_name);
+    if(env_p) {
+        std::cout << "ENV " << var_name << " is: " << env_p << std::endl;
+    } else {
+        std::cout << "ENV " << var_name << " not found, using default value: ";
+    }
+    return env_p;
+}
+
+const NEAT::GeneticSearchType getGeneticSearchType(const std::string &value) {
+        if (value.compare("PHASED") == 0)
+            return NEAT::GeneticSearchType::PHASED;
+
+        if (value.compare("BLENDED") == 0)
+            return NEAT::GeneticSearchType::BLENDED;
+
+        if (value.compare("COMPLEXIFY") == 0)
+            return NEAT::GeneticSearchType::COMPLEXIFY;
+
+        //default value
+        return NEAT::GeneticSearchType::PHASED;
+}
+
+const char* getGeneticSearchType(const NEAT::GeneticSearchType value) {
+    switch (value) {
+        case NEAT::GeneticSearchType::BLENDED:
+            return "NEAT::GeneticSearchType::BLENDED";
+        case NEAT::GeneticSearchType::PHASED:
+            return "NEAT::GeneticSearchType::PHASED";
+        case NEAT::GeneticSearchType::COMPLEXIFY:
+            return "NEAT::GeneticSearchType::COMPLEXIFY";
+        default:
+            return "undefined";
+    }
+}
+
 RobotController::RobotController() {
     AsyncNeat::Init();
-    AsyncNeat::SetPopulationSize(10); // 10 - 25 - 50 - 75 - 100 - 1000
-    AsyncNeat::SetSearchType(NEAT::GeneticSearchType::PHASED);
+    unsigned long populationSize = 10;
+    NEAT::GeneticSearchType geneticSearchType = NEAT::GeneticSearchType::PHASED;
+
+    if(const char* env_p = getVARenv("NEAT_POP_SIZE")) {
+        //TODO catch exception
+        populationSize = std::stol(env_p);
+    } else {
+        std::cout << populationSize << std::endl;
+    }
+
+    if(const char* env_p = getVARenv("NEAT_SEARCH_TYPE")) {
+        geneticSearchType = getGeneticSearchType(env_p);
+    } else {
+        std::cout << getGeneticSearchType(geneticSearchType) << std::endl;
+    }
+
+    AsyncNeat::SetPopulationSize(populationSize); // 10 - 25 - 50 - 75 - 100 - 1000
+    std::cout << "Setting up genetic search type to: " << getGeneticSearchType(geneticSearchType) << std::endl;
+    AsyncNeat::SetSearchType(geneticSearchType);
 }
 
 RobotController::~RobotController() {

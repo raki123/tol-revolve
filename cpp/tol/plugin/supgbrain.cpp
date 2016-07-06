@@ -6,6 +6,52 @@
 #include <stdexcept>
 #include <limits>
 #include <iomanip>
+#include <string>
+
+const char* SUPGBrain::getVARenv(const char* var_name)
+{
+    const char* env_p = std::getenv(var_name);
+    if(env_p) {
+        std::cout << "ENV " << var_name << " is: " << env_p << std::endl;
+    } else {
+        std::cout << "ENV " << var_name << " not found, using default value: ";
+    }
+    return env_p;
+}
+
+long SUPGBrain::GetMAX_EVALUATIONSenv()
+{
+    if(const char* env_p = SUPGBrain::getVARenv("SUPG_MAX_EVALUATIONS")) {
+        //TODO catch exception
+        long value = std::stol(env_p);
+        return value;
+    }
+    std::cout << -1 << std::endl;
+    return -1;
+}
+
+
+double SUPGBrain::GetFREQUENCY_RATEenv()
+{
+    if(const char* env_p = SUPGBrain::getVARenv("SUPG_FREQUENCY_RATE")) {
+        //TODO catch exception
+        double value = std::stod(env_p);
+        return value;
+    }
+    std::cout << 30 << std::endl;
+    return 30;
+}
+
+double SUPGBrain::GetCYCLE_LENGTHenv()
+{
+    if(const char* env_p = SUPGBrain::getVARenv("SUPG_CYCLE_LENGTH")) {
+        //TODO catch exception
+        double value = std::stod(env_p);
+        return value;
+    }
+    std::cout << 5 << std::endl;
+    return 5;
+}
 
 
 SUPGBrain::SUPGBrain(EvaluatorPtr evaluator, std::vector< std::vector< float > > neuron_coordinates, std::vector< revolve::gazebo::MotorPtr >& motors, const std::vector< revolve::gazebo::SensorPtr >& sensors)
@@ -13,6 +59,9 @@ SUPGBrain::SUPGBrain(EvaluatorPtr evaluator, std::vector< std::vector< float > >
   , start_eval_time(std::numeric_limits< double >::lowest())
   , generation_counter(0)
   , neuron_coordinates(neuron_coordinates)
+  , MAX_EVALUATIONS(GetMAX_EVALUATIONSenv())
+  , FREQUENCY_RATE(GetFREQUENCY_RATEenv())
+  , CYCLE_LENGTH(GetCYCLE_LENGTHenv())
 {
     if (motors.size() != neuron_coordinates.size()) {
         std::stringstream ss;
@@ -52,7 +101,13 @@ void SUPGBrain::update(const std::vector< revolve::gazebo::MotorPtr >& motors, c
 {
 
     // Evaluate policy on certain time limit
-    if ((t-start_eval_time) > SUPGBrain::FREQUENCY_RATE && generation_counter < SUPGBrain::MAX_EVALUATIONS) {
+    if ((t-start_eval_time) > SUPGBrain::FREQUENCY_RATE) {
+
+        // check if to stop the experiment. Negative value for MAX_EVALUATIONS will never stop the experiment
+        if (SUPGBrain::MAX_EVALUATIONS > 0 && generation_counter > SUPGBrain::MAX_EVALUATIONS) {
+            std::cout << "Max Evaluations (" << SUPGBrain::MAX_EVALUATIONS << ") reached. stopping now." << std::endl;
+            std::exit(0);
+        }
         generation_counter++;
         std::cout << "################# EVALUATING NEW BRAIN !!!!!!!!!!!!!!!!!!!!!!!!! (generation " << generation_counter << " )" << std::endl;
         this->nextBrain();
