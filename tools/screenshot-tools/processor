@@ -1,0 +1,8 @@
+if [ "$1" != "created" ]; then
+  exit 0;
+fi
+
+echo "$2"
+convert "$2" `cat /home/elte/mt/tol/tools/screenshot-tools/fname`
+echo "Converted $2"
+rm "$2"

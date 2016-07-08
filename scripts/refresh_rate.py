@@ -2,9 +2,6 @@ import sys
 
 lookahead = int(sys.argv[1])
 
-
-
-
 collect = {}
 with open("/media/expdata/output/alive.csv", "rb") as f:
     f.readline()
