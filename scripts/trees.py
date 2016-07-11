@@ -47,12 +47,18 @@ process_directory('online-output/d6-21', 'embodied')
 process_directory('online-output/d23-31', 'embodied')
 
 
-def collect_tree(base, robot_id, nodes, edges, positions, taken, x=0, y=0):
+def collect_tree(base, robot_id, parents, nodes, edges, positions, taken, x=0, y=0):
     if robot_id in nodes:
-        return
+        cur_pos = positions[robot_id]
+
+        # Aim for the lowest possible position in the tree
+        if cur_pos[1] > y:
+            del positions[robot_id]
+            taken.remove(cur_pos)
+        else:
+            return
 
     nodes.add(robot_id)
-    parents = base[robot_id]
 
     while (x, y) in taken:
         x -= 1
@@ -60,32 +66,34 @@ def collect_tree(base, robot_id, nodes, edges, positions, taken, x=0, y=0):
     positions[robot_id] = (x, y)
     taken.add((x, y))
 
-    if parents:
-        p1, p2 = parents
+    node_parents = base[robot_id]
+    if node_parents:
+        p1, p2 = node_parents
         edges.add((p1, robot_id))
         edges.add((p2, robot_id))
 
-        collect_tree(base, p1, nodes, edges, positions, taken, x-1, y+1)
-        collect_tree(base, p2, nodes, edges, positions, taken, x+1, y+1)
+        collect_tree(base, p1, parents, nodes, edges, positions, taken, x-1, y+1)
+        collect_tree(base, p2, parents, nodes, edges, positions, taken, x+1, y+1)
+    else:
+        parents.add(robot_id)
 
 
-def create_graph(exp, robot_id, from_bottom=3, from_top=3):
+def create_graph(exp, robot_id, levels=4, pic_factor=2.75):
     base = ancestors[exp]
     nodes = set()
     edges = set()
     positions = {}
     taken = set()
-    collect_tree(base, robot_id, nodes, edges, positions, taken)
+    parents = set()
+    collect_tree(base, robot_id, parents, nodes, edges, positions, taken)
 
-    max_y = max(positions[r][1] for r in positions)
     row_numbers = {}
-    top_start = max_y - from_top
 
     for r in positions:
         x, y = positions[r]
 
         # Skip the middle part of the plot
-        if from_bottom < y <= top_start:
+        if y > levels:
             continue
 
         if y not in row_numbers:
@@ -111,27 +119,32 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
             idx = row_numbers[y].index(r)
             x = float(sp[idx])
 
-        if y > top_start:
-            y -= top_start - from_bottom
-
         pos[r] = x, y
 
     y_size = 50
-    x_size = int(0.8 * y_size * spread / (from_bottom + from_top + 1))
+    x_size = int(0.8 * y_size * spread / (levels + 1))
     fig = plt.figure(figsize=(x_size, y_size))
     ax = plt.subplot()
     plt.axis('off')
 
+    # Parents and parent positions
+    parents = list(parents)
+    parent_x = np.linspace(-bound, bound, len(parents)) if len(parents) > 1 else [0]
+    parent_positions = {parents[i]: (parent_x[i], levels + 0.5) for i in range(len(parents))}
+
     graph = nx.DiGraph()
     nodes = pos.keys()
     edges = [edge for edge in edges if edge[0] in nodes and edge[1] in nodes]
+    graph.add_nodes_from(nodes)
+    graph.add_nodes_from(parents)
     graph.add_edges_from(edges)
 
+    nx.draw_networkx_nodes(graph, parent_positions, nodelist=parents, node_shape='s', node_size=15000)
     nx.draw_networkx_nodes(graph, pos, nodelist=nodes, node_shape='s', node_size=15000)
     nx.draw_networkx_edges(graph, pos, edgelist=edges, arrows=True)
 
     # Print dashed line
-    plt.plot([-bound - 1.0, bound + 1.0], [from_bottom + 0.5, from_bottom + 0.5],
+    plt.plot([-bound - 0.4, bound + 0.4], [levels + 0.25, levels + 0.25],
              linestyle='dashed', color='red', lw=10)
 
     # Place images on nodes:
@@ -145,7 +158,7 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
             print("%s %s" % (exp, each_node))
             continue
 
-        xx, yy = trans(pos[each_node])
+        xx, yy = trans(pos[each_node] if each_node in pos else parent_positions[each_node])
         xa, ya = trans2((xx, yy))
 
         with open(img_path, 'rb') as f:
@@ -153,7 +166,7 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
             w, h = img.size
 
             # this is the image size
-            factor = y_size * 2.75
+            factor = y_size * pic_factor
             piesize_1 = (factor / float(h))
             piesize_2 = (factor / float(w))
             p2_2 = piesize_2 / 2
@@ -175,6 +188,6 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
     return nodes
 
 print("Creating graphs...")
-create_graph('plus', '141660')
-# create_graph('plus-gradual', '59613')
+# create_graph('plus', '141660', 4, 2.75)
+create_graph('plus-gradual', '59613', 4, 7.0)
 # create_graph('embodied', '114438')
