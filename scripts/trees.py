@@ -78,9 +78,7 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
     collect_tree(base, robot_id, nodes, edges, positions, taken)
 
     max_y = max(positions[r][1] for r in positions)
-    row_ranges = {}
     row_numbers = {}
-    min_x = max_x = 0
     top_start = max_y - from_top
 
     for r in positions:
@@ -90,23 +88,13 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
         if from_bottom < y <= top_start:
             continue
 
-        if y not in row_ranges:
-            row_ranges[y] = x, x
-            row_numbers[y] = []
+        if y not in row_numbers:
+            row_numbers[y] = [r]
         else:
-            curmin, curmax = row_ranges[y]
-            row_ranges[y] = min(x, curmin), max(x, curmax)
             row_numbers[y].append(r)
 
-        min_x = min(x, min_x)
-        max_x = max(x, max_x)
-
-    full_center = int(0.5 * (max_x - min_x))
-    row_centers = {}
-
-    for y in row_ranges:
-        minx, maxx = row_ranges[y]
-        row_centers[y] = int(0.5 * (maxx + minx))
+    spread = max(len(row_numbers[y]) for y in row_numbers)
+    bound = 0.5 * spread
 
     pos = {}
     for r in positions:
@@ -115,8 +103,13 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
         if y not in row_numbers:
             continue
 
-        offset = full_center - row_centers[y]
-        x += offset
+        n = len(row_numbers[y])
+        if n == 1:
+            x = 0
+        else:
+            sp = np.linspace(-bound, bound, n)
+            idx = row_numbers[y].index(r)
+            x = float(sp[idx])
 
         if y > top_start:
             y -= top_start - from_bottom
@@ -124,7 +117,7 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
         pos[r] = x, y
 
     y_size = 50
-    x_size = int(0.45 * y_size * (max_x - min_x) / (from_bottom + from_top + 1))
+    x_size = int(0.8 * y_size * spread / (from_bottom + from_top + 1))
     fig = plt.figure(figsize=(x_size, y_size))
     ax = plt.subplot()
     plt.axis('off')
@@ -134,17 +127,12 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
     edges = [edge for edge in edges if edge[0] in nodes and edge[1] in nodes]
     graph.add_edges_from(edges)
 
-    nx.draw_networkx_nodes(graph, pos, nodelist=nodes, node_shape='s')
+    nx.draw_networkx_nodes(graph, pos, nodelist=nodes, node_shape='s', node_size=15000)
     nx.draw_networkx_edges(graph, pos, edgelist=edges, arrows=True)
 
     # Print dashed line
-    omx = min(pos[r][0] for r in pos)
-    ommx = max(pos[r][0] for r in pos)
-    plt.plot([omx - 0.5, ommx + 0.5], [from_bottom + 0.5, from_bottom + 0.5],
-             linestyle='dashed', color='blue', lw=10)
-
-    # labels = {a: a for a in nodes}
-    # nx.draw_networkx_labels(graph, pos, labels)
+    plt.plot([-bound - 1.0, bound + 1.0], [from_bottom + 0.5, from_bottom + 0.5],
+             linestyle='dashed', color='red', lw=10)
 
     # Place images on nodes:
     # https://www.wakari.io/sharing/bundle/nvikram/Basics%20of%20Networkx?has_login=False
@@ -165,7 +153,7 @@ def create_graph(exp, robot_id, from_bottom=3, from_top=3):
             w, h = img.size
 
             # this is the image size
-            factor = y_size * 2.0
+            factor = y_size * 2.75
             piesize_1 = (factor / float(h))
             piesize_2 = (factor / float(w))
             p2_2 = piesize_2 / 2
