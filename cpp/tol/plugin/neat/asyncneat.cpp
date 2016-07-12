@@ -9,11 +9,11 @@
 
 #define DEFAULT_RNG_SEED 1
 
-AsyncNeat::AsyncNeat(unsigned int n_inputs, unsigned int n_outputs)
+AsyncNeat::AsyncNeat(unsigned int n_inputs, unsigned int n_outputs, int rng_seed)
   : n_inputs(n_inputs)
   , n_outputs(n_outputs)
   , generation(1)
-  , rng_seed(DEFAULT_RNG_SEED)
+  , rng_seed(rng_seed)
   , fittest(nullptr)
   , fittest_fitness(std::numeric_limits<float>().min())
 {

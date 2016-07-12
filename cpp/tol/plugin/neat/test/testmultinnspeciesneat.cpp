@@ -36,7 +36,7 @@ bool TestMultiNNSpeciesNeat::testXOR()
     AsyncNeat::SetSearchType(NEAT::GeneticSearchType::BLENDED);
     AsyncNeat::SetPopulationType(NEAT::PopulationType::MULTI_NN_SPECIES);
     AsyncNeat::SetPopulationSize(10);
-    AsyncNeat neat(2, 1);
+    AsyncNeat neat(2, 1, 1);
     float success_margin_error = 0.0001;
 
     bool success = false;

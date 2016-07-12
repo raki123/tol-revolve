@@ -7,6 +7,7 @@
 #include <limits>
 #include <iomanip>
 #include <string>
+#include <ctime>
 
 const char* SUPGBrain::getVARenv(const char* var_name)
 {
@@ -86,7 +87,8 @@ SUPGBrain::SUPGBrain(EvaluatorPtr evaluator, std::vector< std::vector< float > >
 
     std::unique_ptr< AsyncNeat > neat(new AsyncNeat(
         SUPGNeuron::GetDimensionInput(n_inputs, neuron_coordinates[0].size()),
-        SUPGNeuron::GetDimensionOutput(n_outputs)
+        SUPGNeuron::GetDimensionOutput(n_outputs),
+        std::time(0)
     ));
     this->neat = std::move(neat);
 }

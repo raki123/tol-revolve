@@ -26,7 +26,7 @@
 class AsyncNeat
 {
 public:
-    AsyncNeat(unsigned int n_inputs, unsigned int n_outputs);
+    AsyncNeat(unsigned int n_inputs, unsigned int n_outputs, int rng_seed);
     virtual ~AsyncNeat();
 
     /**

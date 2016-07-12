@@ -34,7 +34,7 @@ bool TestAsyncNeat::testXOR()
     AsyncNeat::Init();
     AsyncNeat::SetSearchType(NEAT::GeneticSearchType::BLENDED);
     AsyncNeat::SetPopulationSize(10);
-    AsyncNeat neat(2, 1);
+    AsyncNeat neat(2, 1, 1);
     float success_margin_error = 0.0001;
 
     bool success = false;

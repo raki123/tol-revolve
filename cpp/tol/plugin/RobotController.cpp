@@ -92,16 +92,38 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 //     brain_.reset(new RLPower(this->model->GetName(), evaluator_, motors_, sensors_));
 
     // joints 00 and 10 are opposites, therefore on the same axis
+
+    // SPIDER 9
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint Leg01Joint
+//          {  1,  0}, { .5,  0},
+//       // Leg10Joint Leg11Joint
+//          { -1,  0}, {-.5,  0},
+//       // Leg20Joint Leg21Joint
+//          {  0,  1}, {  0, .5},
+//       // Leg30Joint Leg31Joint
+//          {  0, -1}, {  0,-.5}
+//     } );
+
+    // GECKO 5
+    // #   #
+    // O # #
+    // #   #
     std::vector< std::vector< float> > coordinates
     ( {
-      // Leg00Joint Leg01Joint
-         {  1,  0}, { .5,  0},
-      // Leg10Joint Leg11Joint
-         { -1,  0}, {-.5,  0},
-      // Leg20Joint Leg21Joint
-         {  0,  1}, {  0, .5},
-      // Leg30Joint Leg31Joint
-         {  0, -1}, {  0,-.5}
+      // Leg00Joint
+         { -1, +1},
+      // Leg01Joint
+         { -1, -1},
+      // BodyJoint0
+         { -.5, 0},
+      // BodyJoint1
+         { +.5, 0},
+      // Leg10Joint
+         { +1, +1},
+      // Leg11Joint
+         { +1, -1},
     } );
 
     brain_.reset(new SUPGBrain(evaluator_, coordinates, motors_, sensors_));
