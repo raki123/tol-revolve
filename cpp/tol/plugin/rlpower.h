@@ -137,7 +137,7 @@ namespace tol {
         const unsigned int MAX_SPLINE_SAMPLES = 100; // interpolation cache size
         const unsigned int UPDATE_STEP = 100; // after # generations, it increases the number of spline points
         const unsigned int INITIAL_SPLINE_SIZE = 3;
-        const unsigned int FREQUENCY_RATE = 30; // seconds
+        const double FREQUENCY_RATE = 30; // seconds
         const double CYCLE_LENGTH = 5; // seconds
         const double SIGMA_START_VALUE = 0.8; // starting value for sigma
         const double SIGMA_DECAY_SQUARED = 0.98; // sigma decay

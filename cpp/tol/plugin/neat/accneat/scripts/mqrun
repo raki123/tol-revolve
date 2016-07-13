@@ -1,0 +1,76 @@
+#!/bin/bash
+
+set -e
+
+function err() {
+    echo $* >&2
+    exit 1
+}
+
+DEFAULT_OPTS='-c 1 -r 1 -n 10000 -x 10000'
+
+if (( $# < 3 )); then
+    cat 2>&1 <<EOF
+usage: $(basename $0) runid comment experiment_name [neat_opts]...
+
+DEFAULT_OPTS=$DEFAULT_OPTS
+EOF
+exit 1
+fi
+
+runid="$1"
+shift
+comment="$1"
+shift
+experiment_name="$1"
+shift
+neat_opts="$@"
+
+neat_dir=$(readlink -f $(dirname $0)/..)
+runs_dir=$(readlink -f $neat_dir/../runs)
+run_dir=$runs_dir/$runid
+
+if [[ -e $run_dir ]]; then
+    err "Already exists: $run_dir"
+fi
+
+neat_cmd="$neat_dir/neat $DEFAULT_OPTS $neat_opts $experiment_name"
+echo "neat_cmd=$neat_cmd"
+
+mkdir -p $run_dir
+touch $run_dir/neat_out
+rm -f $neat_dir/out
+ln -s $run_dir/neat_out $neat_dir/out
+
+echo "$neat_cmd" > $run_dir/neat_cmd
+echo "$comment" > $run_dir/comment.txt
+submit_script=$run_dir/pbs_submit.sh
+
+cat > $submit_script <<EOF
+#!/bin/sh
+
+#PBS -N neat-$runid
+#PBS -o $run_dir/pbs_out 
+#PBS -e $run_dir/pbs_err
+
+#PBS -l nodes=1:ppn=10
+#PBS -q m1060
+
+cd $neat_dir
+
+source /share/apps/Modules/3.2.10/init/sh
+module load gcc/4.9.1
+module load cuda/6.0
+
+make || exit 1
+
+git log -n 5 > $run_dir/gitlog
+git status > $run_dir/gitstat
+hostname > $run_dir/hostname
+
+cd $run_dir
+cp -r $neat_dir/src src
+time $neat_cmd > neat_out
+EOF
+
+qsub $submit_script

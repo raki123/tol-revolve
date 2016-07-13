@@ -214,7 +214,7 @@ namespace tol {
 
     double RLPower::getFitness() {
         //Calculate fitness for current policy
-        return evaluator_->fitness();
+        return evaluator_->fitness() / RLPower::FREQUENCY_RATE;
     }
 
     void print_spline(const RLPower::Spline &spline) {
