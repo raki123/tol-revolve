@@ -92,7 +92,7 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     evaluator_ = std::make_shared<Evaluator>();
 
 /* RLPOWER brian */
-    brain_.reset(new RLPower(this->model->GetName(), evaluator_, motors_, sensors_));
+    brain_.reset(new tol::RLPower(this->model->GetName(), evaluator_, motors_, sensors_));
 
 /*  SUPG brain
     // joints 00 and 10 are opposites, therefore on the same axis

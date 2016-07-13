@@ -64,6 +64,7 @@ file(GLOB_RECURSE
     TOL_ROBOT_SRC
     tol/plugin/RobotController.cpp
     tol/plugin/fakebrain.cpp
+    tol/plugin/evaluator.cpp
     tol/plugin/rlpower.cpp
     tol/plugin/supgbrain.cpp
     tol/plugin/neat/asyncneat.cpp
@@ -135,11 +136,15 @@ add_subdirectory(tol/plugin/neat/accneat)
 #TODO make include path for accneat nicer
 include_directories(tol/plugin/neat/accneat/src)
 
+# add revolve neat
+add_subdirectory(../../revolve-brain/cpp revolve-brain)
+include_directories(../../revolve-brain/cpp)
+
 # Set include dirs and dependencies
 include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH} ${GAZEBO_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS})
 set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES} ${GAZEBO_LIBRARIES} ${GSL_LIBRARIES})
 
-target_link_libraries(tolrobotcontrol ${TOL_DEPS} accneat)
+target_link_libraries(tolrobotcontrol ${TOL_DEPS} accneat revolve-brain-static)
 target_link_libraries(tolworldcontrol ${TOL_DEPS} tolrobotcontrol)
 
 add_executable(testAsyncNeat tol/plugin/neat/test/testasyncneat.cpp)
