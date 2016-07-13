@@ -78,7 +78,7 @@ def collect_tree(base, robot_id, parents, nodes, edges, positions, taken, x=0, y
         parents.add(robot_id)
 
 
-def create_graph(exp, robot_id, levels=4, pic_factor=2.75):
+def create_graph(exp, robot_id, levels=4, pic_factor=2.75, parent_factor=2.75, root_fac=6.0, extend_bounds=0.5):
     base = ancestors[exp]
     nodes = set()
     edges = set()
@@ -121,16 +121,19 @@ def create_graph(exp, robot_id, levels=4, pic_factor=2.75):
 
         pos[r] = x, y
 
-    y_size = 50
-    x_size = int(0.8 * y_size * spread / (levels + 1))
+    y_size = 40
+    x_size = int(1.5 * y_size * spread / (levels + 1))
     fig = plt.figure(figsize=(x_size, y_size))
     ax = plt.subplot()
     plt.axis('off')
 
     # Parents and parent positions
     parents = list(parents)
-    parent_x = np.linspace(-bound, bound, len(parents)) if len(parents) > 1 else [0]
-    parent_positions = {parents[i]: (parent_x[i], levels + 0.5) for i in range(len(parents))}
+    n_parents = len(parents)
+    parent_x = np.linspace(-bound, bound, spread)
+    parent_y_base = levels + 1
+    parent_positions = {parents[i]: (parent_x[i % spread], parent_y_base + int(i/spread))
+                        for i in range(n_parents)}
 
     graph = nx.DiGraph()
     nodes = pos.keys()
@@ -139,13 +142,14 @@ def create_graph(exp, robot_id, levels=4, pic_factor=2.75):
     graph.add_nodes_from(parents)
     graph.add_edges_from(edges)
 
-    nx.draw_networkx_nodes(graph, parent_positions, nodelist=parents, node_shape='s', node_size=15000)
-    nx.draw_networkx_nodes(graph, pos, nodelist=nodes, node_shape='s', node_size=15000)
+    nx.draw_networkx_nodes(graph, parent_positions, nodelist=parents, node_shape='s', node_size=20000)
+    nx.draw_networkx_nodes(graph, pos, nodelist=nodes, node_shape='s', node_size=20000)
     nx.draw_networkx_edges(graph, pos, edgelist=edges, arrows=True)
 
     # Print dashed line
-    plt.plot([-bound - 0.4, bound + 0.4], [levels + 0.25, levels + 0.25],
-             linestyle='dashed', color='red', lw=10)
+    parent_line = (levels + 0.5)
+    plt.plot([-bound - extend_bounds, bound + extend_bounds], [parent_line, parent_line],
+             linestyle='dashed', color='red', lw=8)
 
     # Place images on nodes:
     # https://www.wakari.io/sharing/bundle/nvikram/Basics%20of%20Networkx?has_login=False
@@ -166,7 +170,12 @@ def create_graph(exp, robot_id, levels=4, pic_factor=2.75):
             w, h = img.size
 
             # this is the image size
-            factor = y_size * pic_factor
+            fac = parent_factor if each_node in parent_positions else pic_factor
+
+            if each_node == robot_id:
+                fac = root_fac
+
+            factor = y_size * fac
             piesize_1 = (factor / float(h))
             piesize_2 = (factor / float(w))
             p2_2 = piesize_2 / 2
@@ -188,6 +197,6 @@ def create_graph(exp, robot_id, levels=4, pic_factor=2.75):
     return nodes
 
 print("Creating graphs...")
-# create_graph('plus', '141660', 4, 2.75)
-create_graph('plus-gradual', '59613', 4, 7.0)
-# create_graph('embodied', '114438')
+# create_graph('plus', '141660', 4, pic_factor=4.2, parent_factor=4.2, root_fac=9.0, extend_bounds=0.42)
+# create_graph('plus-gradual', '59613', 4, 5.0, 5.0, 9.0)
+create_graph('embodied', '114438')
