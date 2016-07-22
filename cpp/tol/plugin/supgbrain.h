@@ -4,18 +4,12 @@
 #include "revolve/gazebo/brain/Brain.h"
 #include "supg/supgneuron.h"
 #include "neat/asyncneat.h"
+#include "evaluator.h"
 
 class SUPGBrain : public revolve::gazebo::Brain
 {
 public:
-    class Evaluator {
-    public:
-        virtual void start() = 0;
-        virtual double fitness() = 0;
-    };
-
-    typedef std::shared_ptr< Evaluator > EvaluatorPtr;
-    SUPGBrain(EvaluatorPtr evaluator, std::vector< std::vector< float > > neuron_coordinates,  std::vector< revolve::gazebo::MotorPtr >& motors, const std::vector< revolve::gazebo::SensorPtr >& sensors);
+    SUPGBrain(tol::EvaluatorPtr evaluator, std::vector< std::vector< float > > neuron_coordinates,  std::vector< revolve::gazebo::MotorPtr >& motors, const std::vector< revolve::gazebo::SensorPtr >& sensors);
     ~SUPGBrain();
 
     virtual void update(const std::vector< revolve::gazebo::MotorPtr >& motors, const std::vector< revolve::gazebo::SensorPtr >& sensors, double t, double step) override;
@@ -25,7 +19,7 @@ private:
     void nextBrain();
 
     std::unique_ptr<AsyncNeat> neat;
-    EvaluatorPtr evaluator;
+    tol::EvaluatorPtr evaluator;
     double start_eval_time;
     unsigned int generation_counter;
     std::shared_ptr< NeatEvaluation > current_evalaution;

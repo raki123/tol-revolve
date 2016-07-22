@@ -55,7 +55,7 @@ double SUPGBrain::GetCYCLE_LENGTHenv()
 }
 
 
-SUPGBrain::SUPGBrain(EvaluatorPtr evaluator, std::vector< std::vector< float > > neuron_coordinates, std::vector< revolve::gazebo::MotorPtr >& motors, const std::vector< revolve::gazebo::SensorPtr >& sensors)
+SUPGBrain::SUPGBrain(tol::EvaluatorPtr evaluator, std::vector< std::vector< float > > neuron_coordinates, std::vector< revolve::gazebo::MotorPtr >& motors, const std::vector< revolve::gazebo::SensorPtr >& sensors)
   : evaluator(evaluator)
   , start_eval_time(std::numeric_limits< double >::lowest())
   , generation_counter(0)

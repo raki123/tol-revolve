@@ -92,9 +92,9 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     evaluator_ = std::make_shared<Evaluator>();
 
 /* RLPOWER brian */
-    brain_.reset(new tol::RLPower(this->model->GetName(), evaluator_, motors_, sensors_));
+//     brain_.reset(new tol::RLPower(this->model->GetName(), evaluator_, motors_, sensors_));
 
-/*  SUPG brain
+/*  SUPG brain   */
     // joints 00 and 10 are opposites, therefore on the same axis
 
     // SPIDER 9
@@ -119,11 +119,52 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     // #   #
     // O # #
     // #   #
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint
+//          { -1, +1},
+//       // Leg01Joint
+//          { -1, -1},
+//       // BodyJoint0
+//          { -.5, 0},
+//       // BodyJoint1
+//          { +.5, 0},
+//       // Leg10Joint
+//          { +1, +1},
+//       // Leg11Joint
+//          { +1, -1},
+//     } );
+
+    // SNAKE 5
+    //
+    // # # O # #
+    //
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint
+//          { -.5, 0},
+//       // Leg01Joint
+//          { -1,  0},
+//       // Leg10Joint
+//          { +.5, 0},
+//       // Leg11Joint
+//          { +1,  0},
+//     } );
+
+    // BABY 1
+    // #
+    // #   #
+    // O # #
+    // #   #
     std::vector< std::vector< float> > coordinates
     ( {
       // Leg00Joint
          { -1, +1},
       // Leg01Joint
+         { -1, -.3},
+      // Leg011Joint
+         { -1, -.6},
+      // Leg021Joint
          { -1, -1},
       // BodyJoint0
          { -.5, 0},
@@ -135,8 +176,9 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
          { +1, -1},
     } );
 
+
     brain_.reset(new SUPGBrain(evaluator_, coordinates, motors_, sensors_));
-*/
+
 }
 
 void RobotController::DoUpdate(const gazebo::common::UpdateInfo info)
