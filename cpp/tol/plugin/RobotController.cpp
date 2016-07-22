@@ -156,24 +156,43 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     // #   #
     // O # #
     // #   #
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint
+//          { -1, +1},
+//       // Leg01Joint
+//          { -1, -.3},
+//       // Leg011Joint
+//          { -1, -.6},
+//       // Leg021Joint
+//          { -1, -1},
+//       // BodyJoint0
+//          { -.5, 0},
+//       // BodyJoint1
+//          { +.5, 0},
+//       // Leg10Joint
+//          { +1, +1},
+//       // Leg11Joint
+//          { +1, -1},
+//     } );
+
+    // BABY 2
+    //
+    //       #
+    // # # # O # # #
+    //       #
+    //       #
+    //       #
     std::vector< std::vector< float> > coordinates
     ( {
-      // Leg00Joint
-         { -1, +1},
-      // Leg01Joint
-         { -1, -.3},
-      // Leg011Joint
-         { -1, -.6},
-      // Leg021Joint
-         { -1, -1},
-      // BodyJoint0
-         { -.5, 0},
-      // BodyJoint1
-         { +.5, 0},
+      // Leg00Joint Leg01Joint Leg02Joint
+         {  1,  0}, { .666,  0}, { .333,  0},
       // Leg10Joint
-         { +1, +1},
-      // Leg11Joint
-         { +1, -1},
+         { -1,  0},
+      // Leg20Joint Leg21Joint Leg22Joint
+         {  0,  1}, {  0, .666}, { 0,  .333},
+      // Leg30Joint Leg31Joint Leg32Joint
+         {  0, -1}, {  0,-.666}, { 0,  .333},
     } );
 
 
