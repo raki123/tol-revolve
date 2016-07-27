@@ -115,6 +115,26 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 //          {  0, -1}, {  0,-.5}
 //     } );
 
+    // SPIDER 13
+    //       #
+    //       #
+    //       #
+    // # # # O # # #
+    //       #
+    //       #
+    //       #
+    std::vector< std::vector< float> > coordinates
+    ( {
+      // Leg00Joint Leg01Joint Leg02Joint
+         {  .333,  0}, {  .666,  0}, {  1,  0},
+      // Leg10Joint Leg11Joint Leg12Joint
+         { -.333,  0}, { -.666,  0}, { -1,  0},
+      // Leg20Joint Leg21Joint Leg22Joint
+         {  0,  .333}, {  0,  .666}, {  0,  1},
+      // Leg30Joint Leg31Joint Leg32Joint
+         {  0, -.333}, {  0, -.666}, {  0, -1},
+    } );
+
     // GECKO 5
     // #   #
     // O # #
@@ -183,17 +203,17 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     //       #
     //       #
     //       #
-    std::vector< std::vector< float> > coordinates
-    ( {
-      // Leg00Joint Leg01Joint Leg02Joint
-         {  1,  0}, { .666,  0}, { .333,  0},
-      // Leg10Joint
-         { -1,  0},
-      // Leg20Joint Leg21Joint Leg22Joint
-         {  0,  1}, {  0, .666}, { 0,  .333},
-      // Leg30Joint Leg31Joint Leg32Joint
-         {  0, -1}, {  0,-.666}, { 0,  .333},
-    } );
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint Leg01Joint Leg02Joint
+//          {  1,  0}, { .666,  0}, { .333,  0},
+//       // Leg10Joint
+//          { -1,  0},
+//       // Leg20Joint Leg21Joint Leg22Joint
+//          {  0,  1}, {  0, .666}, { 0,  .333},
+//       // Leg30Joint Leg31Joint Leg32Joint
+//          {  0, -1}, {  0,-.666}, { 0,  .333},
+//     } );
 
 
     brain_.reset(new SUPGBrain(evaluator_, coordinates, motors_, sensors_));
