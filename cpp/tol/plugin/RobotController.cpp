@@ -123,16 +123,38 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     //       #
     //       #
     //       #
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint Leg01Joint Leg02Joint
+//          {  .333,  0}, {  .666,  0}, {  1,  0},
+//       // Leg10Joint Leg11Joint Leg12Joint
+//          { -.333,  0}, { -.666,  0}, { -1,  0},
+//       // Leg20Joint Leg21Joint Leg22Joint
+//          {  0,  .333}, {  0,  .666}, {  0,  1},
+//       // Leg30Joint Leg31Joint Leg32Joint
+//          {  0, -.333}, {  0, -.666}, {  0, -1},
+//     } );
+
+    // SPIDER 17
+    //         #
+    //         #
+    //         #
+    //         #
+    // # # # # O # # # #
+    //         #
+    //         #
+    //         #
+    //         #
     std::vector< std::vector< float> > coordinates
     ( {
       // Leg00Joint Leg01Joint Leg02Joint
-         {  .333,  0}, {  .666,  0}, {  1,  0},
+         {  .25,  0}, {  .5,  0}, {  .75,  0}, {  1,  0},
       // Leg10Joint Leg11Joint Leg12Joint
-         { -.333,  0}, { -.666,  0}, { -1,  0},
+         { -.25,  0}, { -.5,  0}, { -.75,  0}, { -1,  0},
       // Leg20Joint Leg21Joint Leg22Joint
-         {  0,  .333}, {  0,  .666}, {  0,  1},
+         {  0,  .25}, {  0,  .5}, {  0,  .75}, {  0,  1},
       // Leg30Joint Leg31Joint Leg32Joint
-         {  0, -.333}, {  0, -.666}, {  0, -1},
+         {  0, -.25}, {  0, -.5}, {  0, -.75}, {  0, -1},
     } );
 
     // GECKO 5
