@@ -145,17 +145,17 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     //         #
     //         #
     //         #
-    std::vector< std::vector< float> > coordinates
-    ( {
-      // Leg00Joint Leg01Joint Leg02Joint
-         {  .25,  0}, {  .5,  0}, {  .75,  0}, {  1,  0},
-      // Leg10Joint Leg11Joint Leg12Joint
-         { -.25,  0}, { -.5,  0}, { -.75,  0}, { -1,  0},
-      // Leg20Joint Leg21Joint Leg22Joint
-         {  0,  .25}, {  0,  .5}, {  0,  .75}, {  0,  1},
-      // Leg30Joint Leg31Joint Leg32Joint
-         {  0, -.25}, {  0, -.5}, {  0, -.75}, {  0, -1},
-    } );
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint Leg01Joint Leg02Joint
+//          {  .25,  0}, {  .5,  0}, {  .75,  0}, {  1,  0},
+//       // Leg10Joint Leg11Joint Leg12Joint
+//          { -.25,  0}, { -.5,  0}, { -.75,  0}, { -1,  0},
+//       // Leg20Joint Leg21Joint Leg22Joint
+//          {  0,  .25}, {  0,  .5}, {  0,  .75}, {  0,  1},
+//       // Leg30Joint Leg31Joint Leg32Joint
+//          {  0, -.25}, {  0, -.5}, {  0, -.75}, {  0, -1},
+//     } );
 
     // GECKO 5
     // #   #
@@ -176,6 +176,51 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 //       // Leg11Joint
 //          { +1, -1},
 //     } );
+
+    // GECKO 12
+    // #     #
+    // #     #
+    // O # # #
+    // #     #
+    // #     #
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint Leg001Joint
+//          { -1, +0.5}, { -1, +1},
+//       // Leg01Joint Leg011Joint
+//          { -1, -0.5}, { -1, -1},
+//       // BodyJoint0 BodyJoint1 BodyJoint2
+//          { -.5, 0},
+//          {   0, 0},
+//          { +.5, 0},
+//       // Leg10Joint Leg101Joint
+//          { +1, +0.5}, { +1, +1},
+//       // Leg11Joint Leg111Joint
+//          { +1, -0.5}, { +1, -1},
+//     } );
+
+    // GECKO 17
+    // #     #
+    // #     #
+    // O # # #
+    // #     #
+    // #     #
+    std::vector< std::vector< float> > coordinates
+    ( {
+      // Leg00Joint Leg001Joint Leg002Joint
+         { -1, +.333}, { -1, +.666}, { -1, +1},
+      // Leg01Joint Leg011Joint Leg012Joint
+         { -1, -.333}, { -1, -.333}, { -1, -1},
+      // BodyJoint0 BodyJoint1 BodyJoint2 BodyJoint3
+         { -.666, 0},
+         { -.333, 0},
+         { +.333, 0},
+         { +.666, 0},
+      // Leg10Joint Leg101Joint Leg102Joint
+         { +1, +.333}, { +1, +.666}, { +1, +1},
+      // Leg11Joint Leg111Joint Leg112Joint
+         { +1, -.333}, { +1, -.666}, { +1, -1},
+    } );
 
     // SNAKE 5
     //
