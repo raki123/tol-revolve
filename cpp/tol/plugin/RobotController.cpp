@@ -205,22 +205,22 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     // O # # #
     // #     #
     // #     #
-    std::vector< std::vector< float> > coordinates
-    ( {
-      // Leg00Joint Leg001Joint Leg002Joint
-         { -1, +.333}, { -1, +.666}, { -1, +1},
-      // Leg01Joint Leg011Joint Leg012Joint
-         { -1, -.333}, { -1, -.333}, { -1, -1},
-      // BodyJoint0 BodyJoint1 BodyJoint2 BodyJoint3
-         { -.666, 0},
-         { -.333, 0},
-         { +.333, 0},
-         { +.666, 0},
-      // Leg10Joint Leg101Joint Leg102Joint
-         { +1, +.333}, { +1, +.666}, { +1, +1},
-      // Leg11Joint Leg111Joint Leg112Joint
-         { +1, -.333}, { +1, -.666}, { +1, -1},
-    } );
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint Leg001Joint Leg002Joint
+//          { -1, +.333}, { -1, +.666}, { -1, +1},
+//       // Leg01Joint Leg011Joint Leg012Joint
+//          { -1, -.333}, { -1, -.333}, { -1, -1},
+//       // BodyJoint0 BodyJoint1 BodyJoint2 BodyJoint3
+//          { -.666, 0},
+//          { -.333, 0},
+//          { +.333, 0},
+//          { +.666, 0},
+//       // Leg10Joint Leg101Joint Leg102Joint
+//          { +1, +.333}, { +1, +.666}, { +1, +1},
+//       // Leg11Joint Leg111Joint Leg112Joint
+//          { +1, -.333}, { +1, -.666}, { +1, -1},
+//     } );
 
     // SNAKE 5
     //
@@ -236,6 +236,50 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 //          { +.5, 0},
 //       // Leg11Joint
 //          { +1,  0},
+//     } );
+
+    // SNAKE 7
+    //
+    // # # # O # # #
+    //
+    std::vector< std::vector< float> > coordinates
+    ( {
+      // Leg00Joint
+         { -.333, 0},
+      // Leg01Joint
+         { -.666, 0},
+      // Leg02Joint
+         {    -1, 0},
+      // Leg10Joint
+         { +.333, 0},
+      // Leg11Joint
+         { +.666, 0},
+      // Leg12Joint
+         {    +1, 0},
+    } );
+
+    // SNAKE 9
+    //
+    // # # # O # # #
+    //
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint
+//          { -.25, 0},
+//       // Leg01Joint
+//          { -.50, 0},
+//       // Leg02Joint
+//          { -.75, 0},
+//       // Leg03Joint
+//          {   -1, 0},
+//       // Leg10Joint
+//          { +.25, 0},
+//       // Leg11Joint
+//          { +.50, 0},
+//       // Leg12Joint
+//          { +.75, 0},
+//       // Leg13Joint
+//          {   +1, 0},
 //     } );
 
     // BABY 1
