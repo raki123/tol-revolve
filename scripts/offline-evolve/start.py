@@ -33,19 +33,23 @@ class OfflineEvolutionSupervisor(Supervisor):
             self.ode_errors = 0
             sys.stderr.write('ODE Message 3 (100)\n')
 
+
 args = parser.parse_args()
 
 os.environ['GAZEBO_PLUGIN_PATH'] = os.path.join(tol_path, 'build')
 os.environ['GAZEBO_MODEL_PATH'] = os.path.join(tol_path, 'tools', 'models') + \
-                                  ':'+os.path.join(rv_path, 'tools', 'models')
+                                  ':' + os.path.join(rv_path, 'tools', 'models')
 
 supervisor = OfflineEvolutionSupervisor(
-    manager_cmd=[sys.executable, "offline_evolve.py"],
+    manager_cmd=[sys.executable, args.manager,
+                 "--robot-name", args.robot_name,
+                 "--experiment-round", args.experiment_round],
     analyzer_cmd=os.path.join(rv_path, 'tools', 'analyzer', 'run-analyzer'),
-    world_file=os.path.join(here, 'offline-evolve.world'),
+    world_file=os.path.join(here, args.world),
     output_directory=args.output_directory,
-    manager_args=sys.argv[1:],
-    restore_directory=args.restore_directory
+    restore_directory=args.restore_directory,
+    gazebo_cmd=args.gazebo_cmd,
+    manager_args=sys.argv[1:]
 )
 
 supervisor.launch()

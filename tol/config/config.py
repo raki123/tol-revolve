@@ -197,6 +197,36 @@ parser.add_argument(
     help="Host:port of the body analyzer (set to empty string to ignore)."
 )
 
+parser.add_argument(
+    '--gazebo-cmd',
+    default='gzserver', type=str,
+    help="Determine wether to use gzserver or gazebo."
+)
+
+parser.add_argument(
+    '--world',
+    default='offline-evolve.world', type=str,
+    help="Determine which world to use."
+)
+
+parser.add_argument(
+    '--manager',
+    default='offline_evolve.py', type=str,
+    help="Determine which manager to use."
+)
+
+parser.add_argument(
+    '--robot-name',
+    default="spider", type=str,
+    help="Name of robot."
+)
+
+parser.add_argument(
+    '--experiment-round',
+    default="1", type=str,
+    help="Round of robot experiment."
+)
+
 # Directory where robot information will be written. The system writes
 # two main CSV files:
 # - The `robots.csv` file containing all the basic robot information, one line
