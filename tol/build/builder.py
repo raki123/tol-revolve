@@ -24,9 +24,10 @@ def get_simulation_robot(robot, name, builder, conf, battery_charge=None):
     :return:
     """
     battery = None if battery_charge is None else BasicBattery(battery_charge)
+    brain_conf = None if not hasattr(conf, 'brain_conf') else conf.brain_conf
     model = builder.get_sdf_model(robot, controller_plugin="libtolrobotcontrol.so",
                                   update_rate=conf.controller_update_rate, name=name,
-                                  battery=battery)
+                                  battery=battery, brain_conf=brain_conf)
 
     apply_surface_parameters(model, conf.world_step_size)
 

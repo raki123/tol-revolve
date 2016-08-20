@@ -227,6 +227,12 @@ parser.add_argument(
     help="Round of robot experiment."
 )
 
+parser.add_argument(
+    '--brain-conf-path',
+    default="rlpower.cfg", type=str,
+    help="Path to brain configuration."
+)
+
 # Directory where robot information will be written. The system writes
 # two main CSV files:
 # - The `robots.csv` file containing all the basic robot information, one line

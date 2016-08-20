@@ -37,9 +37,6 @@ namespace tol {
             cycle_start_time_(-1),
             robot_name_(modelName) {
 
-        source_y_size = RLPower::INITIAL_SPLINE_SIZE;
-        noise_sigma_ = RLPower::SIGMA_START_VALUE;
-
 //        // Create transport node
 //        node_.reset(new ::gazebo::transport::Node());
 //        node_->Init();
@@ -48,7 +45,13 @@ namespace tol {
 //        alterSub_ = node_->Subscribe("~/" + modelName + "/modify_neural_network",
 //                                     &RLPower::modify, this);
 
-        step_rate_ = RLPower::MAX_SPLINE_SAMPLES / source_y_size;
+        source_y_size = RLPower::INITIAL_SPLINE_SIZE;
+        noise_sigma_ = RLPower::SIGMA_START_VALUE;
+        max_evaluations_ = RLPower::MAX_EVALUATIONS;
+        intepolation_spline_size_ = RLPower::INTERPOLATION_CACHE_SIZE;
+        max_ranked_policies_ = RLPower::MAX_RANKED_POLICIES;
+
+        step_rate_ = intepolation_spline_size_ / source_y_size;
 
         std::random_device rd;
         std::mt19937 mt(rd());
@@ -67,7 +70,71 @@ namespace tol {
         // Init of empty cache
         interpolation_cache_ = std::make_shared<Policy>(nActuators_);
         for (unsigned int i = 0; i < nActuators_; i++) {
-            interpolation_cache_->at(i).resize(INTERPOLATION_CACHE_SIZE, 0);
+            interpolation_cache_->at(i).resize(intepolation_spline_size_, 0);
+        }
+
+        this->generateCache();
+        evaluator_->start();
+    }
+
+    RLPower::RLPower(std::string modelName,
+                     sdf::ElementPtr brain,
+                     EvaluatorPtr evaluator,
+                     std::vector <revolve::gazebo::MotorPtr> &actuators,
+                     std::vector <revolve::gazebo::SensorPtr> &sensors) :
+            nActuators_(actuators.size()),
+            nSensors_(sensors.size()),
+            start_eval_time_(0),
+            generation_counter_(0),
+            evaluator_(evaluator),
+            cycle_start_time_(-1),
+            robot_name_(modelName) {
+
+//        // Create transport node
+//        node_.reset(new ::gazebo::transport::Node());
+//        node_->Init();
+//
+//        // Listen to network modification requests
+//        alterSub_ = node_->Subscribe("~/" + modelName + "/modify_neural_network",
+//                                     &RLPower::modify, this);
+
+        // Read out brain configuration attributes
+        source_y_size = brain->HasAttribute("init_spline_size") ?
+                        std::stoul(brain->GetAttribute("init_spline_size")->GetAsString()) :
+                        RLPower::INITIAL_SPLINE_SIZE;
+        noise_sigma_ = brain->HasAttribute("init_sigma") ?
+                       std::stod(brain->GetAttribute("init_sigma")->GetAsString()) :
+                       RLPower::SIGMA_START_VALUE;
+        max_evaluations_ = brain->HasAttribute("max_evaluations") ?
+                           std::stoul(brain->GetAttribute("max_evaluations")->GetAsString()) :
+                           RLPower::MAX_EVALUATIONS;
+        intepolation_spline_size_ = brain->HasAttribute("intepolation_spline_size") ?
+                                    std::stoul(brain->GetAttribute("intepolation_spline_size")->GetAsString()) :
+                                    RLPower::INTERPOLATION_CACHE_SIZE;
+        max_ranked_policies_ = brain->HasAttribute("max_ranked_policies") ?
+                               std::stoul(brain->GetAttribute("max_ranked_policies")->GetAsString()) :
+                               RLPower::MAX_RANKED_POLICIES;
+
+        step_rate_ = intepolation_spline_size_ / source_y_size;
+
+        std::random_device rd;
+        std::mt19937 mt(rd());
+        std::normal_distribution<double> dist(0, this->noise_sigma_);
+
+        // Init first random controller
+        current_policy_ = std::make_shared<Policy>(nActuators_);
+        for (unsigned int i = 0; i < nActuators_; i++) {
+            Spline spline(source_y_size);
+            for (unsigned int j = 0; j < source_y_size; j++) {
+                spline[j] = dist(mt);
+            }
+            current_policy_->at(i) = spline;
+        }
+
+        // Init of empty cache
+        interpolation_cache_ = std::make_shared<Policy>(nActuators_);
+        for (unsigned int i = 0; i < nActuators_; i++) {
+            interpolation_cache_->at(i).resize(intepolation_spline_size_, 0);
         }
 
         this->generateCache();
@@ -85,7 +152,7 @@ namespace tol {
 //        boost::mutex::scoped_lock lock(networkMutex_);
 
         // Evaluate policy on certain time limit
-        if ((t - start_eval_time_) > RLPower::FREQUENCY_RATE && generation_counter_ < RLPower::MAX_EVALUATIONS) {
+        if ((t - start_eval_time_) > RLPower::FREQUENCY_RATE && generation_counter_ < max_evaluations_) {
             this->generatePolicy();
             start_eval_time_ = t;
             evaluator_->start();
@@ -120,7 +187,7 @@ namespace tol {
         ranked_policies_.insert({curr_fitness, policy_copy});
 
         // Remove worst policies
-        while (ranked_policies_.size() > RLPower::MAX_RANKED_POLICIES) {
+        while (ranked_policies_.size() > max_ranked_policies_) {
             auto last = std::prev(ranked_policies_.end());
             ranked_policies_.erase(last);
         }
@@ -137,7 +204,7 @@ namespace tol {
         this->writeElite();
 
         generation_counter_++;
-        if (generation_counter_ == RLPower::MAX_EVALUATIONS) {
+        if (generation_counter_ == max_evaluations_) {
             std::cout << "Finish!!!" << std::endl;
             std::exit(0);
         }
@@ -147,7 +214,7 @@ namespace tol {
             source_y_size++;
 
             // LOG code
-            step_rate_ = RLPower::MAX_SPLINE_SAMPLES / source_y_size;
+            step_rate_ = intepolation_spline_size_ / source_y_size;
             std::cout << "New samplingSize_=" << source_y_size << ", and stepRate_=" << step_rate_ << std::endl;
 
             // current policy
@@ -181,7 +248,7 @@ namespace tol {
         std::normal_distribution<double> dist(0, noise_sigma_);
         noise_sigma_ *= SIGMA_DECAY_SQUARED;
 
-        if (ranked_policies_.size() < RLPower::MAX_RANKED_POLICIES) {
+        if (ranked_policies_.size() < max_ranked_policies_) {
             // Init random controller
             for (unsigned int i = 0; i < nActuators_; i++) {
                 for (unsigned int j = 0; j < source_y_size; j++) {
@@ -263,10 +330,10 @@ namespace tol {
         }
 
         // adjust X on the cache coordinate space
-        x = (x / CYCLE_LENGTH) * INTERPOLATION_CACHE_SIZE;
+        x = (x / CYCLE_LENGTH) * intepolation_spline_size_;
         // generate previous and next values
-        int x_a = ((int) x) % INTERPOLATION_CACHE_SIZE;
-        int x_b = (x_a + 1) % INTERPOLATION_CACHE_SIZE;
+        int x_a = ((int) x) % intepolation_spline_size_;
+        int x_b = (x_a + 1) % intepolation_spline_size_;
 
         // linear interpolation for every actuator
         for (unsigned int i = 0; i < nActuators_; i++) {

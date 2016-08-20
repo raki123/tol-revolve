@@ -1,3 +1,4 @@
+import ast
 import os
 import sys
 
@@ -27,6 +28,12 @@ def run():
     """
     # Parse command line / file input arguments
     conf = parser.parse_args()
+
+    # Adding brain configuration
+    with open(conf.brain_conf_path, 'r') as f:
+        s = f.read()
+        brain_conf = ast.literal_eval(s)
+    conf.brain_conf = brain_conf
 
     # This disables the analyzer; enable it if you want to generate valid robots
     # Can also do this using arguments of course, just pass an empty string

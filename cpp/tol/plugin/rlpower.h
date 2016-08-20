@@ -29,7 +29,15 @@ namespace tol {
         typedef std::shared_ptr <Evaluator> EvaluatorPtr;
 //     typedef const std::shared_ptr<revolve::msgs::ModifyNeuralNetwork const> ConstModifyNeuralNetworkPtr;
 
-        RLPower(std::string modelName, EvaluatorPtr evaluator, std::vector <revolve::gazebo::MotorPtr> &actuators,
+        RLPower(std::string modelName,
+                EvaluatorPtr evaluator,
+                std::vector <revolve::gazebo::MotorPtr> &actuators,
+                std::vector <revolve::gazebo::SensorPtr> &sensors);
+
+        RLPower(std::string modelName,
+                sdf::ElementPtr brain,
+                EvaluatorPtr evaluator,
+                std::vector <revolve::gazebo::MotorPtr> &actuators,
                 std::vector <revolve::gazebo::SensorPtr> &sensors);
 
         virtual ~RLPower();
@@ -40,7 +48,8 @@ namespace tol {
          */
         virtual void update(const std::vector <revolve::gazebo::MotorPtr> &actuators,
                             const std::vector <revolve::gazebo::SensorPtr> &sensors,
-                            double t, double step);
+                            double t,
+                            double step);
 
     protected:
 
@@ -71,7 +80,7 @@ namespace tol {
 
             PolicySave(double fitness, PolicyPtr &p) :
                     policy_(p),
-                    fitness_(fitness) { }
+                    fitness_(fitness) {}
 
             bool operator>(const PolicySave &ps) const {
                 return this->fitness_ > ps.fitness_;
@@ -84,6 +93,7 @@ namespace tol {
         unsigned int nSensors_;
 
         double start_eval_time_;
+        double max_evaluations_;
 
         unsigned int generation_counter_;
         //ignition::math::Pose3d currentPosition_;
@@ -96,6 +106,8 @@ namespace tol {
          */
         unsigned int source_y_size;
         unsigned int step_rate_;
+        unsigned int intepolation_spline_size_;
+        unsigned int max_ranked_policies_;
 
         /**
          * Noise in the generatePolicy function

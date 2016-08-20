@@ -8,6 +8,7 @@ PROGNAME=$(basename $0)
 # Default argument list
 robot_list=( spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC )
 
+config=rlpower.cfg
 manager=single_robot_manager.py
 world=gait-learning.world
 output=output
@@ -23,6 +24,7 @@ function error_exit() {
 function help() {
     echo "Usage: ${PROGNAME} [args...]"
     echo "Arguments:"
+    echo " -c | --config          Path to robot brain config file"
     echo " -g | --gzcommand       Gazebo command [gzserver|gazebo] Default: gzserver"
     echo " -h | --help            Help page"
     echo " -m | --manager         Name of script that controls robots and the environment"
@@ -45,6 +47,7 @@ function main() {
             local parameter="$1";
             shift
             case ${argument} in
+                -c | --config) local config=${parameter} ;;
                 -g | --gzcommand) local gz_command=${parameter} ;;
                 -h | --help) help ;;
                 -m | --manager) local manager=${parameter} ;;
@@ -69,6 +72,7 @@ function main() {
                 --restore ${restore} \
                 --robot-name robots/${robot_list[$index]} \
                 --experiment-round ${i} \
+                --brain-conf-path ${config} \
                 --gazebo-cmd ${gz_command}
         done
     done

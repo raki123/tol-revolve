@@ -25,7 +25,23 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
     //revolve::gazebo::RobotController::LoadBrain(sdf);
     evaluator_ = std::make_shared<Evaluator>();
-    brain_.reset(new RLPower(this->model->GetName(), evaluator_, motors_, sensors_));
+    if (!sdf->HasElement("rv:brain")) {
+        std::cerr << "No robot brain detected, this is probably an error." << std::endl;
+        return;
+    }
+    auto brain = sdf->GetElement("rv:brain");
+
+    if (!brain->HasAttribute("type")) {
+        std::cerr << "Brain does not define type, this is probably an error." << std::endl;
+        return;
+    }
+
+    if (brain->GetAttribute("type")->GetAsString() == "rlpower") {
+        brain_.reset(new RLPower(this->model->GetName(), brain, evaluator_, motors_, sensors_));
+    } else {
+        std::cout << "Calling default ANN brain." << std::endl;
+        revolve::gazebo::RobotController::LoadBrain(sdf);
+    }
 }
 
 void RobotController::DoUpdate(const gazebo::common::UpdateInfo info)
