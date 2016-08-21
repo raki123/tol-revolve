@@ -31,12 +31,12 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     }
     auto brain = sdf->GetElement("rv:brain");
 
-    if (!brain->HasAttribute("type")) {
+    if (!brain->HasAttribute("algorithm")) {
         std::cerr << "Brain does not define type, this is probably an error." << std::endl;
         return;
     }
 
-    if (brain->GetAttribute("type")->GetAsString() == "rlpower") {
+    if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower") {
         brain_.reset(new RLPower(this->model->GetName(), brain, evaluator_, motors_, sensors_));
     } else {
         std::cout << "Calling default ANN brain." << std::endl;

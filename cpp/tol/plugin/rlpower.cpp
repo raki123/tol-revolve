@@ -26,68 +26,16 @@
 namespace tol {
 
     RLPower::RLPower(std::string modelName,
-                     EvaluatorPtr evaluator,
-                     std::vector <revolve::gazebo::MotorPtr> &actuators,
-                     std::vector <revolve::gazebo::SensorPtr> &sensors) :
-            nActuators_(actuators.size()),
-            nSensors_(sensors.size()),
-            start_eval_time_(0),
-            generation_counter_(0),
-            evaluator_(evaluator),
-            cycle_start_time_(-1),
-            robot_name_(modelName) {
-
-//        // Create transport node
-//        node_.reset(new ::gazebo::transport::Node());
-//        node_->Init();
-//
-//        // Listen to network modification requests
-//        alterSub_ = node_->Subscribe("~/" + modelName + "/modify_neural_network",
-//                                     &RLPower::modify, this);
-
-        source_y_size = RLPower::INITIAL_SPLINE_SIZE;
-        noise_sigma_ = RLPower::SIGMA_START_VALUE;
-        max_evaluations_ = RLPower::MAX_EVALUATIONS;
-        intepolation_spline_size_ = RLPower::INTERPOLATION_CACHE_SIZE;
-        max_ranked_policies_ = RLPower::MAX_RANKED_POLICIES;
-
-        step_rate_ = intepolation_spline_size_ / source_y_size;
-
-        std::random_device rd;
-        std::mt19937 mt(rd());
-        std::normal_distribution<double> dist(0, this->noise_sigma_);
-
-        // Init first random controller
-        current_policy_ = std::make_shared<Policy>(nActuators_);
-        for (unsigned int i = 0; i < nActuators_; i++) {
-            Spline spline(source_y_size);
-            for (unsigned int j = 0; j < source_y_size; j++) {
-                spline[j] = dist(mt);
-            }
-            current_policy_->at(i) = spline;
-        }
-
-        // Init of empty cache
-        interpolation_cache_ = std::make_shared<Policy>(nActuators_);
-        for (unsigned int i = 0; i < nActuators_; i++) {
-            interpolation_cache_->at(i).resize(intepolation_spline_size_, 0);
-        }
-
-        this->generateCache();
-        evaluator_->start();
-    }
-
-    RLPower::RLPower(std::string modelName,
                      sdf::ElementPtr brain,
                      EvaluatorPtr evaluator,
                      std::vector <revolve::gazebo::MotorPtr> &actuators,
                      std::vector <revolve::gazebo::SensorPtr> &sensors) :
+            evaluator_(evaluator),
             nActuators_(actuators.size()),
             nSensors_(sensors.size()),
-            start_eval_time_(0),
             generation_counter_(0),
-            evaluator_(evaluator),
             cycle_start_time_(-1),
+            start_eval_time_(0),
             robot_name_(modelName) {
 
 //        // Create transport node
@@ -99,6 +47,9 @@ namespace tol {
 //                                     &RLPower::modify, this);
 
         // Read out brain configuration attributes
+        algorithm_type_ = brain->HasAttribute("type") ? brain->GetAttribute("type")->GetAsString() : "A";
+        std::cout << std::endl <<"Initialising RLPower, type " << algorithm_type_ << std::endl << std::endl;
+
         source_y_size = brain->HasAttribute("init_spline_size") ?
                         std::stoul(brain->GetAttribute("init_spline_size")->GetAsString()) :
                         RLPower::INITIAL_SPLINE_SIZE;
@@ -401,7 +352,7 @@ namespace tol {
 
 
     void RLPower::printCurrent() {
-        for (unsigned int i = 0; i < RLPower::MAX_SPLINE_SAMPLES; i++) {
+        for (unsigned int i = 0; i < intepolation_spline_size_; i++) {
             for (unsigned int j = 0; j < nActuators_; j++) {
                 std::cout << current_policy_->at(j)[i] << " ";
             }

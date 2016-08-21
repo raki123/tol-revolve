@@ -27,13 +27,18 @@ namespace tol {
         };
 
         typedef std::shared_ptr <Evaluator> EvaluatorPtr;
-//     typedef const std::shared_ptr<revolve::msgs::ModifyNeuralNetwork const> ConstModifyNeuralNetworkPtr;
+        typedef const std::shared_ptr<revolve::msgs::ModifyNeuralNetwork const> ConstModifyNeuralNetworkPtr;
 
-        RLPower(std::string modelName,
-                EvaluatorPtr evaluator,
-                std::vector <revolve::gazebo::MotorPtr> &actuators,
-                std::vector <revolve::gazebo::SensorPtr> &sensors);
-
+        /**
+         * The RLPower constructor reads out configuration file, deretmines which algorithm type to apply and
+         * initialises new policy.
+         * @param modelName: name of robot
+         * @param brain: configuration file
+         * @param evaluator: pointer to fitness evaluatior
+         * @param actuators: vector list of robot's actuators
+         * @param sensors: vector list of robot's sensors
+         * @return pointer to the RLPower class object
+         */
         RLPower(std::string modelName,
                 sdf::ElementPtr brain,
                 EvaluatorPtr evaluator,
@@ -43,8 +48,11 @@ namespace tol {
         virtual ~RLPower();
 
         /**
-         * @param Motor list
-         * @param Sensor list
+         * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy
+         * @param actuators: vector list of robot's actuators
+         * @param sensors: vector list of robot's sensors
+         * @param t:
+         * @param step:
          */
         virtual void update(const std::vector <revolve::gazebo::MotorPtr> &actuators,
                             const std::vector <revolve::gazebo::SensorPtr> &sensors,
@@ -52,23 +60,12 @@ namespace tol {
                             double step);
 
     protected:
-
-        double getFitness();
-
-        void generatePolicy();
-
-        /**
-         * Request handler to modify the neural network
-         */
-//     void modify(ConstModifyNeuralNetworkPtr &req);
-
-        // Mutex for stepping / updating the network
-        //boost::mutex networkMutex_;
-
-        /**
-         * Holder of current policy
-         */
-        PolicyPtr current_policy_;
+//        /**
+//         * Request handler to modify the neural network
+//         */
+//        void modify(ConstModifyNeuralNetworkPtr &req);
+//
+//        boost::mutex networkMutex_; // Mutex for stepping / updating the network
 
         /**
          * Ranked list of used splines
@@ -87,37 +84,60 @@ namespace tol {
             }
         };
 
-        std::map<double, PolicyPtr, std::greater<double>> ranked_policies_;
+        const unsigned int MAX_EVALUATIONS = 1000; // max number of evaluations
+        const unsigned int MAX_RANKED_POLICIES = 10; // max length of policies vector
+        const unsigned int INTERPOLATION_CACHE_SIZE = 100; // number of data points for the interpolation cache
+        const unsigned int INITIAL_SPLINE_SIZE = 3; // number of initially sampled spline points
+        const double SIGMA_START_VALUE = 0.8; // starting value for sigma
 
-        unsigned int nActuators_;
-        unsigned int nSensors_;
-
-        double start_eval_time_;
-        double max_evaluations_;
-
-        unsigned int generation_counter_;
-        //ignition::math::Pose3d currentPosition_;
-        //xignition::math::Pose3d previousPosition_;
-        EvaluatorPtr evaluator_;
-
-        /**
-         * Rank and matrix of currently used splines.
-         * Same as @currentSpline_
-         */
-        unsigned int source_y_size;
-        unsigned int step_rate_;
-        unsigned int intepolation_spline_size_;
-        unsigned int max_ranked_policies_;
-
-        /**
-         * Noise in the generatePolicy function
-         */
-        double noise_sigma_;
+        const unsigned int UPDATE_STEP = 100; // after # generations, it increases the number of spline points
+        const unsigned int FREQUENCY_RATE = 30; // seconds
+        const double CYCLE_LENGTH = 5; // seconds
+        const double SIGMA_DECAY_SQUARED = 0.98; // sigma decay
 
     private:
-        void interpolateCubic(Policy *const source_y, Policy *destination_y);
+//        /**
+//         * Transport node
+//         */
+//        ::gazebo::transport::NodePtr node_;
+//
+//        /**
+//         * Network modification subscriber
+//         */
+//        ::gazebo::transport::SubscriberPtr alterSub_;
 
+        /**
+         * Generate new policy
+         */
+        void generatePolicy();
+
+        /**
+         * Generate cache policy
+         */
         void generateCache();
+
+        /**
+         * Generate interpolated spline based on number of sampled control points in 'source_y'
+         * @param source_y: set of control points over which interpolation is generated
+         * @param destination_y: set of interpolated control points (default 100 points)
+         */
+        void interpolateCubic(Policy *const source_y,
+                              Policy *destination_y);
+
+        /**
+         * Extracts the value of the current_policy in x=time using linear
+         * interpolation
+         *
+         * Writes the output in output_vector
+         */
+        void generateOutput(const double time,
+                            double *output_vector);
+
+        /**
+         * Retrieves fitness for the current policy
+         * @return
+         */
+        double getFitness();
 
         /**
          * Writes all current splines to file
@@ -134,39 +154,26 @@ namespace tol {
          */
         void writeElite();
 
-        /**
-         * Extracts the value of the current_policy in x=time using linear
-         * interpolation
-         *
-         * Writes the output in output_vector
-         */
-        void generateOutput(const double time, double *output_vector);
+        PolicyPtr current_policy_; // Pointer to the current policy
+        PolicyPtr interpolation_cache_; // Pointer to the interpolated current_policy_ (default 100 points)
+        EvaluatorPtr evaluator_; // Pointer to the fitness evaluator
 
-        PolicyPtr interpolation_cache_;
-
-        const unsigned int MAX_EVALUATIONS = 1000; // max number of evaluations
-        const unsigned int MAX_RANKED_POLICIES = 10; // max length of policies vector
-        const unsigned int MAX_SPLINE_SAMPLES = 100; // interpolation cache size
-        const unsigned int UPDATE_STEP = 100; // after # generations, it increases the number of spline points
-        const unsigned int INITIAL_SPLINE_SIZE = 3;
-        const unsigned int FREQUENCY_RATE = 30; // seconds
-        const double CYCLE_LENGTH = 5; // seconds
-        const double SIGMA_START_VALUE = 0.8; // starting value for sigma
-        const double SIGMA_DECAY_SQUARED = 0.98; // sigma decay
-        const unsigned int INTERPOLATION_CACHE_SIZE = 100; // number of data points for the interpolation cache
+        unsigned int nActuators_; // Number of actuators
+        unsigned int nSensors_; // Number of sensors
+        unsigned int generation_counter_; // Number of current generation
+        unsigned int source_y_size; //
+        unsigned int step_rate_; //
+        unsigned int intepolation_spline_size_; // Number of 'interpolation_cache_' sample points
+        unsigned int max_ranked_policies_; // Maximal number of stored ranked policies
+        unsigned int max_evaluations_; // Maximal number of evaluations
 
         double cycle_start_time_;
-        std::string robot_name_;
+        double start_eval_time_;
+        double noise_sigma_; // Noise in the generatePolicy function
 
-        /**
-         * Transport node
-         */
-//     ::gazebo::transport::NodePtr node_;
-
-        /**
-         * Network modification subscriber
-         */
-//     ::gazebo::transport::SubscriberPtr alterSub_;
+        std::string robot_name_; // Name of the robot
+        std::string algorithm_type_; // Type of the used algorithm
+        std::map<double, PolicyPtr, std::greater<double>> ranked_policies_; // Container for best ranked policies
     };
 
 } /* namespace tol */
