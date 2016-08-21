@@ -30,11 +30,11 @@ namespace tol {
                      EvaluatorPtr evaluator,
                      std::vector <revolve::gazebo::MotorPtr> &actuators,
                      std::vector <revolve::gazebo::SensorPtr> &sensors) :
+            cycle_start_time_(-1),
             evaluator_(evaluator),
+            generation_counter_(0),
             nActuators_(actuators.size()),
             nSensors_(sensors.size()),
-            generation_counter_(0),
-            cycle_start_time_(-1),
             start_eval_time_(0),
             robot_name_(modelName) {
 
@@ -50,45 +50,36 @@ namespace tol {
         algorithm_type_ = brain->HasAttribute("type") ? brain->GetAttribute("type")->GetAsString() : "A";
         std::cout << std::endl <<"Initialising RLPower, type " << algorithm_type_ << std::endl << std::endl;
 
-        source_y_size = brain->HasAttribute("init_spline_size") ?
-                        std::stoul(brain->GetAttribute("init_spline_size")->GetAsString()) :
-                        RLPower::INITIAL_SPLINE_SIZE;
-        noise_sigma_ = brain->HasAttribute("init_sigma") ?
-                       std::stod(brain->GetAttribute("init_sigma")->GetAsString()) :
-                       RLPower::SIGMA_START_VALUE;
-        max_evaluations_ = brain->HasAttribute("max_evaluations") ?
-                           std::stoul(brain->GetAttribute("max_evaluations")->GetAsString()) :
-                           RLPower::MAX_EVALUATIONS;
+        evaluation_rate_ = brain->HasAttribute("evaluation_rate") ?
+                           std::stod(brain->GetAttribute("evaluation_rate")->GetAsString()) :
+                           RLPower::EVALUATION_RATE;
         intepolation_spline_size_ = brain->HasAttribute("intepolation_spline_size") ?
                                     std::stoul(brain->GetAttribute("intepolation_spline_size")->GetAsString()) :
                                     RLPower::INTERPOLATION_CACHE_SIZE;
+        max_evaluations_ = brain->HasAttribute("max_evaluations") ?
+                           std::stoul(brain->GetAttribute("max_evaluations")->GetAsString()) :
+                           RLPower::MAX_EVALUATIONS;
         max_ranked_policies_ = brain->HasAttribute("max_ranked_policies") ?
                                std::stoul(brain->GetAttribute("max_ranked_policies")->GetAsString()) :
                                RLPower::MAX_RANKED_POLICIES;
-
+        noise_sigma_ = brain->HasAttribute("init_sigma") ?
+                       std::stod(brain->GetAttribute("init_sigma")->GetAsString()) :
+                       RLPower::SIGMA_START_VALUE;
+        sigma_tau_deviation_ = brain->HasAttribute("sigma_tau_deviation") ?
+                               std::stod(brain->GetAttribute("sigma_tau_deviation")->GetAsString()) :
+                               RLPower::SIGMA_TAU_DEVIATION;
+        source_y_size = brain->HasAttribute("init_spline_size") ?
+                        std::stoul(brain->GetAttribute("init_spline_size")->GetAsString()) :
+                        RLPower::INITIAL_SPLINE_SIZE;
+        update_step_ = brain->HasAttribute("update_step") ?
+                       std::stoul(brain->GetAttribute("update_step")->GetAsString()) :
+                       RLPower::UPDATE_STEP;
         step_rate_ = intepolation_spline_size_ / source_y_size;
 
-        std::random_device rd;
-        std::mt19937 mt(rd());
-        std::normal_distribution<double> dist(0, this->noise_sigma_);
+        // Generate first random policy
+        this->generateInitPolicy();
 
-        // Init first random controller
-        current_policy_ = std::make_shared<Policy>(nActuators_);
-        for (unsigned int i = 0; i < nActuators_; i++) {
-            Spline spline(source_y_size);
-            for (unsigned int j = 0; j < source_y_size; j++) {
-                spline[j] = dist(mt);
-            }
-            current_policy_->at(i) = spline;
-        }
-
-        // Init of empty cache
-        interpolation_cache_ = std::make_shared<Policy>(nActuators_);
-        for (unsigned int i = 0; i < nActuators_; i++) {
-            interpolation_cache_->at(i).resize(intepolation_spline_size_, 0);
-        }
-
-        this->generateCache();
+        // Start the evaluator
         evaluator_->start();
     }
 
@@ -103,8 +94,8 @@ namespace tol {
 //        boost::mutex::scoped_lock lock(networkMutex_);
 
         // Evaluate policy on certain time limit
-        if ((t - start_eval_time_) > RLPower::FREQUENCY_RATE && generation_counter_ < max_evaluations_) {
-            this->generatePolicy();
+        if ((t - start_eval_time_) > evaluation_rate_ && generation_counter_ < max_evaluations_) {
+            this->updatePolicy();
             start_eval_time_ = t;
             evaluator_->start();
         }
@@ -123,7 +114,39 @@ namespace tol {
         delete[] output_vector;
     }
 
-    void RLPower::generatePolicy() {
+    void RLPower::generateInitPolicy() {
+        std::random_device rd;
+        std::mt19937 mt(rd());
+        std::normal_distribution<double> dist(0, this->noise_sigma_);
+
+        // Init first random controller
+        if (!current_policy_)
+            current_policy_ = std::make_shared<Policy>(nActuators_);
+
+        for (unsigned int i = 0; i < nActuators_; i++) {
+            Spline spline(source_y_size);
+            for (unsigned int j = 0; j < source_y_size; j++) {
+                spline[j] = dist(mt);
+            }
+            current_policy_->at(i) = spline;
+        }
+
+        // Init of empty cache
+        if (!interpolation_cache_)
+            interpolation_cache_ = std::make_shared<Policy>(nActuators_);
+
+        for (unsigned int i = 0; i < nActuators_; i++) {
+            interpolation_cache_->at(i).resize(intepolation_spline_size_, 0);
+        }
+
+        this->generateCache();
+    }
+
+    void RLPower::generateCache() {
+        this->interpolateCubic(current_policy_.get(), interpolation_cache_.get());
+    }
+
+    void RLPower::updatePolicy() {
         // Calculate fitness for current policy
         double curr_fitness = this->getFitness();
 
@@ -143,62 +166,49 @@ namespace tol {
             ranked_policies_.erase(last);
         }
 
+        // Print-out current status to the terminal
         std::cout << robot_name_ << ":" << generation_counter_ << " ranked_policies_:";
-
         for (auto const &it : ranked_policies_) {
             double fitness = it.first;
             std::cout << " " << fitness;
         }
         std::cout << std::endl;
 
+        // Write fitness and genomes log to output files
         this->writeCurrent();
         this->writeElite();
 
+        // Update generation counter and check is it finished
         generation_counter_++;
         if (generation_counter_ == max_evaluations_) {
             std::cout << "Finish!!!" << std::endl;
             std::exit(0);
         }
 
-        // increase spline points if it is time
-        if (generation_counter_ % RLPower::UPDATE_STEP == 0) {
-            source_y_size++;
+        // Increase spline points if it is a time
+        if (generation_counter_ % update_step_ == 0)
+            this->increaseSplinePoints();
 
-            // LOG code
-            step_rate_ = intepolation_spline_size_ / source_y_size;
-            std::cout << "New samplingSize_=" << source_y_size << ", and stepRate_=" << step_rate_ << std::endl;
+        /// Actual policy generation
 
-            // current policy
-            Policy policy_copy(current_policy_->size());
-            for (unsigned int i = 0; i < nActuators_; i++) {
-                Spline &spline = current_policy_->at(i);
-                policy_copy[i] = Spline(spline.begin(), spline.end());
-
-                spline.resize(source_y_size);
-            }
-
-            this->interpolateCubic(&policy_copy, current_policy_.get());
-
-            //for every ranked policy
-            for (auto &it : ranked_policies_) {
-                PolicyPtr policy = it.second;
-
-                for (unsigned int j = 0; j < nActuators_; j++) {
-                    Spline &spline = policy->at(j);
-                    policy_copy[j] = Spline(spline.begin(), spline.end());
-                    spline.resize(source_y_size);
-                }
-                this->interpolateCubic(&policy_copy, policy.get());
-            }
-
-        }
-
-        // Actual policy generation
+        /// Determine which mutation operator to use
+        /// Default, for algorithms A and B, is used standard normal distribution with decaying sigma
+        /// For algorithms C and D, is used normal distribution with self-adaptive sigma
         std::random_device rd;
         std::mt19937 mt(rd());
-        std::normal_distribution<double> dist(0, noise_sigma_);
-        noise_sigma_ *= SIGMA_DECAY_SQUARED;
 
+        if (algorithm_type_ == "C" || algorithm_type_ == "D") {
+            // uncorrelated mutation with one step size
+            std::mt19937 sigma_mt(rd());
+            std::normal_distribution<double> sigma_dist(0, sigma_tau_deviation_);
+            noise_sigma_ = noise_sigma_ * exp(sigma_dist(sigma_mt));
+        } else {
+            noise_sigma_ *= SIGMA_DECAY_SQUARED;
+        }
+        std::normal_distribution<double> dist(0, noise_sigma_);
+
+        /// Determine which selection operator to use
+        ///
         if (ranked_policies_.size() < max_ranked_policies_) {
             // Init random controller
             for (unsigned int i = 0; i < nActuators_; i++) {
@@ -238,62 +248,6 @@ namespace tol {
 
         // cache update
         this->generateCache();
-    }
-
-    double RLPower::getFitness() {
-        //Calculate fitness for current policy
-        return evaluator_->fitness();
-    }
-
-    void print_spline(const RLPower::Spline &spline) {
-        std::cout << "[ ";
-        for (auto spline_it = spline.begin(); spline_it != spline.end(); spline_it++) {
-            if (spline_it != spline.begin()) {
-                std::cout << ", ";
-            }
-            std::cout << (*spline_it);
-        }
-        std::cout << " ]" << std::endl;
-    }
-
-    void print_policy(RLPower::Policy *const policy) {
-        for (auto policy_it = policy->begin(); policy_it != policy->end(); policy_it++) {
-            std::cout << " spline size = " << policy_it->size() << " - ";
-            print_spline(*policy_it);
-        }
-    }
-
-    void RLPower::generateCache() {
-        this->interpolateCubic(current_policy_.get(), interpolation_cache_.get());
-    }
-
-    void RLPower::generateOutput(const double time,
-                                 double *output_vector) {
-        if (cycle_start_time_ < 0) {
-            cycle_start_time_ = time;
-        }
-
-        // get correct X value (between 0 and CYCLE_LENGTH)
-        double x = time - cycle_start_time_;
-        while (x >= RLPower::CYCLE_LENGTH) {
-            cycle_start_time_ += RLPower::CYCLE_LENGTH;
-            x = time - cycle_start_time_;
-        }
-
-        // adjust X on the cache coordinate space
-        x = (x / CYCLE_LENGTH) * intepolation_spline_size_;
-        // generate previous and next values
-        int x_a = ((int) x) % intepolation_spline_size_;
-        int x_b = (x_a + 1) % intepolation_spline_size_;
-
-        // linear interpolation for every actuator
-        for (unsigned int i = 0; i < nActuators_; i++) {
-            double y_a = interpolation_cache_->at(i)[x_a];
-            double y_b = interpolation_cache_->at(i)[x_b];
-
-            output_vector[i] = y_a +
-                               ((y_b - y_a) * (x - x_a) / (x_b - x_a));
-        }
     }
 
     void RLPower::interpolateCubic(Policy *const source_y,
@@ -350,6 +304,70 @@ namespace tol {
         delete[] x;
     }
 
+    void RLPower::increaseSplinePoints() {
+        source_y_size++;
+
+        // LOG code
+        step_rate_ = intepolation_spline_size_ / source_y_size;
+        std::cout << "New samplingSize_=" << source_y_size << ", and stepRate_=" << step_rate_ << std::endl;
+
+        // Copy current policy for resizing
+        Policy policy_copy(current_policy_->size());
+        for (unsigned int i = 0; i < nActuators_; i++) {
+            Spline &spline = current_policy_->at(i);
+            policy_copy[i] = Spline(spline.begin(), spline.end());
+
+            spline.resize(source_y_size);
+        }
+
+        this->interpolateCubic(&policy_copy, current_policy_.get());
+
+        //for every ranked policy
+        for (auto &it : ranked_policies_) {
+            PolicyPtr policy = it.second;
+
+            for (unsigned int j = 0; j < nActuators_; j++) {
+                Spline &spline = policy->at(j);
+                policy_copy[j] = Spline(spline.begin(), spline.end());
+                spline.resize(source_y_size);
+            }
+            this->interpolateCubic(&policy_copy, policy.get());
+        }
+    }
+
+    void RLPower::generateOutput(const double time,
+                                 double *output_vector) {
+        if (cycle_start_time_ < 0) {
+            cycle_start_time_ = time;
+        }
+
+        // get correct X value (between 0 and CYCLE_LENGTH)
+        double x = time - cycle_start_time_;
+        while (x >= RLPower::CYCLE_LENGTH) {
+            cycle_start_time_ += RLPower::CYCLE_LENGTH;
+            x = time - cycle_start_time_;
+        }
+
+        // adjust X on the cache coordinate space
+        x = (x / CYCLE_LENGTH) * intepolation_spline_size_;
+        // generate previous and next values
+        int x_a = ((int) x) % intepolation_spline_size_;
+        int x_b = (x_a + 1) % intepolation_spline_size_;
+
+        // linear interpolation for every actuator
+        for (unsigned int i = 0; i < nActuators_; i++) {
+            double y_a = interpolation_cache_->at(i)[x_a];
+            double y_b = interpolation_cache_->at(i)[x_b];
+
+            output_vector[i] = y_a +
+                               ((y_b - y_a) * (x - x_a) / (x_b - x_a));
+        }
+    }
+
+    double RLPower::getFitness() {
+        //Calculate fitness for current policy
+        return evaluator_->fitness();
+    }
 
     void RLPower::printCurrent() {
         for (unsigned int i = 0; i < intepolation_spline_size_; i++) {

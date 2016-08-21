@@ -88,10 +88,11 @@ namespace tol {
         const unsigned int MAX_RANKED_POLICIES = 10; // max length of policies vector
         const unsigned int INTERPOLATION_CACHE_SIZE = 100; // number of data points for the interpolation cache
         const unsigned int INITIAL_SPLINE_SIZE = 3; // number of initially sampled spline points
-        const double SIGMA_START_VALUE = 0.8; // starting value for sigma
-
         const unsigned int UPDATE_STEP = 100; // after # generations, it increases the number of spline points
-        const unsigned int FREQUENCY_RATE = 30; // seconds
+        const double EVALUATION_RATE = 30.0; // evaluation time for each policy
+        const double SIGMA_START_VALUE = 0.8; // starting value for sigma
+        const double SIGMA_TAU_DEVIATION = 0.2;
+
         const double CYCLE_LENGTH = 5; // seconds
         const double SIGMA_DECAY_SQUARED = 0.98; // sigma decay
 
@@ -109,12 +110,17 @@ namespace tol {
         /**
          * Generate new policy
          */
-        void generatePolicy();
+        void generateInitPolicy();
 
         /**
          * Generate cache policy
          */
         void generateCache();
+
+        /**
+         * Evaluate the current policy and generate new
+         */
+        void updatePolicy();
 
         /**
          * Generate interpolated spline based on number of sampled control points in 'source_y'
@@ -123,6 +129,11 @@ namespace tol {
          */
         void interpolateCubic(Policy *const source_y,
                               Policy *destination_y);
+
+        /**
+         * Increment number of sampling points for policy
+         */
+        void increaseSplinePoints();
 
         /**
          * Extracts the value of the current_policy in x=time using linear
@@ -154,22 +165,25 @@ namespace tol {
          */
         void writeElite();
 
-        PolicyPtr current_policy_; // Pointer to the current policy
-        PolicyPtr interpolation_cache_; // Pointer to the interpolated current_policy_ (default 100 points)
-        EvaluatorPtr evaluator_; // Pointer to the fitness evaluator
+        PolicyPtr current_policy_ = NULL; // Pointer to the current policy
+        PolicyPtr interpolation_cache_ = NULL; // Pointer to the interpolated current_policy_ (default 100 points)
+        EvaluatorPtr evaluator_ = NULL; // Pointer to the fitness evaluator
 
-        unsigned int nActuators_; // Number of actuators
-        unsigned int nSensors_; // Number of sensors
         unsigned int generation_counter_; // Number of current generation
-        unsigned int source_y_size; //
-        unsigned int step_rate_; //
         unsigned int intepolation_spline_size_; // Number of 'interpolation_cache_' sample points
         unsigned int max_ranked_policies_; // Maximal number of stored ranked policies
         unsigned int max_evaluations_; // Maximal number of evaluations
+        unsigned int nActuators_; // Number of actuators
+        unsigned int nSensors_; // Number of sensors
+        unsigned int source_y_size; //
+        unsigned int step_rate_; //
+        unsigned int update_step_; // Number of evaluations after which sampling size increases
 
         double cycle_start_time_;
-        double start_eval_time_;
+        double evaluation_rate_;
         double noise_sigma_; // Noise in the generatePolicy function
+        double sigma_tau_deviation_; // Tau deviation for self-adaptive sigma
+        double start_eval_time_;
 
         std::string robot_name_; // Name of the robot
         std::string algorithm_type_; // Type of the used algorithm
