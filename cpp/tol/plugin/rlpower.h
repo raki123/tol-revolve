@@ -91,7 +91,7 @@ namespace tol {
         const unsigned int UPDATE_STEP = 100; // after # generations, it increases the number of spline points
         const double EVALUATION_RATE = 30.0; // evaluation time for each policy
         const double SIGMA_START_VALUE = 0.8; // starting value for sigma
-        const double SIGMA_TAU_DEVIATION = 0.2;
+        const double SIGMA_TAU_CORRECTION = 0.2;
 
         const double CYCLE_LENGTH = 5; // seconds
         const double SIGMA_DECAY_SQUARED = 0.98; // sigma decay
@@ -134,6 +134,12 @@ namespace tol {
          * Increment number of sampling points for policy
          */
         void increaseSplinePoints();
+
+        /**
+         * Randomly select two policies and return the one with higher fitness
+         * @return an iterator from 'ranked_policies_' map
+         */
+        std::map<double, RLPower::PolicyPtr>::iterator binarySelection();
 
         /**
          * Extracts the value of the current_policy in x=time using linear
@@ -182,7 +188,7 @@ namespace tol {
         double cycle_start_time_;
         double evaluation_rate_;
         double noise_sigma_; // Noise in the generatePolicy function
-        double sigma_tau_deviation_; // Tau deviation for self-adaptive sigma
+        double sigma_tau_correction_; // Tau deviation for self-adaptive sigma
         double start_eval_time_;
 
         std::string robot_name_; // Name of the robot

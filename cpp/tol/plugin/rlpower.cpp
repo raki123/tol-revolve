@@ -30,11 +30,11 @@ namespace tol {
                      EvaluatorPtr evaluator,
                      std::vector <revolve::gazebo::MotorPtr> &actuators,
                      std::vector <revolve::gazebo::SensorPtr> &sensors) :
-            cycle_start_time_(-1),
             evaluator_(evaluator),
             generation_counter_(0),
             nActuators_(actuators.size()),
             nSensors_(sensors.size()),
+            cycle_start_time_(-1),
             start_eval_time_(0),
             robot_name_(modelName) {
 
@@ -65,9 +65,9 @@ namespace tol {
         noise_sigma_ = brain->HasAttribute("init_sigma") ?
                        std::stod(brain->GetAttribute("init_sigma")->GetAsString()) :
                        RLPower::SIGMA_START_VALUE;
-        sigma_tau_deviation_ = brain->HasAttribute("sigma_tau_deviation") ?
-                               std::stod(brain->GetAttribute("sigma_tau_deviation")->GetAsString()) :
-                               RLPower::SIGMA_TAU_DEVIATION;
+        sigma_tau_correction_ = brain->HasAttribute("sigma_tau_correction") ?
+                               std::stod(brain->GetAttribute("sigma_tau_correction")->GetAsString()) :
+                               RLPower::SIGMA_TAU_CORRECTION;
         source_y_size = brain->HasAttribute("init_spline_size") ?
                         std::stoul(brain->GetAttribute("init_spline_size")->GetAsString()) :
                         RLPower::INITIAL_SPLINE_SIZE;
@@ -181,7 +181,6 @@ namespace tol {
         // Update generation counter and check is it finished
         generation_counter_++;
         if (generation_counter_ == max_evaluations_) {
-            std::cout << "Finish!!!" << std::endl;
             std::exit(0);
         }
 
@@ -200,48 +199,93 @@ namespace tol {
         if (algorithm_type_ == "C" || algorithm_type_ == "D") {
             // uncorrelated mutation with one step size
             std::mt19937 sigma_mt(rd());
-            std::normal_distribution<double> sigma_dist(0, sigma_tau_deviation_);
-            noise_sigma_ = noise_sigma_ * exp(sigma_dist(sigma_mt));
+            std::normal_distribution<double> sigma_dist(0, 1);
+            noise_sigma_ = noise_sigma_ * std::exp(sigma_tau_correction_ * sigma_dist(sigma_mt));
         } else {
-            noise_sigma_ *= SIGMA_DECAY_SQUARED;
+            // Default is decaying sigma
+            if (ranked_policies_.size() >= max_ranked_policies_)
+                noise_sigma_ *= SIGMA_DECAY_SQUARED;
         }
         std::normal_distribution<double> dist(0, noise_sigma_);
 
         /// Determine which selection operator to use
-        ///
+        /// Default, for algorithms A and C, is used ten parent crossover
+        /// For algorithms B and D, is used two parent crossover with binary tournament selection
         if (ranked_policies_.size() < max_ranked_policies_) {
-            // Init random controller
+            // Generate random policy if number of stored policies is less then 'max_ranked_policies_'
             for (unsigned int i = 0; i < nActuators_; i++) {
                 for (unsigned int j = 0; j < source_y_size; j++) {
                     (*current_policy_)[i][j] = dist(mt);
                 }
             }
         } else {
+            // Generate new policy using weighted crossover operator
             double total_fitness = 0;
-            for (auto const &it : ranked_policies_) {
-                double fitness = it.first;
-                total_fitness += fitness;
-            }
+            if (algorithm_type_ == "B" || algorithm_type_ == "D") {
+                // k-selection tournament
+                auto parent1 = binarySelection();
+                auto parent2 = parent1;
+                while (parent2 == parent1) {
+                    parent2 = binarySelection();
+                }
 
-            // for actuator
-            for (unsigned int i = 0; i < nActuators_; i++) {
-                // for column
-                for (unsigned int j = 0; j < source_y_size; j++) {
+                double fitness1 = parent1->first;
+                double fitness2 = parent2->first;
 
-                    // modifier ...
-                    double spline_point = 0;
-                    for (auto const &it : ranked_policies_) {
-                        double fitness = it.first;
-                        PolicyPtr policy = it.second;
+                PolicyPtr policy1 = parent1->second;
+                PolicyPtr policy2 = parent2->second;
 
-                        spline_point += ((policy->at(i)[j] - (*current_policy_)[i][j])) * fitness;
+                // TODO: Verify what should be total fitness in binary
+                total_fitness = fitness1 + fitness2;
+
+                // For each spline
+                for (unsigned int i = 0; i < nActuators_; i++) {
+                    // And for each control point
+                    for (unsigned int j = 0; j < source_y_size; j++) {
+                        // Apply modifier
+                        double spline_point = 0;
+                        spline_point += ((policy1->at(i)[j] - (*current_policy_)[i][j])) * (fitness1 / total_fitness);
+                        spline_point += ((policy2->at(i)[j] - (*current_policy_)[i][j])) * (fitness2 / total_fitness);
+
+                        // Add a mutation + current
+                        // TODO: Verify do we use current in this case
+                        spline_point += dist(mt) + (*current_policy_)[i][j];
+
+                        // Set a newly generated point as current
+                        (*current_policy_)[i][j] = spline_point;
                     }
-                    spline_point /= total_fitness;
+                }
+            } else {
+                // Default is all parents selection
 
-                    // ... + noise + current
-                    spline_point += dist(mt) + (*current_policy_)[i][j];
+                // Calculate first total sum of fitnesses
+                for (auto const &it : ranked_policies_) {
+                    double fitness = it.first;
+                    total_fitness += fitness;
+                }
 
-                    (*current_policy_)[i][j] = spline_point;
+                // For each spline
+                // TODO: Verify that this should is correct formula
+                for (unsigned int i = 0; i < nActuators_; i++) {
+                    // And for each control point
+                    for (unsigned int j = 0; j < source_y_size; j++) {
+
+                        // Apply modifier
+                        double spline_point = 0;
+                        for (auto const &it : ranked_policies_) {
+                            double fitness = it.first;
+                            PolicyPtr policy = it.second;
+
+                            spline_point += ((policy->at(i)[j] - (*current_policy_)[i][j])) * (fitness / total_fitness);
+                        }
+
+                        // Add a mutation + current
+                        // TODO: Verify do we use 'current_policy_' in this case
+                        spline_point += dist(mt) + (*current_policy_)[i][j];
+
+                        // Set a newly generated point as current
+                        (*current_policy_)[i][j] = spline_point;
+                    }
                 }
             }
         }
@@ -333,6 +377,32 @@ namespace tol {
             }
             this->interpolateCubic(&policy_copy, policy.get());
         }
+    }
+
+    std::map<double, RLPower::PolicyPtr>::iterator RLPower::binarySelection() {
+        std::random_device rd;
+        std::mt19937 umt(rd());
+        std::uniform_int_distribution<unsigned int> udist(0, max_ranked_policies_ - 1);
+
+        // Select two different numbers from uniform distribution U(0, max_ranked_policies_ - 1)
+        unsigned int pindex1, pindex2;
+        pindex1 = udist(umt);
+        do {
+            pindex2 = udist(umt);
+        } while (pindex1 == pindex2);
+
+        // Set iterators to begin of the 'ranked_policies_' map
+        auto individual1 = ranked_policies_.begin();
+        auto individual2 = ranked_policies_.begin();
+
+        // Move iterators to indices positions
+        std::advance(individual1, pindex1);
+        std::advance(individual2, pindex2);
+
+        double fitness1 = individual1->first;
+        double fitness2 = individual2->first;
+
+        return fitness1 > fitness2 ? individual1 : individual2;
     }
 
     void RLPower::generateOutput(const double time,
