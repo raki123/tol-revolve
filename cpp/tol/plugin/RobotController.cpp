@@ -14,6 +14,8 @@
 #include <cstdlib>
 #include <string>
 
+#include <boost/make_shared.hpp>
+
 namespace tol {
 
 

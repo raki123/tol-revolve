@@ -20,6 +20,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <boost/make_shared.hpp>
+
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
 
