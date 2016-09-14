@@ -7,6 +7,7 @@
 
 #include "RobotController.h"
 #include "rlpower.h"
+#include "supg/supggenomemanager.h"
 #include "neat/accneat/src/neat.h"
 
 #include <iostream>
@@ -55,7 +56,10 @@ const char* getGeneticSearchType(const NEAT::GeneticSearchType value) {
 }
 
 RobotController::RobotController() {
-    AsyncNeat::Init();
+    AsyncNeat::Init(
+        std::unique_ptr<NEAT::GenomeManager>(
+            new SUPGGenomeManager()
+    ));
     unsigned long populationSize = 10;
     NEAT::GeneticSearchType geneticSearchType = NEAT::GeneticSearchType::PHASED;
 
@@ -89,7 +93,7 @@ void RobotController::Load(::gazebo::physics::ModelPtr _parent, sdf::ElementPtr 
 void RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
     //revolve::gazebo::RobotController::LoadBrain(sdf);
-    evaluator_ = std::make_shared<Evaluator>();
+    evaluator_ = boost::make_shared<Evaluator>();
 
 /* RLPOWER brian */
 //     brain_.reset(new tol::RLPower(this->model->GetName(), evaluator_, motors_, sensors_));
@@ -145,17 +149,17 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     //         #
     //         #
     //         #
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint Leg01Joint Leg02Joint
-//          {  .25,  0}, {  .5,  0}, {  .75,  0}, {  1,  0},
-//       // Leg10Joint Leg11Joint Leg12Joint
-//          { -.25,  0}, { -.5,  0}, { -.75,  0}, { -1,  0},
-//       // Leg20Joint Leg21Joint Leg22Joint
-//          {  0,  .25}, {  0,  .5}, {  0,  .75}, {  0,  1},
-//       // Leg30Joint Leg31Joint Leg32Joint
-//          {  0, -.25}, {  0, -.5}, {  0, -.75}, {  0, -1},
-//     } );
+    std::vector< std::vector< float> > coordinates
+    ( {
+      // Leg00Joint Leg01Joint Leg02Joint
+         {  .25,  0}, {  .5,  0}, {  .75,  0}, {  1,  0},
+      // Leg10Joint Leg11Joint Leg12Joint
+         { -.25,  0}, { -.5,  0}, { -.75,  0}, { -1,  0},
+      // Leg20Joint Leg21Joint Leg22Joint
+         {  0,  .25}, {  0,  .5}, {  0,  .75}, {  0,  1},
+      // Leg30Joint Leg31Joint Leg32Joint
+         {  0, -.25}, {  0, -.5}, {  0, -.75}, {  0, -1},
+    } );
 
     // GECKO 5
     // #   #
@@ -242,25 +246,25 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     //
     // # # # O # # #
     //
-    std::vector< std::vector< float> > coordinates
-    ( {
-      // Leg00Joint
-         { -.333, 0},
-      // Leg01Joint
-         { -.666, 0},
-      // Leg02Joint
-         {    -1, 0},
-      // Leg10Joint
-         { +.333, 0},
-      // Leg11Joint
-         { +.666, 0},
-      // Leg12Joint
-         {    +1, 0},
-    } );
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint
+//          { -.333, 0},
+//       // Leg01Joint
+//          { -.666, 0},
+//       // Leg02Joint
+//          {    -1, 0},
+//       // Leg10Joint
+//          { +.333, 0},
+//       // Leg11Joint
+//          { +.666, 0},
+//       // Leg12Joint
+//          {    +1, 0},
+//     } );
 
     // SNAKE 9
     //
-    // # # # O # # #
+    // # # # # O # # # #
     //
 //     std::vector< std::vector< float> > coordinates
 //     ( {
@@ -324,6 +328,31 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 //          {  0,  1}, {  0, .666}, { 0,  .333},
 //       // Leg30Joint Leg31Joint Leg32Joint
 //          {  0, -1}, {  0,-.666}, { 0,  .333},
+//     } );
+
+    // BABY 3
+    // #       #
+    // #       x
+    // #       #
+    // O # # # #
+    // #       #
+    // #       #
+    // #       #
+//     std::vector< std::vector<float> > coordinates
+//     ( {
+//       // Leg00Joint Leg001Joint Leg002Joint
+//          { -1, +.333}, { -1, +.666}, { -1, +1},
+//       // Leg01Joint Leg011Joint Leg012Joint
+//          { -1, -.333}, { -1, -.333}, { -1, -1},
+//       // BodyJoint0 BodyJoint1 BodyJoint2 BodyJoint3
+//          { -.666, 0},
+//          { -.333, 0},
+//          { +.333, 0},
+//          { +.666, 0},
+//       // Leg10Joint Leg101Joint Leg102Joint
+//          { +1, +.333}, { +1, +.666}, { +1, +1},
+//       // Leg11Joint Leg111Joint Leg112Joint
+//          { +1, -.333}, { +1, -.666}, { +1, -.9},
 //     } );
 
 

@@ -70,6 +70,7 @@ file(GLOB_RECURSE
     tol/plugin/neat/asyncneat.cpp
     tol/plugin/neat/neatevaluation.cpp
     tol/plugin/supg/supgneuron.cpp
+    tol/plugin/supg/supggenomemanager.cpp
 )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
@@ -148,12 +149,15 @@ target_link_libraries(tolrobotcontrol ${TOL_DEPS} accneat revolve-brain-static)
 target_link_libraries(tolworldcontrol ${TOL_DEPS} tolrobotcontrol)
 
 add_executable(testAsyncNeat tol/plugin/neat/test/testasyncneat.cpp)
+add_executable(testCustomGenomeManager tol/plugin/neat/test/testcustomgenomemanager.cpp)
 add_executable(testMultiNNSpecies tol/plugin/neat/test/testmultinnspeciesneat.cpp)
 add_executable(testSUPGBrain tol/plugin/test/testsupgbrain.cpp)
 target_link_libraries(testAsyncNeat tolrobotcontrol)
+target_link_libraries(testCustomGenomeManager tolrobotcontrol)
 target_link_libraries(testMultiNNSpecies tolrobotcontrol)
 target_link_libraries(testSUPGBrain tolrobotcontrol)
 add_test(testAsyncNeat testAsyncNeat)
+add_test(testCustomGenomeManager testCustomGenomeManager)
 add_test(testMultiNNSpecies testMultiNNSpecies)
 add_test(testSUPGBrain testSUPGBrain)
 

@@ -2,7 +2,7 @@
 #define EVALUATOR_H
 
 #include <brain/evaluator.h>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 namespace tol {
 
@@ -13,7 +13,7 @@ virtual double fitness();
 virtual void start();
 };
 
-typedef std::shared_ptr< tol::Evaluator > EvaluatorPtr;
+typedef boost::shared_ptr< tol::Evaluator > EvaluatorPtr;
 
 }
 

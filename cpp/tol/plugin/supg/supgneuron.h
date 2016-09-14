@@ -38,6 +38,7 @@ private:
     void load_coordinates();
     NEAT::real_t get_timer(float global_time);
 
+public:
     enum Input {
         TIMER = 0,
         COORDINATE_OFFSET = 1

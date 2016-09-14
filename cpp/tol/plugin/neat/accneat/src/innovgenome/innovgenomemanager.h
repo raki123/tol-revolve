@@ -7,6 +7,7 @@ namespace NEAT {
 
     class InnovGenomeManager : public GenomeManager {
         friend class GenomeManager;
+    protected:
         InnovGenomeManager();
     public:
         virtual ~InnovGenomeManager();
@@ -37,7 +38,7 @@ namespace NEAT {
 
         virtual void finalize_generation(bool new_fittest) override;
 
-    private:
+    protected:
         CreateInnovationFunc create_innov_func(Genome &g);
         bool is_mate_allowed();
         bool is_add_allowed();

@@ -43,6 +43,16 @@ public:
     };
 
     /**
+     * to be called before any AsyncNeat object can be used
+     *
+     * It initializes the environment with a personalized genome manager instead of the standard one.
+     * The delete of this object will be handled by AsyncNeat::CleanUp()
+     */
+    static void Init(std::unique_ptr<NEAT::GenomeManager> genome_manager) {
+        NEAT::env->genome_manager = genome_manager.release();
+    };
+
+    /**
      * to be called after all AsyncNeat object are not in use anymore
      */
     static void CleanUp() {

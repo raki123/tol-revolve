@@ -19,7 +19,7 @@ namespace tol {
 
 class RLPower : public revolve::gazebo::Brain, private revolve::brain::RLPower {
 public:
-    RLPower(std::string modelName, std::shared_ptr< tol::Evaluator > evaluator, std::vector< revolve::gazebo::MotorPtr >& actuators, std::vector< revolve::gazebo::SensorPtr >& sensors);
+    RLPower(std::string modelName, boost::shared_ptr< tol::Evaluator > evaluator, std::vector< revolve::gazebo::MotorPtr >& actuators, std::vector< revolve::gazebo::SensorPtr >& sensors);
 
     virtual ~RLPower();
 

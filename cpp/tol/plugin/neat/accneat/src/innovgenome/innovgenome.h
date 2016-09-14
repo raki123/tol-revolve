@@ -147,7 +147,7 @@ namespace NEAT {
 
         virtual void init_phenotype(class Network &net) override;
 
-    private:
+    public:
         void reset();
 
         static bool linklist_cmp(const InnovLinkGene &a, const InnovLinkGene &b) {

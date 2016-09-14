@@ -29,7 +29,7 @@ const std::vector< revolve::brain::ActuatorPtr > createWrapper(const std::vector
 {
     std::vector< revolve::brain::ActuatorPtr > result;
     for (int i=0; i<original.size(); i++) {
-        result.push_back(std::make_shared<tol::Actuator>(tol::Actuator(original[i])));
+        result.push_back(boost::make_shared<tol::Actuator>(tol::Actuator(original[i])));
     }
 
     return result;
@@ -39,7 +39,7 @@ const std::vector< revolve::brain::SensorPtr > createWrapper(const std::vector <
 {
     std::vector< revolve::brain::SensorPtr > result;
     for (int i=0; i<original.size(); i++) {
-        result.push_back(std::make_shared<tol::Sensor>(tol::Sensor(original[i])));
+        result.push_back(boost::make_shared<tol::Sensor>(tol::Sensor(original[i])));
     }
 
     return result;
@@ -47,7 +47,6 @@ const std::vector< revolve::brain::SensorPtr > createWrapper(const std::vector <
 
 RLPower::RLPower(std::string modelName, tol::EvaluatorPtr evaluator, std::vector< revolve::gazebo::MotorPtr >& actuators, std::vector< revolve::gazebo::SensorPtr >& sensors)
     : revolve::brain::RLPower(
-        modelName,
         evaluator,
         actuators.size(),
         sensors.size())

@@ -36,7 +36,7 @@ private:
         ignition::math::Pose3d currentPosition_;
         ignition::math::Pose3d previousPosition_;
     };
-    std::shared_ptr< Evaluator > evaluator_;
+    boost::shared_ptr< Evaluator > evaluator_;
 };
 
 } /* namespace tol */
