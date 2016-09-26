@@ -7,7 +7,7 @@
 
 #include "RobotController.h"
 #include "rlpower.h"
-#include "supg/supggenomemanager.h"
+#include "brain/supg/supggenomemanager.h"
 #include "neat/accneat/src/neat.h"
 
 #include <iostream>
@@ -151,17 +151,17 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     //         #
     //         #
     //         #
-    std::vector< std::vector< float> > coordinates
-    ( {
-      // Leg00Joint Leg01Joint Leg02Joint
-         {  .25,  0}, {  .5,  0}, {  .75,  0}, {  1,  0},
-      // Leg10Joint Leg11Joint Leg12Joint
-         { -.25,  0}, { -.5,  0}, { -.75,  0}, { -1,  0},
-      // Leg20Joint Leg21Joint Leg22Joint
-         {  0,  .25}, {  0,  .5}, {  0,  .75}, {  0,  1},
-      // Leg30Joint Leg31Joint Leg32Joint
-         {  0, -.25}, {  0, -.5}, {  0, -.75}, {  0, -1},
-    } );
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint Leg01Joint Leg02Joint
+//          {  .25,  0}, {  .5,  0}, {  .75,  0}, {  1,  0},
+//       // Leg10Joint Leg11Joint Leg12Joint
+//          { -.25,  0}, { -.5,  0}, { -.75,  0}, { -1,  0},
+//       // Leg20Joint Leg21Joint Leg22Joint
+//          {  0,  .25}, {  0,  .5}, {  0,  .75}, {  0,  1},
+//       // Leg30Joint Leg31Joint Leg32Joint
+//          {  0, -.25}, {  0, -.5}, {  0, -.75}, {  0, -1},
+//     } );
 
     // GECKO 5
     // #   #
@@ -268,25 +268,25 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     //
     // # # # # O # # # #
     //
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint
-//          { -.25, 0},
-//       // Leg01Joint
-//          { -.50, 0},
-//       // Leg02Joint
-//          { -.75, 0},
-//       // Leg03Joint
-//          {   -1, 0},
-//       // Leg10Joint
-//          { +.25, 0},
-//       // Leg11Joint
-//          { +.50, 0},
-//       // Leg12Joint
-//          { +.75, 0},
-//       // Leg13Joint
-//          {   +1, 0},
-//     } );
+    std::vector< std::vector< float> > coordinates
+    ( {
+      // Leg00Joint
+         { -.25, 0},
+      // Leg01Joint
+         { -.50, 0},
+      // Leg02Joint
+         { -.75, 0},
+      // Leg03Joint
+         {   -1, 0},
+      // Leg10Joint
+         { +.25, 0},
+      // Leg11Joint
+         { +.50, 0},
+      // Leg12Joint
+         { +.75, 0},
+      // Leg13Joint
+         {   +1, 0},
+    } );
 
     // BABY 1
     // #

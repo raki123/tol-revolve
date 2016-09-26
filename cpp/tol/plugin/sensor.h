@@ -24,6 +24,11 @@ virtual void read(double* input_vector)
     sensorPtr->read(input_vector);
 }
 
+virtual std::string sensorId() const
+{
+    return sensorPtr->sensorId();
+}
+
 private:
     revolve::gazebo::SensorPtr sensorPtr;
 };

@@ -67,8 +67,6 @@ file(GLOB_RECURSE
     tol/plugin/evaluator.cpp
     tol/plugin/rlpower.cpp
     tol/plugin/supgbrain.cpp
-    tol/plugin/neat/asyncneat.cpp
-    tol/plugin/neat/neatevaluation.cpp
     tol/plugin/supg/supgneuron.cpp
     tol/plugin/supg/supggenomemanager.cpp
 )
@@ -116,7 +114,7 @@ endif()
 include_directories(${GAZEBO_INCLUDE_DIRS})
 
 #### GSL ####
-# Gnu mathematical library
+# Gnu mathematical lxibrary
 find_package(GSL REQUIRED)
 
 # Add Gazebo's C++ flags
@@ -132,34 +130,18 @@ foreach(ITR ${GAZEBO_INCLUDE_DIRS})
 endforeach()
 include_directories(${GAZEBO_PROTO_INCLUDE})
 
-# add accneat
-add_subdirectory(tol/plugin/neat/accneat)
-#TODO make include path for accneat nicer
-include_directories(tol/plugin/neat/accneat/src)
-
 # add revolve neat
 add_subdirectory(../../revolve-brain/cpp revolve-brain)
 include_directories(../../revolve-brain/cpp)
+include_directories(../../revolve-brain/cpp/neat/accneat/src)
+
 
 # Set include dirs and dependencies
 include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH} ${GAZEBO_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS})
 set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES} ${GAZEBO_LIBRARIES} ${GSL_LIBRARIES})
 
-target_link_libraries(tolrobotcontrol ${TOL_DEPS} accneat revolve-brain-static)
+target_link_libraries(tolrobotcontrol ${TOL_DEPS} revolve-brain-static)
 target_link_libraries(tolworldcontrol ${TOL_DEPS} tolrobotcontrol)
-
-add_executable(testAsyncNeat tol/plugin/neat/test/testasyncneat.cpp)
-add_executable(testCustomGenomeManager tol/plugin/neat/test/testcustomgenomemanager.cpp)
-add_executable(testMultiNNSpecies tol/plugin/neat/test/testmultinnspeciesneat.cpp)
-add_executable(testSUPGBrain tol/plugin/test/testsupgbrain.cpp)
-target_link_libraries(testAsyncNeat tolrobotcontrol)
-target_link_libraries(testCustomGenomeManager tolrobotcontrol)
-target_link_libraries(testMultiNNSpecies tolrobotcontrol)
-target_link_libraries(testSUPGBrain tolrobotcontrol)
-add_test(testAsyncNeat testAsyncNeat)
-add_test(testCustomGenomeManager testCustomGenomeManager)
-add_test(testMultiNNSpecies testMultiNNSpecies)
-add_test(testSUPGBrain testSUPGBrain)
 
 # Evolution keys library
 find_package(Qt4)
@@ -171,4 +153,3 @@ add_library(tolinteractiveevolution SHARED ${headers_MOC} tol/plugin/Interactive
 
 target_link_libraries(tolinteractiveevolution ${GAZEBO_LIBRARIES} ${QT_LIBRARIES} ${PROTOBUF_LIBRARIES})
 
-add_subdirectory(tol/plugin/test)

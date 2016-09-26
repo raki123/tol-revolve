@@ -47,7 +47,10 @@ const std::vector< revolve::brain::SensorPtr > createWrapper(const std::vector <
     return result;
 }
 
-RLPower::RLPower(std::string modelName, tol::EvaluatorPtr evaluator, std::vector< revolve::gazebo::MotorPtr >& actuators, std::vector< revolve::gazebo::SensorPtr >& sensors)
+RLPower::RLPower(std::string modelName,
+                 tol::EvaluatorPtr evaluator,
+                 std::vector< revolve::gazebo::MotorPtr >& actuators,
+                 std::vector< revolve::gazebo::SensorPtr >& sensors)
     : revolve::brain::RLPower(
         evaluator,
         actuators.size(),
