@@ -7,6 +7,7 @@
 #include "actuator.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
+#include "helper.h"
 
 #include <algorithm>
 #include <stdexcept>
@@ -27,25 +28,6 @@
 
 using namespace tol;
 
-const std::vector< revolve::brain::ActuatorPtr > createWrapper(const std::vector < revolve::gazebo::MotorPtr > original)
-{
-    std::vector< revolve::brain::ActuatorPtr > result;
-    for (int i=0; i<original.size(); i++) {
-        result.push_back(boost::make_shared<tol::Actuator>(tol::Actuator(original[i])));
-    }
-
-    return result;
-}
-
-const std::vector< revolve::brain::SensorPtr > createWrapper(const std::vector < revolve::gazebo::SensorPtr > original)
-{
-    std::vector< revolve::brain::SensorPtr > result;
-    for (int i=0; i<original.size(); i++) {
-        result.push_back(boost::make_shared<tol::Sensor>(tol::Sensor(original[i])));
-    }
-
-    return result;
-}
 
 RLPower::RLPower(std::string modelName,
                  tol::EvaluatorPtr evaluator,
@@ -67,8 +49,8 @@ void RLPower::update(const std::vector <revolve::gazebo::MotorPtr> &actuators,
                         const std::vector <revolve::gazebo::SensorPtr> &sensors, double t, double step)
 {
     revolve::brain::RLPower::update(
-        createWrapper(actuators),
-        createWrapper(sensors),
+        Helper::createWrapper(actuators),
+        Helper::createWrapper(sensors),
         t, step
     );
 }

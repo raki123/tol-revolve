@@ -62,6 +62,7 @@ file(GLOB_RECURSE
 
 file(GLOB_RECURSE
     TOL_ROBOT_SRC
+    tol/plugin/helper.cpp
     tol/plugin/RobotController.cpp
     tol/plugin/fakebrain.cpp
     tol/plugin/evaluator.cpp
