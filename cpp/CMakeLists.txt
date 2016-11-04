@@ -60,8 +60,10 @@ file(GLOB_RECURSE
 
 file(GLOB_RECURSE
         TOL_ROBOT_SRC
+        tol/plugin/evaluator.cpp
         tol/plugin/RobotController.cpp
         tol/plugin/fakebrain.cpp
+        tol/plugin/helper.cpp
         tol/plugin/rlpower.cpp
         )
 
@@ -92,7 +94,7 @@ if (NOT DEFINED REVOLVE_INCLUDE_PATH)
     ExternalProject_Get_Property(revolve INSTALL_DIR)
     set(REVOLVE_INCLUDE_PATH ${INSTALL_DIR}/include)
     set(REVOLVE_LIBRARIES ${INSTALL_DIR}/lib/librevolve-gazebo.a ${INSTALL_DIR}/lib/librevolve-spec.a)
-#    add_dependencies(tolmodelcontrol revolve)
+    #    add_dependencies(tolmodelcontrol revolve)
 endif ()
 
 ### Include Gazebo as well
@@ -125,11 +127,15 @@ foreach (ITR ${GAZEBO_INCLUDE_DIRS})
 endforeach ()
 include_directories(${GAZEBO_PROTO_INCLUDE})
 
+# add revolve brain
+add_subdirectory(../../revolve-brain/cpp revolve-brain)
+include_directories(../../revolve-brain/cpp)
+
 # Set include dirs and dependencies
 include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH} ${GAZEBO_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS})
 set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES} ${GAZEBO_LIBRARIES} ${GSL_LIBRARIES})
 
-target_link_libraries(tolrobotcontrol ${TOL_DEPS})
+target_link_libraries(tolrobotcontrol ${TOL_DEPS} revolve-brain-static)
 target_link_libraries(tolworldcontrol ${TOL_DEPS} tolrobotcontrol)
 
 # Evolution keys library
