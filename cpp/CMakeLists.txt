@@ -92,7 +92,7 @@ if (NOT DEFINED REVOLVE_INCLUDE_PATH)
     ExternalProject_Get_Property(revolve INSTALL_DIR)
     set(REVOLVE_INCLUDE_PATH ${INSTALL_DIR}/include)
     set(REVOLVE_LIBRARIES ${INSTALL_DIR}/lib/librevolve-gazebo.a ${INSTALL_DIR}/lib/librevolve-spec.a)
-    add_dependencies(tolmodelcontrol revolve)
+#    add_dependencies(tolmodelcontrol revolve)
 endif ()
 
 ### Include Gazebo as well
