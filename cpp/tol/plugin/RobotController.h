@@ -10,6 +10,7 @@
 
 #include <revolve/gazebo/plugin/RobotController.h>
 #include "rlpower.h"
+#include "evaluator.h"
 
 namespace tol {
 
@@ -23,7 +24,7 @@ public:
     virtual void DoUpdate(const gazebo::common::UpdateInfo info);
 
 private:
-    class Evaluator : public RLPower::Evaluator {
+    class Evaluator : public tol::Evaluator {
     public:
         Evaluator();
         virtual void start();
@@ -34,7 +35,7 @@ private:
         ignition::math::Pose3d currentPosition_;
         ignition::math::Pose3d previousPosition_;
     };
-    std::shared_ptr< Evaluator > evaluator_;
+    boost::shared_ptr< Evaluator > evaluator_;
 };
 
 } /* namespace tol */

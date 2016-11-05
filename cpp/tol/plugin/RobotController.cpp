@@ -24,7 +24,7 @@ void RobotController::Load(::gazebo::physics::ModelPtr _parent, sdf::ElementPtr 
 void RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
     //revolve::gazebo::RobotController::LoadBrain(sdf);
-    evaluator_ = std::make_shared<Evaluator>();
+    evaluator_ = boost::make_shared<Evaluator>();
     if (!sdf->HasElement("rv:brain")) {
         std::cerr << "No robot brain detected, this is probably an error." << std::endl;
         return;
@@ -37,7 +37,7 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     }
 
     if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower") {
-        brain_.reset(new RLPower(this->model->GetName(), brain, evaluator_, motors_, sensors_));
+        brain_.reset(new tol::RLPower(this->model->GetName(), brain, evaluator_, motors_, sensors_));
     } else {
         std::cout << "Calling default ANN brain." << std::endl;
         revolve::gazebo::RobotController::LoadBrain(sdf);

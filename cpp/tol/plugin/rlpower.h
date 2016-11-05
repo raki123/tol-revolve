@@ -5,7 +5,11 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
 #define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
 
+#include "evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
+
+#include <string>
+#include <vector>
 
 #include <gazebo/gazebo.hh>
 #include <revolve/msgs/neural_net.pb.h>
@@ -19,14 +23,6 @@ namespace tol {
         typedef std::vector <Spline> Policy;
         typedef std::shared_ptr <Policy> PolicyPtr;
 
-        class Evaluator {
-        public:
-            virtual void start() = 0;
-
-            virtual double fitness() = 0;
-        };
-
-        typedef std::shared_ptr <Evaluator> EvaluatorPtr;
         typedef const std::shared_ptr<revolve::msgs::ModifyNeuralNetwork const> ConstModifyNeuralNetworkPtr;
 
         /**
@@ -41,7 +37,7 @@ namespace tol {
          */
         RLPower(std::string modelName,
                 sdf::ElementPtr brain,
-                EvaluatorPtr evaluator,
+                tol::EvaluatorPtr evaluator,
                 std::vector <revolve::gazebo::MotorPtr> &actuators,
                 std::vector <revolve::gazebo::SensorPtr> &sensors);
 
