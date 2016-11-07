@@ -49,6 +49,8 @@ namespace tol {
                             const std::vector<revolve::gazebo::SensorPtr> &sensors,
                             double t,
                             double step);
+
+        static Config parseSDF(sdf::ElementPtr brain);
     };
 
 } /* namespace tol */
