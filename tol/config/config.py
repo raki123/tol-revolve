@@ -197,6 +197,42 @@ parser.add_argument(
     help="Host:port of the body analyzer (set to empty string to ignore)."
 )
 
+parser.add_argument(
+    '--gazebo-cmd',
+    default='gzserver', type=str,
+    help="Determine wether to use gzserver or gazebo."
+)
+
+parser.add_argument(
+    '--world',
+    default='offline-evolve.world', type=str,
+    help="Determine which world to use."
+)
+
+parser.add_argument(
+    '--manager',
+    default='offline_evolve.py', type=str,
+    help="Determine which manager to use."
+)
+
+parser.add_argument(
+    '--robot-name',
+    default="spider", type=str,
+    help="Name of robot."
+)
+
+parser.add_argument(
+    '--experiment-round',
+    default="1", type=str,
+    help="Round of robot experiment."
+)
+
+parser.add_argument(
+    '--brain-conf-path',
+    default="rlpower.cfg", type=str,
+    help="Path to brain configuration."
+)
+
 # Directory where robot information will be written. The system writes
 # two main CSV files:
 # - The `robots.csv` file containing all the basic robot information, one line
@@ -280,6 +316,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--fitness-limit',
+    default=1.0, type=float,
+    help="Minimum fitness value that is considered unrealistic and should probably be attributed"
+         " to a simulator instability. A fitness of zero is returned in this case."
+)
+
+parser.add_argument(
     '--tournament-size',
     default=4, type=int,
     help="The size of the random tournament used for parent selection, if"
@@ -293,6 +336,14 @@ parser.add_argument(
     '--max-mating-attempts',
     default=5, type=int,
     help="Maximum number of mating attempts between two parents."
+)
+
+
+parser.add_argument(
+    '--world-step-size',
+    default=0.003, type=float,
+    help="The physics step size configured in the simulation world file. This needs to match"
+         " in order to configure some physics parameters."
 )
 
 

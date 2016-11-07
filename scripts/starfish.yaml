@@ -1,0 +1,132 @@
+---
+body:
+  id: Core
+  type: Core
+  children:
+    0:
+      id: Hip1
+      type: ActiveHinge
+      orientation: 90
+      children:
+        1:
+          id: UpperLeg1
+          type: FixedBrick
+          orientation: 90
+          children:
+            1:
+              id: Knee1
+              type: ActiveHinge
+              children:
+                1:
+                  id: LowerLeg1
+                  type: FixedBrick
+                  children:
+                    1:
+                      id: TS1
+                      type: TouchSensor
+    1:
+      id: Hip2
+      type: ActiveHinge
+      orientation: 90
+      children:
+        1:
+          id: UpperLeg2
+          type: FixedBrick
+          orientation: 90
+          children:
+            1:
+              id: Knee2
+              type: ActiveHinge
+              children:
+                1:
+                  id: LowerLeg2
+                  type: FixedBrick
+    2:
+      id: Hip3
+      type: ActiveHinge
+      orientation: 90
+      children:
+        1:
+          id: UpperLeg3
+          type: FixedBrick
+          orientation: 90
+          children:
+            1:
+              id: Knee3
+              type: ActiveHinge
+              children:
+                1:
+                  id: LowerLeg3
+                  type: FixedBrick
+                  children:
+                    1:
+                      id: TS2
+                      type: TouchSensor
+    3:
+      id: Hip4
+      type: ActiveHinge
+      orientation: 90
+      children:
+        1:
+          id: UpperLeg4
+          type: FixedBrick
+          orientation: 90
+          children:
+            1:
+              id: Knee4
+              type: ActiveHinge
+              children:
+                1:
+                  id: LowerLeg4
+                  type: FixedBrick
+
+brain:
+  params:
+    # Hip1 0 oscillator 1.00001192093 -0.222714111209 0.999634742737
+    Hip1-out-0:
+      type: Oscillator
+      period: 1.00001192093
+      phase_offset: -0.222714111209
+      amplitude: 0.999634742737
+    # Hip2 0 oscillator 1.00002563 0.351269364357 0.997304320335
+    Hip2-out-0:
+      type: Oscillator
+      period: 1.00002563
+      phase_offset: 0.351269364357
+      amplitude: 0.997304320335
+    # Hip3 0 oscillator 1.0003041029 -0.155001461506 0.998930215836
+    Hip3-out-0:
+      type: Oscillator
+      period: 1.0003041029
+      phase_offset: -0.155001461506
+      amplitude: 0.999634742737
+    # Hip4 0 oscillator 1.00000095367 0.286795049906 0.999082744122
+    Hip4-out-0:
+      type: Oscillator
+      period: 1.00000095367
+      phase_offset: 0.286795049906
+      amplitude: 0.999082744122
+    # Knee1 0 oscillator 1.00000274181 -0.880295932293 0.999992489815
+    Knee1-out-0:
+      type: Oscillator
+      period: 1.00000274181
+      phase_offset: -0.880295932293
+      amplitude: 0.999992489815
+    # Knee2 0 oscillator 1.00011503696 0.908324718475 0.88366740942
+    Knee2-out-0:
+      type: Oscillator
+      period: 1.00011503696
+      phase_offset: 0.908324718475
+      amplitude: 0.88366740942
+    # Knee3 0 oscillator 1.0133523941 -0.333022326231 0.998555779457
+    Knee3-out-0:
+      type: Oscillator
+      period: 1.0133523941
+      phase_offset: -0.333022326231
+      amplitude: 0.998555779457
+    # Knee4 0 oscillator 1.0 0.451755940914 0.999317109585
+    Knee4-out-0:
+      type: Oscillator
+      period: 1.0
+      phase_offset: 0.451755940914
+      amplitude: 0.999317109585

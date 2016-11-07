@@ -145,7 +145,7 @@ class World(WorldManager):
         :return: Future with a list of valid robot trees and corresponding
                  bounding boxes.
         """
-        logger.debug("Generating population...")
+        logger.debug("Generating population of size %d..." % n)
         trees = []
         bboxes = []
 

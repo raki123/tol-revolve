@@ -10,7 +10,8 @@ from revolve.util import Supervisor
 from online_evolve import parser
 
 os.environ['GAZEBO_PLUGIN_PATH'] = os.path.join(tol_path, 'build')
-os.environ['GAZEBO_MODEL_PATH'] = os.path.join(tol_path, 'tools', 'models')
+os.environ['GAZEBO_MODEL_PATH'] = os.path.join(tol_path, 'tools', 'models') + \
+                                  ':' + os.path.join(rv_path, 'tools', 'models')
 
 
 class OnlineEvolutionSupervisor(Supervisor):

@@ -10,9 +10,15 @@ library(reshape)
 read_dir_data <- function(odir) {
   tdata = read.csv(paste(odir, "/generations.csv", sep=""), head=TRUE);
   tdata$exp = as.factor(odir);
+  if (tdata[1,]$exp == "plus-gradual") {
+    tdata$births = tdata$gen + 15;
+  } else {
+    tdata$births = tdata$gen * 15 + 15;
+  }
+  
   rdata = read.csv(paste(odir, "/robots.csv", sep=""), head=TRUE);
   
-  return(merge(tdata, rdata, by.x=c("robot_id", "run"), by.y=c("id", "run")));
+  return(merge(tdata[tdata$births<=3000,], rdata, by.x=c("robot_id", "run"), by.y=c("id", "run")));
 }
 
 dirs = list.files(".");
@@ -24,7 +30,7 @@ data$fitness = 5*data$dvel + data$vel;
 # Remove outliers
 data = data[data$fitness<1,];
 
-cdata = ddply(data, c("gen", "exp"), summarise, 
+cdata = ddply(data, c("births", "exp"), summarise, 
               fit=mean(fitness), fsd=sd(fitness), 
               ext=mean(extremity_count), esd=sd(extremity_count),
               joints=mean(joint_count), jsd=sd(joint_count),
@@ -53,7 +59,7 @@ cdata6$plot = as.factor("# of hidden neurons");
 cdata7$plot = as.factor("# of connections");
 
 # Fitness over generations
-ggplot(cdata, aes(gen)) +
+ggplot(cdata, aes(births)) +
   facet_grid(plot~., scale="free") +
   geom_line(aes(y=fit, colour=exp)) +
   geom_ribbon(aes(ymin=fit-fsd, ymax=fit+fsd, fill=exp), alpha=0.1, linetype=0) +
@@ -81,10 +87,10 @@ ggplot(cdata, aes(gen)) +
   
   scale_fill_discrete(name="Experiment") +
   scale_colour_discrete(name="Experiment") +
-  xlab("Generation") +
+  xlab("# of births") +
   ylab("");
 
-last_gens = cdata[cdata$gen==max(cdata$gen),];
+#last_gens = cdata[cdata$gen==max(cdata$gen),];
 
 # Retrieve all the best robots per experiment
 # See http://stackoverflow.com/questions/6289538/aggregate-a-dataframe-on-a-given-column-and-display-another-column
