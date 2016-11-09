@@ -4,25 +4,8 @@
 
 #include "rlpower.h"
 #include "helper.h"
-#include "sensor.h"
-#include "actuator.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
-
-#include <algorithm>
-#include <stdexcept>
-#include <cstdlib>
-#include <map>
-#include <string>
-#include <sstream>
-#include <cmath>
-
-#include <random>
-#include <iostream>
-#include <fstream>
-
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_spline.h>
 
 namespace tol {
 
