@@ -89,6 +89,9 @@ namespace tol {
         config.update_step = brain->HasAttribute("update_step") ?
                              std::stoul(brain->GetAttribute("update_step")->GetAsString()) :
                              RLPower::UPDATE_STEP;
+        config.policy_load_path = brain->HasAttribute("policy_load_path") ?
+                                  brain->GetAttribute("policy_load_path")->GetAsString() : "";
+
         return config;
     }
 
