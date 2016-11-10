@@ -42,6 +42,7 @@ os.environ['GAZEBO_MODEL_PATH'] = os.path.join(tol_path, 'tools', 'models') + \
 
 supervisor = OfflineEvolutionSupervisor(
     manager_cmd=[sys.executable, args.manager,
+                 "--load-controller", args.load_controller,
                  "--robot-name", args.robot_name,
                  "--experiment-round", args.experiment_round,
                  "--brain-conf-path", args.brain_conf_path],

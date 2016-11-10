@@ -233,6 +233,12 @@ parser.add_argument(
     help="Path to brain configuration."
 )
 
+parser.add_argument(
+    '--load-controller',
+    default="", type=str,
+    help="Path to controller data."
+)
+
 # Directory where robot information will be written. The system writes
 # two main CSV files:
 # - The `robots.csv` file containing all the basic robot information, one line

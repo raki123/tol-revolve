@@ -9,12 +9,13 @@ PROGNAME=$(basename $0)
 robot_list=( spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC )
 
 config=rlpower.cfg
+gz_command=gzserver
+load_controller=
 manager=single_robot_manager.py
-world=gait-learning.world
+no_experiments=10
 output=output
 restore=restore
-gz_command=gzserver
-no_experiments=10
+world=gait-learning.world
 
 function error_exit() {
     echo "${PROGNAME}: ${1:-"Unknown Error"}" 1 >&2
@@ -24,14 +25,15 @@ function error_exit() {
 function help() {
     echo "Usage: ${PROGNAME} [args...]"
     echo "Arguments:"
-    echo " -c | --config          Path to robot brain config file"
+    echo " -c | --config          Path to a robot brain config file"
     echo " -g | --gzcommand       Gazebo command [gzserver|gazebo] Default: gzserver"
     echo " -h | --help            Help page"
-    echo " -m | --manager         Name of script that controls robots and the environment"
+    echo " -l | --load            Path to a robot controller file"
+    echo " -m | --manager         Name of a script that controls robots and the environment"
     echo " -n | --no-experiments  Number of experiment repetitions"
-    echo " -o | --output          Name of the output directory"
-    echo " -r | --restore         Name of the restore directory"
-    echo " -w | --world           Name of world file"
+    echo " -o | --output          Name of a output directory"
+    echo " -r | --restore         Name of a restore directory"
+    echo " -w | --world           Name of a world file"
 
     exit 0
 }
@@ -50,6 +52,7 @@ function main() {
                 -c | --config) local config=${parameter} ;;
                 -g | --gzcommand) local gz_command=${parameter} ;;
                 -h | --help) help ;;
+                -l | --load) local load_controller=${parameter} ;;
                 -m | --manager) local manager=${parameter} ;;
                 -n | --no-experiments) local no_experiments=${parameter} ;;
                 -o | --output) local output=${parameter} ;;
@@ -66,6 +69,7 @@ function main() {
         for (( i = 1; i <= ${no_experiments}; ++ i ))
         do
             python start.py \
+                --load-controller ${load_controller} \
                 --manager ${manager} \
                 --world ${world} \
                 --output ${output} \
