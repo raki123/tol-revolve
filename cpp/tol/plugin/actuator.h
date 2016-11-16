@@ -20,9 +20,6 @@ namespace tol {
             double *output_copy = new double[size];
 
             for (unsigned int i=0; i<size; i++) {
-            }
-
-            for (unsigned int i=0; i<size; i++) {
                 output_copy[i] = (output_vector[i] + 1) / 2;
             }
 
