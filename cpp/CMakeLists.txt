@@ -65,6 +65,7 @@ file(GLOB_RECURSE
         tol/plugin/fakebrain.cpp
         tol/plugin/helper.cpp
         tol/plugin/rlpower.cpp
+        tol/plugin/mlmpcpgbrain.cpp
         )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})

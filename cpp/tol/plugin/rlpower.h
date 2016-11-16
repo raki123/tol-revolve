@@ -33,8 +33,8 @@ namespace tol {
         RLPower(std::string modelName,
                 sdf::ElementPtr brain,
                 tol::EvaluatorPtr evaluator,
-                std::vector<revolve::gazebo::MotorPtr> &actuators,
-                std::vector<revolve::gazebo::SensorPtr> &sensors);
+                unsigned int n_actuators,
+                unsigned int n_sensors);
 
         virtual ~RLPower();
 

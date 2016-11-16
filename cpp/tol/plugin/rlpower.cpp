@@ -29,14 +29,14 @@ namespace tol {
     RLPower::RLPower(std::string modelName,
                      sdf::ElementPtr brain,
                      EvaluatorPtr evaluator,
-                     std::vector<revolve::gazebo::MotorPtr> &actuators,
-                     std::vector<revolve::gazebo::SensorPtr> &sensors) :
+                     unsigned int n_actuators,
+                     unsigned int n_sensors) :
             revolve::brain::RLPower(
                     modelName,
                     parseSDF(brain),
                     evaluator,
-                    actuators.size(),
-                    sensors.size()
+                    n_actuators,
+                    n_sensors
             ) { }
 
     RLPower::~RLPower() { }

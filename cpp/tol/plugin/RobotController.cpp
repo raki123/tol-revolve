@@ -7,8 +7,12 @@
 
 #include "RobotController.h"
 #include "rlpower.h"
+#include "mlmpcpgbrain.h"
 
 #include <iostream>
+#include <exception>
+#include <revolve/gazebo/motors/Motor.h>
+#include <revolve/gazebo/sensors/VirtualSensor.h>
 
 namespace tol {
 
@@ -23,24 +27,49 @@ void RobotController::Load(::gazebo::physics::ModelPtr _parent, sdf::ElementPtr 
 
 void RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
-    evaluator_ = boost::make_shared<Evaluator>();
+    try {
+        evaluator_ = boost::make_shared<Evaluator>();
 
-    if (!sdf->HasElement("rv:brain")) {
-        std::cerr << "No robot brain detected, this is probably an error." << std::endl;
-        return;
-    }
-    auto brain = sdf->GetElement("rv:brain");
+//         if (!sdf->HasElement("rv:brain")) {
+//             std::cerr << "No robot brain detected, this is probably an error." << std::endl;
+//             return;
+//         }
+//         auto brain = sdf->GetElement("rv:brain");
+//
+//         if (!brain->HasAttribute("algorithm")) {
+//             std::cerr << "Brain does not define type, this is probably an error." << std::endl;
+//             return;
+//         }
 
-    if (!brain->HasAttribute("algorithm")) {
-        std::cerr << "Brain does not define type, this is probably an error." << std::endl;
-        return;
-    }
+        unsigned int motor_n = 0; //motors_.size();
+        for (const auto &motor : motors_)
+            motor_n += motor->outputs();
+        unsigned int sensor_n = 0; //sensors_.size();
+        for (const auto &sensor : sensors_)
+            sensor_n += sensor->inputs();
 
-    if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower") {
-        brain_.reset(new tol::RLPower(this->model->GetName(), brain, evaluator_, motors_, sensors_));
-    } else {
-        std::cout << "Calling default ANN brain." << std::endl;
-        revolve::gazebo::RobotController::LoadBrain(sdf);
+//         std::string algorithm = brain->GetAttribute("algorithm")->GetAsString();
+//         if ( algorithm == "rlpower") {
+//             brain_.reset(new tol::RLPower(this->model->GetName(),
+//                                         brain,
+//                                         evaluator_,
+//                                         motor_n,
+//                                         sensor_n));
+//
+//         } else { if ( algorithm == "mlmp-cpg") {
+            std::cerr << "###########################Using MlmpCPGBrain" << std::endl;
+
+            brain_.reset(new tol::MlmpCPGBrain(this->model->GetName(),
+                                            evaluator_,
+                                            motor_n,
+                                            sensor_n));
+//         } else {
+//             std::cout << "Calling default ANN brain." << std::endl;
+//             revolve::gazebo::RobotController::LoadBrain(sdf);
+//         }
+    } catch (std::exception &e) {
+        std::cerr << "Exception occurred while running RobotController::LoadBrain:\n"
+                  << "exception: " << e.what() << std::endl;
     }
 }
 
