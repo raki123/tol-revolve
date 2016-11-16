@@ -12,6 +12,8 @@
 #include "rlpower.h"
 #include "evaluator.h"
 
+#include <boost/make_shared.hpp>
+
 namespace tol {
 
 class RobotController: public revolve::gazebo::RobotController {

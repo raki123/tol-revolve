@@ -1,7 +1,7 @@
 from revolve.build.sdf import RobotBuilder, BodyBuilder, NeuralNetBuilder, BasicBattery
 from revolve.angle.robogen.util import apply_surface_parameters
 from sdfbuilder import SDF
-from ..spec import get_body_spec, get_brain_spec
+from ..spec import get_body_spec, get_brain_spec, get_extended_brain_spec
 
 
 def get_builder(conf):
@@ -10,7 +10,7 @@ def get_builder(conf):
     :return:
     """
     body_spec = get_body_spec(conf)
-    brain_spec = get_brain_spec(conf)
+    brain_spec = get_extended_brain_spec(conf)
     return RobotBuilder(BodyBuilder(body_spec, conf), NeuralNetBuilder(brain_spec))
 
 

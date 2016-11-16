@@ -24,6 +24,7 @@
 #include "sensor.h"
 
 #include <vector>
+#include <boost/make_shared.hpp>
 
 namespace tol {
 
