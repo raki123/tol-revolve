@@ -68,8 +68,8 @@ namespace tol {
         config.evaluation_rate = brain->HasAttribute("evaluation_rate") ?
                                  std::stod(brain->GetAttribute("evaluation_rate")->GetAsString()) :
                                  RLPower::EVALUATION_RATE;
-        config.intepolation_spline_size = brain->HasAttribute("intepolation_spline_size") ?
-                                          std::stoul(brain->GetAttribute("intepolation_spline_size")->GetAsString()) :
+        config.interpolation_spline_size = brain->HasAttribute("interpolation_spline_size") ?
+                                          std::stoul(brain->GetAttribute("interpolation_spline_size")->GetAsString()) :
                                           RLPower::INTERPOLATION_CACHE_SIZE;
         config.max_evaluations = brain->HasAttribute("max_evaluations") ?
                                  std::stoul(brain->GetAttribute("max_evaluations")->GetAsString()) :
