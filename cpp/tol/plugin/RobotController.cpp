@@ -7,7 +7,7 @@
 
 #include "RobotController.h"
 #include "rlpower.h"
-#include "ExtendedNeuralNetwork.h"
+#include "extended_neural_network.h"
 
 #include <iostream>
 

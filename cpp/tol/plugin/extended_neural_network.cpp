@@ -1,4 +1,4 @@
-#include "ExtendedNeuralNetwork.h"
+#include "extended_neural_network.h"
 #include "helper.h"
 #include "sensor.h"
 #include "actuator.h"
