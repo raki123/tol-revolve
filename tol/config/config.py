@@ -227,6 +227,12 @@ parser.add_argument(
     help="Round of robot experiment."
 )
 
+parser.add_argument(
+    '--brain-conf-path',
+    default="rlpower.cfg", type=str,
+    help="Path to brain configuration."
+)
+
 # Directory where robot information will be written. The system writes
 # two main CSV files:
 # - The `robots.csv` file containing all the basic robot information, one line
@@ -335,7 +341,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--world-step-size',
-    default=0.0025, type=float,
+    default=0.003, type=float,
     help="The physics step size configured in the simulation world file. This needs to match"
          " in order to configure some physics parameters."
 )

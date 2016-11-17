@@ -9,8 +9,8 @@ namespace tol {
 class Evaluator : public revolve::brain::Evaluator
 {
 public:
-virtual double fitness();
-virtual void start();
+    virtual double fitness();
+    virtual void start();
 };
 
 typedef boost::shared_ptr< tol::Evaluator > EvaluatorPtr;

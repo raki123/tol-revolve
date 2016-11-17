@@ -31,7 +31,7 @@ def run():
     world = yield From(OnlineEvoManager.create(conf))
     yield From(wait_for(world.pause(False)))
 
-    population_sizes = [5, 10, 15, 20, 25, 30]
+    population_sizes = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
     sim_time = 5
     runs = 20
 

@@ -19,21 +19,37 @@ namespace tol {
 
 class RLPower : public revolve::gazebo::Brain, private revolve::brain::RLPower {
 public:
+    /**
+     * The RLPower constructor reads out configuration file, determines which algorithm type to apply and
+     * initialises new policy.
+     * @param modelName: name of a robot
+     * @param brain: configuration file
+     * @param evaluator: pointer to fitness evaluator
+     * @param n_actuators: number of actuators
+     * @param n_sensors: number of sensors
+     * @return pointer to the RLPower class object
+     */
     RLPower(std::string modelName,
-            EvaluatorPtr evaluator,
-            std::vector< revolve::gazebo::MotorPtr >& actuators,
-            std::vector< revolve::gazebo::SensorPtr >& sensors);
+            sdf::ElementPtr brain,
+            tol::EvaluatorPtr evaluator,
+            std::vector<revolve::gazebo::MotorPtr> &actuators,
+            std::vector<revolve::gazebo::SensorPtr> &sensors);
 
     virtual ~RLPower();
 
     /**
-        * @param Motor list
-        * @param Sensor list
-        */
-    virtual void update(const std::vector <revolve::gazebo::MotorPtr> &actuators,
-                        const std::vector <revolve::gazebo::SensorPtr> &sensors,
-                        double t, double step) override;
+     * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy
+     * @param actuators: vector list of robot's actuators
+     * @param sensors: vector list of robot's sensors
+     * @param t:
+     * @param step:
+     */
+    virtual void update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+                        const std::vector<revolve::gazebo::SensorPtr> &sensors,
+                        double t,
+                        double step);
 
+    static Config parseSDF(sdf::ElementPtr brain);
 };
 
 } /* namespace tol */

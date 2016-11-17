@@ -1,6 +1,10 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
   <world name="default">
+      <scene>
+        <origin_visual>0</origin_visual>
+        <grid>0</grid>
+    </scene>
     <physics type="ode">
       <max_step_size>0.003</max_step_size>
       <real_time_update_rate>333</real_time_update_rate>
@@ -27,6 +31,17 @@
     <include>
       <uri>model://tol_ground</uri>
     </include>
+    <include>
+      <uri>model://test_bot</uri>
+    </include>
+
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>0.407182 -0.446632 1.00088 0 1.06364 2.56819</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
 
     <plugin name="tol-control" filename="libtolworldcontrol.so" />
   </world>

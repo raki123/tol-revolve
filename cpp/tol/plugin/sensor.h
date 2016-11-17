@@ -10,24 +10,20 @@ class Sensor : public revolve::brain::Sensor
 {
 
 public:
-explicit Sensor(revolve::gazebo::SensorPtr sensorPtr)
- : sensorPtr(sensorPtr)
-{}
+    explicit Sensor(revolve::gazebo::SensorPtr sensorPtr)
+            : sensorPtr(sensorPtr) {}
 
-virtual unsigned int inputs() const
-{
-    return sensorPtr->inputs();
-}
+    virtual unsigned int inputs() const {
+        return sensorPtr->inputs();
+    }
 
-virtual void read(double* input_vector)
-{
-    sensorPtr->read(input_vector);
-}
+    virtual void read(double *input_vector) {
+        sensorPtr->read(input_vector);
+    }
 
-virtual std::string sensorId() const
-{
-    return sensorPtr->sensorId();
-}
+    virtual std::string sensorId() const {
+        return sensorPtr->sensorId();
+    }
 
 private:
     revolve::gazebo::SensorPtr sensorPtr;

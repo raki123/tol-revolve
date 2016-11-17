@@ -20,6 +20,8 @@ import logging
 import trollius
 from trollius import From, Return
 
+sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../../')
+
 from sdfbuilder import Pose
 from sdfbuilder.math import Vector3
 

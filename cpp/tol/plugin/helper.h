@@ -27,16 +27,18 @@
 
 namespace tol {
 
-class Helper
-{
+class Helper {
 public:
-    static const std::vector< revolve::brain::ActuatorPtr > createWrapper(const std::vector < revolve::gazebo::MotorPtr > &original);
+    static const std::vector <revolve::brain::ActuatorPtr>
+    createWrapper(const std::vector <revolve::gazebo::MotorPtr> &original);
 
-    static const std::vector< revolve::brain::SensorPtr > createWrapper(const std::vector < revolve::gazebo::SensorPtr > &original);
+    static const std::vector <revolve::brain::SensorPtr>
+    createWrapper(const std::vector <revolve::gazebo::SensorPtr> &original);
 
 private:
     explicit Helper() {}
 };
+
 }
 
 #endif // HELPER_H

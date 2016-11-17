@@ -1,0 +1,1 @@
+watchmedo shell-command --patterns="*.jpg" --wait --drop --ignore-directories --command='bash /home/elte/mt/tol/tools/screenshot-tools/processor "${watch_event_type}" "${watch_src_path}"' /home/elte/.gazebo/pictures
