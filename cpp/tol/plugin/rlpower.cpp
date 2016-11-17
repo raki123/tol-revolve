@@ -9,18 +9,6 @@
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
-#include <algorithm>
-#include <stdexcept>
-#include <cstdlib>
-#include <map>
-#include <string>
-#include <sstream>
-#include <cmath>
-
-#include <random>
-#include <iostream>
-#include <fstream>
-
 using namespace tol;
 
 RLPower::RLPower(std::string modelName,
