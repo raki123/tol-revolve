@@ -7,7 +7,7 @@
 
 #include "RobotController.h"
 #include "rlpower.h"
-#include "extended_neural_network.h"
+#include "simple_split_brain.h"
 
 #include <iostream>
 
@@ -24,6 +24,8 @@ void RobotController::Load(::gazebo::physics::ModelPtr _parent, sdf::ElementPtr 
 
 void RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
+      std::cout << "i get here 0\n";
+      double asd = 3/0;
     evaluator_ = boost::make_shared<Evaluator>();
 
     if (!sdf->HasElement("rv:brain")) {
@@ -36,9 +38,10 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
         std::cerr << "Brain does not define type, this is probably an error." << std::endl;
         return;
     }
-
+    std::cout << "i get here 0\n";
     if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower") {
-        brain_.reset(new tol::ExtendedNeuralNetwork(this->model->GetName(), evaluator_, brain, motors_, sensors_));
+       // brain_.reset(new tol::ExtendedNeuralNetwork(this->model->GetName(), evaluator_, brain, motors_, sensors_));
+      brain_.reset(new tol::RLPower(this->model->GetName(),  brain,evaluator_, motors_, sensors_));
     } else {
         std::cout << "Calling default ANN brain." << std::endl;
         revolve::gazebo::RobotController::LoadBrain(sdf);

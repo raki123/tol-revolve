@@ -1,0 +1,659 @@
+body:
+  children:
+    0:
+      children:
+        1:
+          children:
+            1:
+              children:
+                1:
+                  id: Leg01
+                  label: ''
+                  orientation: 0
+                  params:
+                    blue: 0.5
+                    green: 0.5
+                    red: 0.5
+                  slot: 0
+                  type: FixedBrick
+              id: Leg01Joint
+              label: ''
+              orientation: 0
+              params:
+                blue: 0.5
+                green: 0.5
+                red: 0.5
+              slot: 0
+              type: ActiveHinge
+          id: Leg00
+          label: ''
+          orientation: -90
+          params:
+            blue: 0.5
+            green: 0.5
+            red: 0.5
+          slot: 0
+          type: FixedBrick
+      id: Leg00Joint
+      label: ''
+      orientation: 90
+      params:
+        blue: 0.5
+        green: 0.5
+        red: 0.5
+      slot: 0
+      type: ActiveHinge
+    1:
+      children:
+        1:
+          children:
+            1:
+              children:
+                1:
+                  id: Leg11
+                  label: ''
+                  orientation: 0
+                  params:
+                    blue: 0.5
+                    green: 0.5
+                    red: 0.5
+                  slot: 0
+                  type: FixedBrick
+              id: Leg11Joint
+              label: ''
+              orientation: 0
+              params:
+                blue: 0.5
+                green: 0.5
+                red: 0.5
+              slot: 0
+              type: ActiveHinge
+          id: Leg10
+          label: ''
+          orientation: -90
+          params:
+            blue: 0.5
+            green: 0.5
+            red: 0.5
+          slot: 0
+          type: FixedBrick
+      id: Leg10Joint
+      label: ''
+      orientation: 90
+      params:
+        blue: 0.5
+        green: 0.5
+        red: 0.5
+      slot: 0
+      type: ActiveHinge
+    2:
+      children:
+        1:
+          children:
+            1:
+              children:
+                1:
+                  id: Leg21
+                  label: ''
+                  orientation: 0
+                  params:
+                    blue: 0.5
+                    green: 0.5
+                    red: 0.5
+                  slot: 0
+                  type: FixedBrick
+              id: Leg21Joint
+              label: ''
+              orientation: 0
+              params:
+                blue: 0.5
+                green: 0.5
+                red: 0.5
+              slot: 0
+              type: ActiveHinge
+          id: Leg20
+          label: ''
+          orientation: -90
+          params:
+            blue: 0.5
+            green: 0.5
+            red: 0.5
+          slot: 0
+          type: FixedBrick
+      id: Leg20Joint
+      label: ''
+      orientation: 90
+      params:
+        blue: 0.5
+        green: 0.5
+        red: 0.5
+      slot: 0
+      type: ActiveHinge
+    3:
+      children:
+        1:
+          children:
+            1:
+              children:
+                1:
+                  id: Leg31
+                  label: ''
+                  orientation: 0
+                  params:
+                    blue: 0.5
+                    green: 0.5
+                    red: 0.5
+                  slot: 0
+                  type: FixedBrick
+              id: Leg31Joint
+              label: ''
+              orientation: 0
+              params:
+                blue: 0.5
+                green: 0.5
+                red: 0.5
+              slot: 0
+              type: ActiveHinge
+          id: Leg30
+          label: ''
+          orientation: -90
+          params:
+            blue: 0.5
+            green: 0.5
+            red: 0.5
+          slot: 0
+          type: FixedBrick
+      id: Leg30Joint
+      label: ''
+      orientation: 90
+      params:
+        blue: 0.5
+        green: 0.5
+        red: 0.5
+      slot: 0
+      type: ActiveHinge
+  id: Core
+  label: ''
+  orientation: 0
+  params:
+    blue: 0.5
+    green: 0.5
+    red: 0.5
+  type: Core
+brain:
+  connections:
+  - dst: Leg00Joint-cpg-0
+    socket: from_x
+    src: Leg00Joint-cpg-1
+    weight: 1.0
+  - dst: Leg00Joint-cpg-1
+    socket: from_v
+    src: Leg00Joint-cpg-0
+    weight: 1.0
+  - dst: Leg00Joint-out-0
+    src: Leg00Joint-cpg-0
+    weight: 1.0
+  - dst: Leg01Joint-cpg-2
+    socket: from_x
+    src: Leg01Joint-cpg-3
+    weight: 1.0
+  - dst: Leg01Joint-cpg-3
+    socket: from_v
+    src: Leg01Joint-cpg-2
+    weight: 1.0
+  - dst: Leg01Joint-out-0
+    src: Leg01Joint-cpg-2
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    socket: from_x_ext
+    src: Leg01Joint-cpg-3
+    weight: 1.0
+  - dst: Leg01Joint-cpg-2
+    socket: from_x_ext
+    src: Leg00Joint-cpg-1
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    socket: from_v_ext
+    src: Leg01Joint-cpg-2
+    weight: 1.0
+  - dst: Leg01Joint-cpg-2
+    socket: from_v_ext
+    src: Leg00Joint-cpg-0
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    socket: from_x
+    src: Leg10Joint-cpg-5
+    weight: 1.0
+  - dst: Leg10Joint-cpg-5
+    socket: from_v
+    src: Leg10Joint-cpg-4
+    weight: 1.0
+  - dst: Leg10Joint-out-0
+    src: Leg10Joint-cpg-4
+    weight: 1.0
+  - dst: Leg11Joint-cpg-6
+    socket: from_x
+    src: Leg11Joint-cpg-7
+    weight: 1.0
+  - dst: Leg11Joint-cpg-7
+    socket: from_v
+    src: Leg11Joint-cpg-6
+    weight: 1.0
+  - dst: Leg11Joint-out-0
+    src: Leg11Joint-cpg-6
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    socket: from_x_ext
+    src: Leg11Joint-cpg-7
+    weight: 1.0
+  - dst: Leg11Joint-cpg-6
+    socket: from_x_ext
+    src: Leg10Joint-cpg-5
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    socket: from_v_ext
+    src: Leg11Joint-cpg-6
+    weight: 1.0
+  - dst: Leg11Joint-cpg-6
+    socket: from_v_ext
+    src: Leg10Joint-cpg-4
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    socket: from_x
+    src: Leg20Joint-cpg-9
+    weight: 1.0
+  - dst: Leg20Joint-cpg-9
+    socket: from_v
+    src: Leg20Joint-cpg-8
+    weight: 1.0
+  - dst: Leg20Joint-out-0
+    src: Leg20Joint-cpg-8
+    weight: 1.0
+  - dst: Leg21Joint-cpg-10
+    socket: from_x
+    src: Leg21Joint-cpg-11
+    weight: 1.0
+  - dst: Leg21Joint-cpg-11
+    socket: from_v
+    src: Leg21Joint-cpg-10
+    weight: 1.0
+  - dst: Leg21Joint-out-0
+    src: Leg21Joint-cpg-10
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    socket: from_x_ext
+    src: Leg21Joint-cpg-11
+    weight: 1.0
+  - dst: Leg21Joint-cpg-10
+    socket: from_x_ext
+    src: Leg20Joint-cpg-9
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    socket: from_v_ext
+    src: Leg21Joint-cpg-10
+    weight: 1.0
+  - dst: Leg21Joint-cpg-10
+    socket: from_v_ext
+    src: Leg20Joint-cpg-8
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    socket: from_x
+    src: Leg30Joint-cpg-13
+    weight: 1.0
+  - dst: Leg30Joint-cpg-13
+    socket: from_v
+    src: Leg30Joint-cpg-12
+    weight: 1.0
+  - dst: Leg30Joint-out-0
+    src: Leg30Joint-cpg-12
+    weight: 1.0
+  - dst: Leg31Joint-cpg-14
+    socket: from_x
+    src: Leg31Joint-cpg-15
+    weight: 1.0
+  - dst: Leg31Joint-cpg-15
+    socket: from_v
+    src: Leg31Joint-cpg-14
+    weight: 1.0
+  - dst: Leg31Joint-out-0
+    src: Leg31Joint-cpg-14
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    socket: from_x_ext
+    src: Leg31Joint-cpg-15
+    weight: 1.0
+  - dst: Leg31Joint-cpg-14
+    socket: from_x_ext
+    src: Leg30Joint-cpg-13
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    socket: from_v_ext
+    src: Leg31Joint-cpg-14
+    weight: 1.0
+  - dst: Leg31Joint-cpg-14
+    socket: from_v_ext
+    src: Leg30Joint-cpg-12
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    src: Core-in-5
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    src: Core-in-4
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    src: Core-in-0
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    src: Core-in-3
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    src: Core-in-2
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    src: Core-in-1
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    src: Core-in-5
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    src: Core-in-4
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    src: Core-in-0
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    src: Core-in-3
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    src: Core-in-2
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    src: Core-in-1
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    src: Core-in-5
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    src: Core-in-4
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    src: Core-in-0
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    src: Core-in-3
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    src: Core-in-2
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    src: Core-in-1
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    src: Core-in-5
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    src: Core-in-4
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    src: Core-in-0
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    src: Core-in-3
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    src: Core-in-2
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    src: Core-in-1
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    socket: from_x_ext
+    src: Leg00Joint-cpg-1
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    socket: from_x_ext
+    src: Leg10Joint-cpg-5
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    socket: from_v_ext
+    src: Leg00Joint-cpg-0
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    socket: from_v_ext
+    src: Leg10Joint-cpg-4
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    socket: from_x_ext
+    src: Leg00Joint-cpg-1
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    socket: from_x_ext
+    src: Leg20Joint-cpg-9
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    socket: from_v_ext
+    src: Leg00Joint-cpg-0
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    socket: from_v_ext
+    src: Leg20Joint-cpg-8
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    socket: from_x_ext
+    src: Leg00Joint-cpg-1
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    socket: from_x_ext
+    src: Leg30Joint-cpg-13
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    socket: from_v_ext
+    src: Leg00Joint-cpg-0
+    weight: 1.0
+  - dst: Leg00Joint-cpg-0
+    socket: from_v_ext
+    src: Leg30Joint-cpg-12
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    socket: from_x_ext
+    src: Leg10Joint-cpg-5
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    socket: from_x_ext
+    src: Leg20Joint-cpg-9
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    socket: from_v_ext
+    src: Leg10Joint-cpg-4
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    socket: from_v_ext
+    src: Leg20Joint-cpg-8
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    socket: from_x_ext
+    src: Leg10Joint-cpg-5
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    socket: from_x_ext
+    src: Leg30Joint-cpg-13
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    socket: from_v_ext
+    src: Leg10Joint-cpg-4
+    weight: 1.0
+  - dst: Leg10Joint-cpg-4
+    socket: from_v_ext
+    src: Leg30Joint-cpg-12
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    socket: from_x_ext
+    src: Leg20Joint-cpg-9
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    socket: from_x_ext
+    src: Leg30Joint-cpg-13
+    weight: 1.0
+  - dst: Leg30Joint-cpg-12
+    socket: from_v_ext
+    src: Leg20Joint-cpg-8
+    weight: 1.0
+  - dst: Leg20Joint-cpg-8
+    socket: from_v_ext
+    src: Leg30Joint-cpg-12
+    weight: 1.0
+  neurons:
+    Leg00Joint-cpg-0:
+      id: Leg00Joint-cpg-0
+      layer: hidden
+      part_id: Leg00Joint
+      type: V-Neuron
+    Leg00Joint-cpg-1:
+      id: Leg00Joint-cpg-1
+      layer: hidden
+      part_id: Leg00Joint
+      type: X-Neuron
+    Leg01Joint-cpg-2:
+      id: Leg01Joint-cpg-2
+      layer: hidden
+      part_id: Leg01Joint
+      type: V-Neuron
+    Leg01Joint-cpg-3:
+      id: Leg01Joint-cpg-3
+      layer: hidden
+      part_id: Leg01Joint
+      type: X-Neuron
+    Leg10Joint-cpg-4:
+      id: Leg10Joint-cpg-4
+      layer: hidden
+      part_id: Leg10Joint
+      type: V-Neuron
+    Leg10Joint-cpg-5:
+      id: Leg10Joint-cpg-5
+      layer: hidden
+      part_id: Leg10Joint
+      type: X-Neuron
+    Leg11Joint-cpg-6:
+      id: Leg11Joint-cpg-6
+      layer: hidden
+      part_id: Leg11Joint
+      type: V-Neuron
+    Leg11Joint-cpg-7:
+      id: Leg11Joint-cpg-7
+      layer: hidden
+      part_id: Leg11Joint
+      type: X-Neuron
+    Leg20Joint-cpg-8:
+      id: Leg20Joint-cpg-8
+      layer: hidden
+      part_id: Leg20Joint
+      type: V-Neuron
+    Leg20Joint-cpg-9:
+      id: Leg20Joint-cpg-9
+      layer: hidden
+      part_id: Leg20Joint
+      type: X-Neuron
+    Leg21Joint-cpg-10:
+      id: Leg21Joint-cpg-10
+      layer: hidden
+      part_id: Leg21Joint
+      type: V-Neuron
+    Leg21Joint-cpg-11:
+      id: Leg21Joint-cpg-11
+      layer: hidden
+      part_id: Leg21Joint
+      type: X-Neuron
+    Leg30Joint-cpg-12:
+      id: Leg30Joint-cpg-12
+      layer: hidden
+      part_id: Leg30Joint
+      type: V-Neuron
+    Leg30Joint-cpg-13:
+      id: Leg30Joint-cpg-13
+      layer: hidden
+      part_id: Leg30Joint
+      type: X-Neuron
+    Leg31Joint-cpg-14:
+      id: Leg31Joint-cpg-14
+      layer: hidden
+      part_id: Leg31Joint
+      type: V-Neuron
+    Leg31Joint-cpg-15:
+      id: Leg31Joint-cpg-15
+      layer: hidden
+      part_id: Leg31Joint
+      type: X-Neuron
+  params:
+    Leg00Joint-cpg-0:
+      alpha: 1.0
+      energy: 1.0
+      tau: 1.0
+    Leg00Joint-cpg-1:
+      tau: 1.0
+    Leg00Joint-out-0:
+      bias: 0.0
+      gain: 0.5
+    Leg01Joint-cpg-2:
+      alpha: 1.0
+      energy: 1.0
+      tau: 1.0
+    Leg01Joint-cpg-3:
+      tau: 1.0
+    Leg01Joint-out-0:
+      bias: 0.0
+      gain: 0.5
+    Leg10Joint-cpg-4:
+      alpha: 1.0
+      energy: 1.0
+      tau: 1.0
+    Leg10Joint-cpg-5:
+      tau: 1.0
+    Leg10Joint-out-0:
+      bias: 0.0
+      gain: 0.5
+    Leg11Joint-cpg-6:
+      alpha: 1.0
+      energy: 1.0
+      tau: 1.0
+    Leg11Joint-cpg-7:
+      tau: 1.0
+    Leg11Joint-out-0:
+      bias: 0.0
+      gain: 0.5
+    Leg20Joint-cpg-8:
+      alpha: 1.0
+      energy: 1.0
+      tau: 1.0
+    Leg20Joint-cpg-9:
+      tau: 1.0
+    Leg20Joint-out-0:
+      bias: 0.0
+      gain: 0.5
+    Leg21Joint-cpg-10:
+      alpha: 1.0
+      energy: 1.0
+      tau: 1.0
+    Leg21Joint-cpg-11:
+      tau: 1.0
+    Leg21Joint-out-0:
+      bias: 0.0
+      gain: 0.5
+    Leg30Joint-cpg-12:
+      alpha: 1.0
+      energy: 1.0
+      tau: 1.0
+    Leg30Joint-cpg-13:
+      tau: 1.0
+    Leg30Joint-out-0:
+      bias: 0.0
+      gain: 0.5
+    Leg31Joint-cpg-14:
+      alpha: 1.0
+      energy: 1.0
+      tau: 1.0
+    Leg31Joint-cpg-15:
+      tau: 1.0
+    Leg31Joint-out-0:
+      bias: 0.0
+      gain: 0.5
+id: 0
