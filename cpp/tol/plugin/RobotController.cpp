@@ -7,7 +7,8 @@
 
 #include "RobotController.h"
 #include "rlpower.h"
-#include "simple_split_brain.h"
+//#include "simple_split_brain.h"
+#include "extended_neural_network.h"
 
 #include <iostream>
 
@@ -18,15 +19,15 @@ RobotController::RobotController() {}
 RobotController::~RobotController() {}
 
 void RobotController::Load(::gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf) {
+        throw "hello";
+
     ::revolve::gazebo::RobotController::Load(_parent, _sdf);
     std::cout << "ToL Robot loaded." << std::endl;
 }
 
 void RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
-      std::cout << "i get here 0\n";
-      double asd = 3/0;
-    evaluator_ = boost::make_shared<Evaluator>();
+    //evaluator_ = boost::make_shared<Evaluator>();
 
     if (!sdf->HasElement("rv:brain")) {
         std::cerr << "No robot brain detected, this is probably an error." << std::endl;
@@ -40,8 +41,8 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     }
     std::cout << "i get here 0\n";
     if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower") {
-       // brain_.reset(new tol::ExtendedNeuralNetwork(this->model->GetName(), evaluator_, brain, motors_, sensors_));
-      brain_.reset(new tol::RLPower(this->model->GetName(),  brain,evaluator_, motors_, sensors_));
+        brain_.reset(new tol::ExtendedNeuralNetwork(this->model->GetName(), evaluator_, brain, motors_, sensors_));
+      //brain_.reset(new tol::RLPower(this->model->GetName(),  brain,evaluator_, motors_, sensors_));
     } else {
         std::cout << "Calling default ANN brain." << std::endl;
         revolve::gazebo::RobotController::LoadBrain(sdf);

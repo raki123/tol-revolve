@@ -10,7 +10,7 @@
 
 namespace tol {
 
-    ExtendedNeuralNetwork::ExtendedNeuralNetwork(std::string modelName,
+    ExtNN::ExtNN(std::string modelName,
 		     tol::EvaluatorPtr evaluator,
 		     sdf::ElementPtr node,
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
@@ -27,13 +27,13 @@ namespace tol {
 	std::cout << "done" << std::endl;
     }
 
-    ExtendedNeuralNetwork::~ExtendedNeuralNetwork()
+    ExtNN::~ExtNN()
     {
 
     }
 
 
-    void ExtendedNeuralNetwork::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+    void ExtNN::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                          const std::vector<revolve::gazebo::SensorPtr> &sensors,
                          double t,
                          double step) {
@@ -46,7 +46,7 @@ namespace tol {
     }
 
     
-revolve::brain::ExtNNController::ExtNNConfig ExtendedNeuralNetwork::parseSDF(sdf::ElementPtr node,
+revolve::brain::ExtNNController::ExtNNConfig ExtNN::parseSDF(sdf::ElementPtr node,
 		       const std::vector< revolve::gazebo::MotorPtr > & motors,
 		       const std::vector< revolve::gazebo::SensorPtr > & sensors) 
 {
@@ -220,7 +220,7 @@ revolve::brain::ExtNNController::ExtNNConfig ExtendedNeuralNetwork::parseSDF(sdf
 	return ret;
 }
 
-std::map<std::string, double> ExtendedNeuralNetwork::parseSDFElement(sdf::ElementPtr elem)
+std::map<std::string, double> ExtNN::parseSDFElement(sdf::ElementPtr elem)
 {
 	std::map<std::string, double> params;
 
@@ -235,7 +235,7 @@ std::map<std::string, double> ExtendedNeuralNetwork::parseSDFElement(sdf::Elemen
 	return params;
 }
 
-void ExtendedNeuralNetwork::connectionHelper(const std::string &src,
+void ExtNN::connectionHelper(const std::string &src,
 					     const std::string &dst,
 					     const std::string &socket,
 					     double weight,
@@ -266,7 +266,7 @@ void ExtendedNeuralNetwork::connectionHelper(const std::string &src,
 }
 
 
-revolve::brain::NeuronPtr ExtendedNeuralNetwork::neuronHelper(sdf::ElementPtr neuron,
+revolve::brain::NeuronPtr ExtNN::neuronHelper(sdf::ElementPtr neuron,
 		       revolve::brain::ExtNNController::ExtNNConfig &ret)
 {
 	if (!neuron->HasAttribute("type")) {
@@ -291,7 +291,7 @@ revolve::brain::NeuronPtr ExtendedNeuralNetwork::neuronHelper(sdf::ElementPtr ne
 
 
 
-revolve::brain::NeuronPtr ExtendedNeuralNetwork::addNeuron(const std::string &neuronId,
+revolve::brain::NeuronPtr ExtNN::addNeuron(const std::string &neuronId,
 					   const std::string &neuronType,
 					   const std::string &neuronLayer, // can be 'hidden', 'input' or 'output'
 					   const std::map<std::string, double> &params, 

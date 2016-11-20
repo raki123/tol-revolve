@@ -66,6 +66,7 @@ file(GLOB_RECURSE
         tol/plugin/helper.cpp
         tol/plugin/rlpower.cpp
 	tol/plugin/simple_split_brain.cpp
+	tol/plugin/extended_neural_network.cpp
         )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})

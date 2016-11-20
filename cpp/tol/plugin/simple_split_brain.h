@@ -1,5 +1,5 @@
-#ifndef REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_NEAT_H
-#define REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_NEAT_H
+#ifndef REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_SPLIT_BRAIN_H_
+#define REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_SPLIT_BRAIN_H_
 
 #include "brain/split_cpg/simple_split_brain.h"
 #include "brain/split_cpg/extended_neural_network_controller.h"
@@ -16,7 +16,7 @@
 
 namespace tol {
 
-    class ExtendedNeuralNetwork : public revolve::gazebo::Brain, private revolve::brain::SimpleSplitBrain<std::vector<double>> {
+    class ExtNN : public revolve::gazebo::Brain, private revolve::brain::SimpleSplitBrain<std::vector<double>> {
 
     public:
       	 /**
@@ -28,13 +28,13 @@ namespace tol {
 	 * @param sensors: vector list of robot's sensors
 	 * @return pointer to the neural network
 	 */
-        ExtendedNeuralNetwork(std::string modelName,
+        ExtNN(std::string modelName,
 		tol::EvaluatorPtr evaluator,
                 sdf::ElementPtr node,
                 const std::vector<revolve::gazebo::MotorPtr> &actuators,
                 const std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-        virtual ~ExtendedNeuralNetwork();
+        virtual ~ExtNN();
 
         /**
          * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy
@@ -103,13 +103,11 @@ namespace tol {
 					   const std::map<std::string, double> &params, 
 					   revolve::brain::ExtNNController::ExtNNConfig &ret);
 	
-protected:
-//   boost::shared_ptr<revolve::brain::WeightVectorLearner> learner;	
     };
 
 
 } /* namespace tol */
 
-#endif //REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
+#endif //REVOLVE_GAZEBO_BRARN_DIFFERENTIAL_SPLIT_BRAIN_H_
 
 

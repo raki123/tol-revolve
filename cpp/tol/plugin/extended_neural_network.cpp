@@ -30,12 +30,11 @@ namespace tol {
                          const std::vector<revolve::gazebo::SensorPtr> &sensors,
                          double t,
                          double step) {
-	//std::cout << "yay" << std::endl;
+	std::cout << "yay" << std::endl;
         revolve::brain::ExtendedNeuralNetwork::update(
                 Helper::createWrapper(actuators),
                 Helper::createWrapper(sensors),
-                t, step
-        );
+                t, step);
     }
 
     
