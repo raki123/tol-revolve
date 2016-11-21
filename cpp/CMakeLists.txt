@@ -65,7 +65,7 @@ file(GLOB_RECURSE
         tol/plugin/fakebrain.cpp
         tol/plugin/helper.cpp
         tol/plugin/rlpower.cpp
-	tol/plugin/simple_split_brain.cpp
+	#tol/plugin/simple_split_brain.cpp
 	tol/plugin/extended_neural_network.cpp
         )
 

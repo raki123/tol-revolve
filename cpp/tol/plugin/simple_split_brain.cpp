@@ -16,14 +16,14 @@ namespace tol {
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors) :  revolve::brain::SimpleSplitBrain<std::vector<double>>() {
 	std::cout << "i get here \n";
-	boost::shared_ptr<revolve::brain::ExtNNController> swap1(new revolve::brain::ExtNNController(modelName,
-							parseSDF(node, actuators, sensors),  
-							evaluator, 
-							Helper::createWrapper(actuators),
-							Helper::createWrapper(sensors)));
-	controller = boost::static_pointer_cast<revolve::brain::Controller<std::vector<double>>>(swap1);
-	boost::shared_ptr<revolve::brain::WeightVectorLearner> swap2(new revolve::brain::WeightVectorLearner());
-	learner =  boost::dynamic_pointer_cast<revolve::brain::Learner<std::vector<double>>>(swap2);
+// 	boost::shared_ptr<revolve::brain::ExtNNController> swap1(new revolve::brain::ExtNNController(modelName,
+// 							parseSDF(node, actuators, sensors),  
+// 							evaluator, 
+// 							Helper::createWrapper(actuators),
+// 							Helper::createWrapper(sensors)));
+// 	controller = boost::static_pointer_cast<revolve::brain::Controller<std::vector<double>>>(swap1);
+// 	boost::shared_ptr<revolve::brain::WeightVectorLearner> swap2(new revolve::brain::WeightVectorLearner());
+// 	learner =  boost::dynamic_pointer_cast<revolve::brain::Learner<std::vector<double>>>(swap2);
 	std::cout << "done" << std::endl;
     }
 
