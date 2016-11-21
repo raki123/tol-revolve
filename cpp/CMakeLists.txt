@@ -68,6 +68,8 @@ file(GLOB_RECURSE
     tol/plugin/evaluator.cpp
     tol/plugin/rlpower.cpp
     tol/plugin/supgbrain.cpp
+    tol/plugin/supgbrainphototaxis.cpp
+    tol/plugin/fakelightsensor.cpp
     tol/plugin/supg/supgneuron.cpp
     tol/plugin/supg/supggenomemanager.cpp
 )

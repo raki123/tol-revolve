@@ -8,6 +8,7 @@
 #include "RobotController.h"
 #include "rlpower.h"
 #include "supgbrain.h"
+#include "supgbrainphototaxis.h"
 #include "brain/supg/supggenomemanager.h"
 #include "neat/accneat/src/neat.h"
 
@@ -110,17 +111,17 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     // # # O # #
     //     #
     //     #
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint Leg01Joint
-//          {  1,  0}, { .5,  0},
-//       // Leg10Joint Leg11Joint
-//          { -1,  0}, {-.5,  0},
-//       // Leg20Joint Leg21Joint
-//          {  0,  1}, {  0, .5},
-//       // Leg30Joint Leg31Joint
-//          {  0, -1}, {  0,-.5}
-//     } );
+    std::vector< std::vector< float> > coordinates
+    ( {
+      // Leg00Joint Leg01Joint
+         {  1,  0, 1}, { .5,  0, -1},
+      // Leg10Joint Leg11Joint
+         { -1,  0, 1}, {-.5,  0, -1},
+      // Leg20Joint Leg21Joint
+         {  0,  1, 1}, {  0, .5, -1},
+      // Leg30Joint Leg31Joint
+         {  0, -1, 1}, {  0,-.5, -1}
+    } );
 
     // SPIDER 13
     //       #
@@ -269,25 +270,25 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     //
     // # # # # O # # # #
     //
-    std::vector< std::vector< float> > coordinates
-    ( {
-      // Leg00Joint
-         { -.25, 0},
-      // Leg01Joint
-         { -.50, 0},
-      // Leg02Joint
-         { -.75, 0},
-      // Leg03Joint
-         {   -1, 0},
-      // Leg10Joint
-         { +.25, 0},
-      // Leg11Joint
-         { +.50, 0},
-      // Leg12Joint
-         { +.75, 0},
-      // Leg13Joint
-         {   +1, 0},
-    } );
+//     std::vector< std::vector< float> > coordinates
+//     ( {
+//       // Leg00Joint
+//          { -.25, 0},
+//       // Leg01Joint
+//          { -.50, 0},
+//       // Leg02Joint
+//          { -.75, 0},
+//       // Leg03Joint
+//          {   -1, 0},
+//       // Leg10Joint
+//          { +.25, 0},
+//       // Leg11Joint
+//          { +.50, 0},
+//       // Leg12Joint
+//          { +.75, 0},
+//       // Leg13Joint
+//          {   +1, 0},
+//     } );
 
     // BABY 1
     // #
@@ -358,8 +359,12 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 //          { +1, -.333}, { +1, -.666}, { +1, -.9},
 //     } );
 
-
-    brain_.reset(new SUPGBrain(evaluator_, coordinates, motors_, sensors_));
+//     brain_.reset(new SUPGBrain(evaluator_, coordinates, motors_, sensors_));
+    brain_.reset(new SUPGBrainPhototaxis(evaluator_,
+                                         50,
+                                         coordinates,
+                                         motors_,
+                                         sensors_));
 
 //    if (!sdf->HasElement("rv:brain")) {
 //        std::cerr << "No robot brain detected, this is probably an error." << std::endl;
@@ -383,7 +388,9 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 void RobotController::DoUpdate(const gazebo::common::UpdateInfo info)
 {
     revolve::gazebo::RobotController::DoUpdate(info);
-    evaluator_->updatePosition(this->model->GetRelativePose().Ign());
+    auto pose = this->model->GetRelativePose().Ign();
+    evaluator_->updatePosition(pose);
+    reinterpret_cast<SUPGBrainPhototaxis&>(*brain_).updateLightPosition(pose);
 }
 
 // EVALUATOR CODE
