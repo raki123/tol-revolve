@@ -38,11 +38,11 @@ namespace tol {
                          double t,
                          double step) {
 	std::cout << "yay" << std::endl;
-        revolve::brain::SimpleSplitBrain<std::vector<double>>::update(
-                Helper::createWrapper(actuators),
-                Helper::createWrapper(sensors),
-                t, step
-        );
+//         revolve::brain::SimpleSplitBrain<std::vector<double>>::update(
+//                 Helper::createWrapper(actuators),
+//                 Helper::createWrapper(sensors),
+//                 t, step
+//         );
     }
 
     
