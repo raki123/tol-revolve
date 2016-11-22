@@ -1,6 +1,4 @@
 #include "simple_split_brain.h"
-#include "brain/split_cpg/extended_neural_network_controller.h"
-#include "brain/split_cpg/weight_vector_learner.h"
 #include "helper.h"
 #include "sensor.h"
 #include "actuator.h"
@@ -15,16 +13,17 @@ namespace tol {
 		     sdf::ElementPtr node,
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors) :  revolve::brain::SimpleSplitBrain<std::vector<double>>() {
-	std::cout << "i get here \n";
-// 	boost::shared_ptr<revolve::brain::ExtNNController> swap1(new revolve::brain::ExtNNController(modelName,
-// 							parseSDF(node, actuators, sensors),  
-// 							evaluator, 
-// 							Helper::createWrapper(actuators),
-// 							Helper::createWrapper(sensors)));
-// 	controller = boost::static_pointer_cast<revolve::brain::Controller<std::vector<double>>>(swap1);
-// 	boost::shared_ptr<revolve::brain::WeightVectorLearner> swap2(new revolve::brain::WeightVectorLearner());
-// 	learner =  boost::dynamic_pointer_cast<revolve::brain::Learner<std::vector<double>>>(swap2);
-	std::cout << "done" << std::endl;
+// 	std::cout << "i get here \n";
+	boost::shared_ptr<revolve::brain::ExtNNController> swap1(new revolve::brain::ExtNNController(modelName,
+							parseSDF(node, actuators, sensors),  
+							evaluator, 
+							Helper::createWrapper(actuators),
+							Helper::createWrapper(sensors)));
+	controller = boost::static_pointer_cast<revolve::brain::Controller<std::vector<double>>>(swap1);
+	boost::shared_ptr<revolve::brain::WeightVectorLearner> swap2(new revolve::brain::WeightVectorLearner());
+	learner =  boost::static_pointer_cast<revolve::brain::Learner<std::vector<double>>>(swap2);
+	evaluator_ = evaluator;
+// 	std::cout << "done" << std::endl;
     }
 
     ExtNN::~ExtNN()
@@ -37,12 +36,12 @@ namespace tol {
                          const std::vector<revolve::gazebo::SensorPtr> &sensors,
                          double t,
                          double step) {
-	std::cout << "yay" << std::endl;
-//         revolve::brain::SimpleSplitBrain<std::vector<double>>::update(
-//                 Helper::createWrapper(actuators),
-//                 Helper::createWrapper(sensors),
-//                 t, step
-//         );
+// 	std::cout << "yay" << std::endl;
+        revolve::brain::SimpleSplitBrain<std::vector<double>>::update(
+                Helper::createWrapper(actuators),
+                Helper::createWrapper(sensors),
+                t, step
+        );
     }
 
     
@@ -242,7 +241,7 @@ void ExtNN::connectionHelper(const std::string &src,
 					     const std::map<std::string, revolve::brain::NeuronPtr> &idToNeuron, 
 					     revolve::brain::ExtNNController::ExtNNConfig &ret)
 {
-	std::cout << "connection from " + src + " to " + dst + " was added with weight: " << weight << std::endl;
+// 	std::cout << "connection from " + src + " to " + dst + " was added with weight: " << weight << std::endl;
 	auto srcNeuron = idToNeuron.find(src);
 	if (srcNeuron == idToNeuron.end()) {
 		std::cerr << "Could not find source neuron '" << src << "'" << std::endl;
@@ -298,7 +297,7 @@ revolve::brain::NeuronPtr ExtNN::addNeuron(const std::string &neuronId,
 					   revolve::brain::ExtNNController::ExtNNConfig &ret)
 {
 	revolve::brain::NeuronPtr newNeuron;
-	std::cout << neuronType + " " + neuronId  + " was added in"+ " "+ neuronLayer << std::endl;
+// 	std::cout << neuronType + " " + neuronId  + " was added in"+ " "+ neuronLayer << std::endl;
 	if ("input" == neuronLayer) {
 		newNeuron.reset(new revolve::brain::InputNeuron(neuronId, params));
 

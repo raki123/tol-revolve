@@ -1,7 +1,7 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_NEAT_H
 #define REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_NEAT_H
 
-#include "brain/ccpg/extended_neural_network.h"
+#include "brain/extnn/extended_neural_network.h"
 #include "evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 

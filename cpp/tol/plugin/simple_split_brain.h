@@ -16,7 +16,7 @@
 
 namespace tol {
 
-    class ExtNN : public revolve::gazebo::Brain, public revolve::brain::SimpleSplitBrain<std::vector<double>> {
+    class ExtNN : public revolve::gazebo::Brain, private revolve::brain::SimpleSplitBrain<std::vector<double>> {
 
     public:
       	 /**

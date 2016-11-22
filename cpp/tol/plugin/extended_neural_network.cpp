@@ -30,7 +30,7 @@ namespace tol {
                          const std::vector<revolve::gazebo::SensorPtr> &sensors,
                          double t,
                          double step) {
-	std::cout << "yay" << std::endl;
+// 	std::cout << "yay" << std::endl;
         revolve::brain::ExtendedNeuralNetwork::update(
                 Helper::createWrapper(actuators),
                 Helper::createWrapper(sensors),
@@ -233,7 +233,7 @@ void ExtendedNeuralNetwork::connectionHelper(const std::string &src,
 					     const std::map<std::string, revolve::brain::NeuronPtr> &idToNeuron, 
 					     ExtNNConfig &ret)
 {
-	std::cout << "connection from " + src + " to " + dst + " was added with weight: " << weight << std::endl;
+// 	std::cout << "connection from " + src + " to " + dst + " was added with weight: " << weight << std::endl;
 	auto srcNeuron = idToNeuron.find(src);
 	if (srcNeuron == idToNeuron.end()) {
 		std::cerr << "Could not find source neuron '" << src << "'" << std::endl;
@@ -289,7 +289,7 @@ revolve::brain::NeuronPtr ExtendedNeuralNetwork::addNeuron(const std::string &ne
 					   ExtNNConfig &ret)
 {
 	revolve::brain::NeuronPtr newNeuron;
-	std::cout << neuronType + " " + neuronId  + " was added in"+ " "+ neuronLayer << std::endl;
+// 	std::cout << neuronType + " " + neuronId  + " was added in"+ " "+ neuronLayer << std::endl;
 	if ("input" == neuronLayer) {
 		newNeuron.reset(new revolve::brain::InputNeuron(neuronId, params));
 
