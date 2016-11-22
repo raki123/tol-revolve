@@ -7,6 +7,7 @@
 
 #include "RobotController.h"
 #include "rlpower.h"
+#include "simple_split_brain.h"
 #include "extended_neural_network.h"
 
 #include <iostream>
@@ -18,7 +19,7 @@ RobotController::RobotController() {}
 RobotController::~RobotController() {}
 
 void RobotController::Load(::gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf) {
-    ::revolve::gazebo::RobotController::Load(_parent, _sdf);
+  ::revolve::gazebo::RobotController::Load(_parent, _sdf);
     std::cout << "ToL Robot loaded." << std::endl;
 }
 
@@ -39,6 +40,8 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 
     if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower") {
         brain_.reset(new tol::RLPower(this->model->GetName(),  brain,evaluator_, motors_, sensors_));
+// 	brain_.	reset(new tol::ExtNN(this->model->GetName(), evaluator_, brain, motors_, sensors_));
+// 	brain_.reset(new tol::ExtendedNeuralNetwork(this->model->GetName(), evaluator_, brain, motors_, sensors_));
     } else {
         std::cout << "Calling default ANN brain." << std::endl;
         revolve::gazebo::RobotController::LoadBrain(sdf);

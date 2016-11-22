@@ -1,7 +1,9 @@
-#ifndef REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_NEAT_H
-#define REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_NEAT_H
+#ifndef REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_SPLIT_BRAIN_H_
+#define REVOLVE_GAZEBO_BRAIN_DIFFERENTIAL_SPLIT_BRAIN_H_
 
-#include "brain/extnn/extended_neural_network.h"
+#include "brain/split_cpg/simple_split_brain.h"
+#include "brain/split_cpg/extended_neural_network_controller.h"
+#include "brain/split_cpg/weight_vector_learner.h"
 #include "evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 
@@ -14,7 +16,7 @@
 
 namespace tol {
 
-    class ExtendedNeuralNetwork : public revolve::gazebo::Brain, private revolve::brain::ExtendedNeuralNetwork {
+    class ExtNN : public revolve::gazebo::Brain, private revolve::brain::SimpleSplitBrain<std::vector<double>> {
 
     public:
       	 /**
@@ -26,13 +28,13 @@ namespace tol {
 	 * @param sensors: vector list of robot's sensors
 	 * @return pointer to the neural network
 	 */
-        ExtendedNeuralNetwork(std::string modelName,
+        ExtNN(std::string modelName,
 		tol::EvaluatorPtr evaluator,
                 sdf::ElementPtr node,
                 const std::vector<revolve::gazebo::MotorPtr> &actuators,
                 const std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-        virtual ~ExtendedNeuralNetwork();
+        virtual ~ExtNN();
 
         /**
          * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy
@@ -53,7 +55,7 @@ namespace tol {
          * @param sensors: vector list of robot's sensors
 	 * @return configuration needed for the neural network
 	 */
-        static ExtNNConfig parseSDF(sdf::ElementPtr node,
+        static revolve::brain::ExtNNController::ExtNNConfig parseSDF(sdf::ElementPtr node,
 				    const std::vector<revolve::gazebo::MotorPtr > & motors,
 				    const std::vector<revolve::gazebo::SensorPtr > & sensors);
 	
@@ -78,14 +80,14 @@ namespace tol {
 			      const std::string &socket,
 			      double weight,
 			      const std::map<std::string, revolve::brain::NeuronPtr> &idToNeuron, 
-			      ExtNNConfig& ret);
+			      revolve::brain::ExtNNController::ExtNNConfig &ret);
 	/** 
 	* Helpermethod for getting the configuration 
 	* @param neuron: sdf for the neuron to be added
 	* @param ret: configuration for the network where the neuron should be added
 	*/
 	static revolve::brain::NeuronPtr neuronHelper(sdf::ElementPtr neuron, 
-						      ExtNNConfig& ret);
+						      revolve::brain::ExtNNController::ExtNNConfig &ret);
 	
 	/**
 	* Helpermethod for getting the configuration 
@@ -99,13 +101,13 @@ namespace tol {
 					   const std::string &neuronType,
 					   const std::string &neuronLayer, 
 					   const std::map<std::string, double> &params, 
-					   ExtNNConfig& ret);
+					   revolve::brain::ExtNNController::ExtNNConfig &ret);
 	
-
     };
+
 
 } /* namespace tol */
 
-#endif //REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
+#endif //REVOLVE_GAZEBO_BRARN_DIFFERENTIAL_SPLIT_BRAIN_H_
 
 
