@@ -10,6 +10,7 @@
 #include "simple_split_brain.h"
 #include "extended_neural_network.h"
 #include "rlpowered_network.h"
+#include "neat/neat_ext_nn.h"
 
 #include <iostream>
 
@@ -40,9 +41,10 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     }
     if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower") {
 //         brain_.reset(new tol::RLPower(this->model->GetName(),  brain,evaluator_, motors_, sensors_));
-	brain_.reset(new tol::RLPowerNet(this->model->GetName(),  brain,evaluator_, motors_, sensors_));
+//	brain_.reset(new tol::RLPowerNet(this->model->GetName(),  brain,evaluator_, motors_, sensors_));
 // 	brain_.	reset(new tol::ExtNN(this->model->GetName(), evaluator_, brain, motors_, sensors_));
-// 	brain_.reset(new tol::ExtendedNeuralNetwork(this->model->GetName(), evaluator_, brain, motors_, sensors_));
+//	brain_.reset(new tol::ExtendedNeuralNetwork(this->model->GetName(), evaluator_, brain, motors_, sensors_));
+	brain_.reset(new tol::NeatExtNN(this->model->GetName(), evaluator_, brain, motors_, sensors_));
     } else {
         std::cout << "Calling default ANN brain." << std::endl;
         revolve::gazebo::RobotController::LoadBrain(sdf);

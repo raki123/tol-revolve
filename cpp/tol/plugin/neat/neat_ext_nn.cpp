@@ -1,66 +1,79 @@
-#include "helper.h"
-#include "basic_neat_brain.h"
-
-#include <iostream>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_spline.h>
+#include "neat_ext_nn.h"
+#include "brain/cppneat/neuron_gene.h"
+#include "brain/cppneat/connection_gene.h"
+#include "../helper.h"
+#include "../sensor.h"
+#include "../actuator.h"
+#include "brain/split_cpg/conversion.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
+
 namespace tol {
-    unsigned int getActSize(const std::vector <revolve::gazebo::MotorPtr> &actuators) {
-	unsigned int ret = 0;
-	for(auto it :actuators) {
-	    ret += (*it).outputs();
-	}
-	return ret;
-    }
-    unsigned int getSenSize(const std::vector <revolve::gazebo::SensorPtr> &actuators) {
-	unsigned int ret = 0;
-	for(auto it :actuators) {
-	    ret += (*it).inputs();
-	}
-	return ret;
-    }
-    BasicBrain::BasicBrain(tol::EvaluatorPtr evaluator,
-			   sdf::ElementPtr node,
-                         const std::vector <revolve::gazebo::MotorPtr> &actuators,
-                         const std::vector <revolve::gazebo::SensorPtr> &sensors) :
-                         revolve::brain::BasicBrain(evaluator, 
-						    getActSize(actuators),
-						    getSenSize(sensors),
-						    parseSDF(node,actuators,sensors)) {
-    }
-
-    BasicBrain::~BasicBrain() {
-    }
 
 
+    NeatExtNN::NeatExtNN(std::string modelName,
+		     tol::EvaluatorPtr evaluator,
+		     sdf::ElementPtr node,
+                     const std::vector<revolve::gazebo::MotorPtr> &actuators,
+                     const std::vector<revolve::gazebo::SensorPtr> &sensors) 
+    :  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController, &revolve::brain::convertForLearner) {
+	
+	int innov_number = 0;
+	//sleep(20);
+	revolve::brain::learning_configuration.start_from = parseSDF(node, actuators, sensors, innov_number);
+	boost::shared_ptr<revolve::brain::ExtNNController1> swap1(new revolve::brain::ExtNNController1(modelName,
+							revolve::brain::convertForController(revolve::brain::learning_configuration.start_from),  
+							evaluator, 
+							Helper::createWrapper(actuators),
+							Helper::createWrapper(sensors)));
+	controller = swap1;
+	revolve::brain::set_learning_conf();
+	revolve::brain::set_brain_spec();
+	CPPNEAT::Mutator mutator(revolve::brain::brain_spec,
+				1,
+				0,
+				100,
+				std::vector<CPPNEAT::Neuron::Ntype>());
+	boost::shared_ptr<CPPNEAT::Learner> swap2(new CPPNEAT::Learner(mutator, 
+								       revolve::brain::learning_configuration));
+	learner = boost::static_pointer_cast<revolve::brain::Learner<CPPNEAT::GeneticEncodingPtr>>(swap2);
+	evaluator_ = evaluator;
+    }
 
-    void BasicBrain::update(const std::vector <revolve::gazebo::MotorPtr> &motors,
-                           const std::vector <revolve::gazebo::SensorPtr> &sensors,
-                           double t,
-                           double step) {
-        revolve::brain::BasicBrain::update(
-                Helper::createWrapper(motors),
+    NeatExtNN::~NeatExtNN()
+    {
+
+    }
+
+
+    void NeatExtNN::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+                         const std::vector<revolve::gazebo::SensorPtr> &sensors,
+                         double t,
+                         double step) {
+// 	std::cout << "yay" << std::endl;
+        revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>::update(
+                Helper::createWrapper(actuators),
                 Helper::createWrapper(sensors),
                 t, step
         );
     }
-NEAT::InnovGenome::GenomeConfig BasicBrain::parseSDF(sdf::ElementPtr node,
+
+    
+CPPNEAT::GeneticEncodingPtr NeatExtNN::parseSDF(sdf::ElementPtr node,
 		       const std::vector< revolve::gazebo::MotorPtr > & motors,
-		       const std::vector< revolve::gazebo::SensorPtr > & sensors) {
-	NEAT::InnovGenome::GenomeConfig ret;
-	ret.innov = 1;
-	ret.node_id = 1;
-	ret.trait_id = 1;
+		       const std::vector< revolve::gazebo::SensorPtr > & sensors,
+		       int &innov_number) 
+{
+	CPPNEAT::GeneticEncodingPtr ret(new CPPNEAT::GeneticEncoding());
+	
 	// Map neuron sdf elements to their id's
 	std::map<std::string, sdf::ElementPtr> neuronDescriptions;
 
 	// List of all hidden neuron id's
 	std::vector<std::string> hiddenIds;
-	
-	std::map<std::string, unsigned int> idToNeuron;
+
+	std::map<std::string, CPPNEAT::NeuronGenePtr> idToNeuron_;
 
 	// Get the first sdf neuron element
 	auto neuron = node->HasElement("rv:neuron") ? node->GetElement("rv:neuron") : sdf::ElementPtr();
@@ -132,9 +145,8 @@ NEAT::InnovGenome::GenomeConfig BasicBrain::parseSDF(sdf::ElementPtr node,
 				throw std::runtime_error("Robot brain error");
 			}
 			
-			auto newNeuron = neuronHelper(neuronDescription->second, ret);
-			ret.nodes.push_back(newNeuron);
-			idToNeuron[neuronId.str()] = newNeuron.node_id;
+			auto newNeuron = neuronHelper(neuronDescription->second, ret, innov_number);
+			idToNeuron_[neuronId.str()] = newNeuron;
 			
 		}
 	}
@@ -165,9 +177,8 @@ NEAT::InnovGenome::GenomeConfig BasicBrain::parseSDF(sdf::ElementPtr node,
 				throw std::runtime_error("Robot brain error");
 			}
 
-			auto newNeuron = neuronHelper(neuronDescription->second,ret);
-			ret.nodes.push_back(newNeuron);
-			idToNeuron[neuronId.str()] = newNeuron.node_id;
+			auto newNeuron = neuronHelper(neuronDescription->second,ret, innov_number);
+			idToNeuron_[neuronId.str()] = newNeuron;
 		}
 	}
 
@@ -176,9 +187,8 @@ NEAT::InnovGenome::GenomeConfig BasicBrain::parseSDF(sdf::ElementPtr node,
 	// Add hidden neurons:
 	for (auto it = hiddenIds.begin(); it != hiddenIds.end(); ++it) {
 		auto neuronDescription = neuronDescriptions.find(*it);
-		auto newNeuron = neuronHelper(neuronDescription->second,ret);
-		ret.nodes.push_back(newNeuron);
-		idToNeuron[(*it)] = newNeuron.node_id;
+		auto newNeuron = neuronHelper(neuronDescription->second,ret, innov_number);
+		idToNeuron_[*it] = newNeuron;
 	}
 
 
@@ -193,22 +203,21 @@ NEAT::InnovGenome::GenomeConfig BasicBrain::parseSDF(sdf::ElementPtr node,
 
 		auto src = connection->GetAttribute("src")->GetAsString();
 		auto dst = connection->GetAttribute("dst")->GetAsString();
-		
-		auto srcNeuron = idToNeuron.find(src);
-		if (srcNeuron == idToNeuron.end()) {
-			std::cerr << "Could not find source neuron '" << src << "'" << std::endl;
-			throw std::runtime_error("Robot brain error");
+
+
+		std::string dstSocketName;
+		if (connection->HasAttribute("socket")) {
+			dstSocketName = connection->GetAttribute("socket")->GetAsString();
 		}
-		auto dstNeuron = idToNeuron.find(dst);
-		if (dstNeuron == idToNeuron.end()) {
-			std::cerr << "Could not find destination neuron '" << dst << "'" << std::endl;
-			throw std::runtime_error("Robot brain error");
+		else {
+			dstSocketName = "None"; // this is the default socket name
 		}
+
 		double weight;
 		connection->GetAttribute("weight")->Get(weight);
 
 		// Use connection helper to set the weight
-		connectionHelper(srcNeuron->second, dstNeuron->second, weight, ret);
+		connectionHelper(src, dst, dstSocketName, weight, idToNeuron_, ret, innov_number);
 
 		// Load the next connection
 		connection = connection->GetNextElement("rv:neural_connection");
@@ -216,7 +225,7 @@ NEAT::InnovGenome::GenomeConfig BasicBrain::parseSDF(sdf::ElementPtr node,
 	return ret;
 }
 
-NEAT::Trait BasicBrain::parseSDFElement(sdf::ElementPtr elem)
+std::map<std::string, double> NeatExtNN::parseSDFElement(sdf::ElementPtr elem)
 {
 	std::map<std::string, double> params;
 
@@ -227,45 +236,43 @@ NEAT::Trait BasicBrain::parseSDFElement(sdf::ElementPtr elem)
 		params[elName] = elValue;
 		subElem = subElem->GetNextElement();
 	}
-	NEAT::Trait neuronParams;
-	double min_value = -1.0, max_value = 1.0;
-	neuronParams.params[0] = (params["rv:bias"]-min_value)/(max_value-min_value);
-	min_value = 0.01, max_value = 5.0;
-	neuronParams.params[1] = (params["rv:tau"]-min_value)/(max_value-min_value);
-	min_value=0, max_value=1;
-	neuronParams.params[2] = (params["rv:gain"]-min_value)/(max_value-min_value);
-	min_value=0, max_value=10;
-	neuronParams.params[3] = (params["rv:period"]-min_value)/(max_value-min_value);
-	min_value=0, max_value=3.14;
-	neuronParams.params[4] = (params["rv:phase_offset"]-min_value)/(max_value-min_value);
-	min_value=0, max_value=10000;
-	neuronParams.params[5] = (params["rv:amplitude"]-min_value)/(max_value-min_value);
-	min_value = 0.05, max_value = 10.0;
-	neuronParams.params[6] = (params["rv:alpha"]-min_value)/(max_value-min_value);
-	min_value = 0.0, max_value = 25.0;
-	neuronParams.params[7] = (params["rv:energy"]-min_value)/(max_value-min_value);
-	return neuronParams;
+
+	return params;
 }
 
-void BasicBrain::connectionHelper( unsigned int src,
-					     unsigned int dst,
+void NeatExtNN::connectionHelper(const std::string &src,
+					     const std::string &dst,
+					     const std::string &socket,
 					     double weight,
-					     NEAT::InnovGenome::GenomeConfig &ret)
+					     const std::map<std::string, CPPNEAT::NeuronGenePtr> &idToNeuron, 
+					     CPPNEAT::GeneticEncodingPtr ret,
+					     int &innov_number)
 {
+// 	std::cout << "connection from " + src + " to " + dst + " was added with weight: " << weight << std::endl;
+	auto srcNeuron = idToNeuron.find(src);
+	if (srcNeuron == idToNeuron.end()) {
+		std::cerr << "Could not find source neuron '" << src << "'" << std::endl;
+		throw std::runtime_error("Robot brain error");
+	}
+	auto dstNeuron = idToNeuron.find(dst);
+	if (dstNeuron == idToNeuron.end()) {
+		std::cerr << "Could not find destination neuron '" << dst << "'" << std::endl;
+		throw std::runtime_error("Robot brain error");
+	}
 
-	NEAT::InnovLinkGene newConnection(1,
-                                       weight,
-                                       src,
-                                       dst,
-                                       false,
-                                       ret.innov++,
-                                       0.0);
-	ret.links.push_back(newConnection);
+	CPPNEAT::ConnectionGenePtr newConnection(new CPPNEAT::ConnectionGene(dstNeuron->second->getInnovNumber(),
+										srcNeuron->second->getInnovNumber(),
+										weight,
+										innov_number++,
+										true, 
+										socket));
+	ret->add_connection_gene(newConnection);
 }
 
 
-NEAT::InnovNodeGene BasicBrain::neuronHelper(sdf::ElementPtr neuron,
-		       NEAT::InnovGenome::GenomeConfig &ret)
+CPPNEAT::NeuronGenePtr NeatExtNN::neuronHelper(sdf::ElementPtr neuron,
+						CPPNEAT::GeneticEncodingPtr ret,
+						int &innov_number)
 {
 	if (!neuron->HasAttribute("type")) {
 		std::cerr << "Missing required `type` attribute for neuron." << std::endl;
@@ -279,33 +286,37 @@ NEAT::InnovNodeGene BasicBrain::neuronHelper(sdf::ElementPtr neuron,
 
 	auto type = neuron->GetAttribute("type")->GetAsString();
 	auto layer = neuron->GetAttribute("layer")->GetAsString();
+	auto id = neuron->GetAttribute("id")->GetAsString();
 
 	// map <std::string, double> of parameter names and values
 	auto params = parseSDFElement(neuron);
 
-	return addNeuron(type, layer, params, ret);
+	return addNeuron(id, type, layer, params, ret, innov_number);
 }
 
 
 
-NEAT::InnovNodeGene BasicBrain::addNeuron(const std::string &neuronType,
+CPPNEAT::NeuronGenePtr NeatExtNN::addNeuron(const std::string &neuronId,
+					   const std::string &neuronType,
 					   const std::string &neuronLayer, // can be 'hidden', 'input' or 'output'
-					   NEAT::Trait &params, 
-					   NEAT::InnovGenome::GenomeConfig &ret)
+					   const std::map<std::string, double> &params, 
+					   CPPNEAT::GeneticEncodingPtr ret,
+					   int &innov_number)
 {
-	NEAT::InnovNodeGene newNeuron;
+	CPPNEAT::NeuronGenePtr newNeuronGene;
+	CPPNEAT::NeuronPtr newNeuron;
 // 	std::cout << neuronType + " " + neuronId  + " was added in"+ " "+ neuronLayer << std::endl;
 	if ("input" == neuronLayer) {
-		newNeuron = NEAT::InnovNodeGene(NEAT::NT_SENSOR, ret.node_id++, NEAT::INPUT);
-	}
+		newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::INPUT_LAYER, CPPNEAT::Neuron::INPUT, params));
 
-	else if ("output" == neuronLayer) {
+	}
+	else if("output" == neuronLayer) {
 
 		if ("Sigmoid" == neuronType) {
-			newNeuron = NEAT::InnovNodeGene(NEAT::NT_OUTPUT, ret.node_id++, NEAT::SIGMOID);
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::HIDDEN_LAYER, CPPNEAT::Neuron::SIGMOID, params));
 		}
 		else if ("Simple" == neuronType) {
-			newNeuron = NEAT::InnovNodeGene(NEAT::NT_OUTPUT, ret.node_id++, NEAT::SIMPLE);
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::HIDDEN_LAYER, CPPNEAT::Neuron::SIMPLE, params));
 		}
 // 		else if ("Oscillator" == neuronType) {
 // 			newNeuron.reset(new revolve::brain::OscillatorNeuron(neuronId, params));
@@ -317,24 +328,24 @@ NEAT::InnovNodeGene BasicBrain::addNeuron(const std::string &neuronType,
 // 			newNeuron.reset(new revolve::brain::XOscillator(neuronId, params));
 // 		}
 		else if ("Bias" == neuronType) {
-			newNeuron = NEAT::InnovNodeGene(NEAT::NT_OUTPUT, ret.node_id++, NEAT::BIAS);
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::HIDDEN_LAYER, CPPNEAT::Neuron::BIAS, params));
 		}
 // 		else if ("Leaky" == neuronType) {
 // 			newNeuron.reset(new revolve::brain::LeakyIntegrator(neuronId, params));
 // 		}
 		else if ("DifferentialCPG" == neuronType) {
-			newNeuron = NEAT::InnovNodeGene(NEAT::NT_OUTPUT, ret.node_id++, NEAT::DIFFERENTIAL_CPG);
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::HIDDEN_LAYER, CPPNEAT::Neuron::DIFFERENTIAL_CPG, params));
 		}
 		else {
 			std::cerr << "Unsupported neuron type `" << neuronType << '`' << std::endl;
 			throw std::runtime_error("Robot brain error");
 		}
 	} else {
-	  	if ("Sigmoid" == neuronType) {
-			newNeuron = NEAT::InnovNodeGene(NEAT::NT_HIDDEN, ret.node_id++, NEAT::SIGMOID);
+		if ("Sigmoid" == neuronType) {
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::OUTPUT_LAYER, CPPNEAT::Neuron::SIGMOID, params));
 		}
 		else if ("Simple" == neuronType) {
-			newNeuron = NEAT::InnovNodeGene(NEAT::NT_HIDDEN, ret.node_id++, NEAT::SIMPLE);
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::OUTPUT_LAYER, CPPNEAT::Neuron::SIMPLE, params));
 		}
 // 		else if ("Oscillator" == neuronType) {
 // 			newNeuron.reset(new revolve::brain::OscillatorNeuron(neuronId, params));
@@ -346,23 +357,22 @@ NEAT::InnovNodeGene BasicBrain::addNeuron(const std::string &neuronType,
 // 			newNeuron.reset(new revolve::brain::XOscillator(neuronId, params));
 // 		}
 		else if ("Bias" == neuronType) {
-			newNeuron = NEAT::InnovNodeGene(NEAT::NT_HIDDEN, ret.node_id++, NEAT::BIAS);
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::OUTPUT_LAYER, CPPNEAT::Neuron::BIAS, params));
 		}
 // 		else if ("Leaky" == neuronType) {
 // 			newNeuron.reset(new revolve::brain::LeakyIntegrator(neuronId, params));
 // 		}
 		else if ("DifferentialCPG" == neuronType) {
-			newNeuron = NEAT::InnovNodeGene(NEAT::NT_HIDDEN, ret.node_id++, NEAT::DIFFERENTIAL_CPG);
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::OUTPUT_LAYER, CPPNEAT::Neuron::DIFFERENTIAL_CPG, params));
 		}
 		else {
 			std::cerr << "Unsupported neuron type `" << neuronType << '`' << std::endl;
 			throw std::runtime_error("Robot brain error");
-		}	
+		}
 	}
-	newNeuron.set_trait_id(ret.trait_id++);
-	ret.traits.push_back(params);
-	ret.nodes.push_back(newNeuron);
-	return newNeuron;
+	newNeuronGene.reset(new CPPNEAT::NeuronGene(newNeuron, innov_number++,true));
+	ret->add_neuron_gene(newNeuronGene);
+	return newNeuronGene;
 }
 } /* namespace tol */
 
