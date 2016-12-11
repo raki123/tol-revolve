@@ -10,7 +10,7 @@ robot_list=( spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snak
 
 config=rlpower.cfg
 gz_command=gzserver
-load_controller=
+load_controller=None
 manager=single_robot_manager.py
 no_experiments=10
 output=output
@@ -49,15 +49,27 @@ function main() {
             local parameter="$1";
             shift
             case ${argument} in
-                -c | --config) local config=${parameter} ;;
+                -c | --config)
+                    local config=${parameter}
+                    if [ ! -s ${config} ]; then error_exit "Configuration file '${config}' does not exist."; fi
+                    ;;
                 -g | --gzcommand) local gz_command=${parameter} ;;
                 -h | --help) help ;;
-                -l | --load) local load_controller=${parameter} ;;
-                -m | --manager) local manager=${parameter} ;;
+                -l | --load)
+                    local load_controller=${parameter}
+                    if [ ! -s ${load_controller} ]; then error_exit "Controller file '${load_controller}' does not exist."; fi
+                    ;;
+                -m | --manager)
+                    local manager=${parameter}
+                    if [ ! -s ${manager} ]; then error_exit "Manager file '${manager}' does not exist."; fi
+                    ;;
                 -n | --no-experiments) local no_experiments=${parameter} ;;
                 -o | --output) local output=${parameter} ;;
                 -r | --restore) local restore=${parameter} ;;
-                -w | --world) local world=${parameter} ;;
+                -w | --world)
+                    local world=${parameter}
+                    if [ ! -s ${world} ]; then error_exit "World file '${world}' does not exist."; fi
+                    ;;
                 *) error_exit "${LINENO}: In ${FUNCNAME}() unknown argument ${argument}." ;;
             esac
         done

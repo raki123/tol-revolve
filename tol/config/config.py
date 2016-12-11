@@ -235,7 +235,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--load-controller',
-    default="", type=str,
+    default=None, type=str,
     help="Path to controller data."
 )
 
