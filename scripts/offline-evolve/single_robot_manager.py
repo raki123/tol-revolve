@@ -33,7 +33,8 @@ def run():
     with open(conf.brain_conf_path, 'r') as f:
         s = f.read()
         brain_conf = ast.literal_eval(s)
-    brain_conf["policy_load_path"] = conf.load_controller
+    if conf.load_controller != "None":
+        brain_conf["policy_load_path"] = conf.load_controller
     conf.brain_conf = brain_conf
 
     # This disables the analyzer; enable it if you want to generate valid robots
