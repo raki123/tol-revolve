@@ -1,4 +1,4 @@
-# Offline evolution scheme
+# Online learn scheme
 # - We use a population of constant size 10
 # - Each robot is evaluated for 20 seconds, though we may vary this number
 # - The average speed during this evaluation is the fitness
@@ -37,74 +37,14 @@ from tol.util.analyze import list_extremities, count_joints, count_motors, count
 output_console()
 logger.setLevel(logging.DEBUG)
 
-# Add offline evolve arguments
-parser.add_argument(
-    '--population-size',
-    default=10, type=int,
-    help="Population size in each generation."
-)
-
-parser.add_argument(
-    '--num-children',
-    default=10, type=int,
-    help="The number of children produced in each generation."
-)
-
 
 def str2bool(v):
     return v.lower() == "true" or v == "1"
 
-parser.add_argument(
-    '--keep-parents',
-    default=True, type=str2bool,
-    help="Whether or not to discard the parents after each generation. This determines the strategy, + or ,."
-)
 
-parser.add_argument(
-    '--num-generations',
-    default=200, type=int,
-    help="The number of generations to simulate."
-)
-
-parser.add_argument(
-    '--disable-evolution',
-    default=False, type=str2bool,
-    help="Useful as a baseline test - if set to true, new robots are generated"
-         " every time rather than evolving them."
-)
-
-parser.add_argument(
-    '--disable-selection',
-    default=False, type=str2bool,
-    help="Useful as a different baseline test - if set to true, robots reproduce,"
-         " but parents are selected completely random."
-)
-
-parser.add_argument(
-    '--disable-fitness',
-    default=False, type=str2bool,
-    help="Another baseline testing option, sorts robots randomly rather "
-         "than selecting the top pairs. This only matters if parents are kept."
-)
-
-parser.add_argument(
-    '--num-evolutions',
-    default=30, type=int,
-    help="The number of times to repeat the experiment."
-)
-
-parser.add_argument(
-    '--evaluation-threshold',
-    default=10.0, type=float,
-    help="Maximum number of seconds one evaluation can take before the "
-         "decision is made to restart from snapshot. The assumption is "
-         "that the world may have become slow and restarting will help."
-)
-
-
-class OfflineEvoManager(World):
+class OnlineLearnManager(World):
     """
-    Extended world manager for the offline evolution script
+    Extended world manager for the online learn script
     """
 
     def __init__(self, conf, _private):
@@ -114,19 +54,23 @@ class OfflineEvoManager(World):
         :param _private:
         :return:
         """
-        super(OfflineEvoManager, self).__init__(conf, _private)
+        super(OnlineLearnManager, self).__init__(conf, _private)
 
         self._snapshot_data = {}
 
         # Output files
         csvs = {
             'generations': ['run', 'gen', 'robot_id', 'vel', 'dvel', 'fitness', 't_eval'],
-            'robot_details': ['robot_id', 'extremity_id', 'extremity_size',
-                              'joint_count', 'motor_count']
+            'robot_details': ['robot_id', 'extremity_id', 'extremity_size', 'joint_count', 'motor_count']
         }
-        self.csv_files = {k: {'filename': None, 'file': None, 'csv': None,
-                              'header': csvs[k]}
-                          for k in csvs}
+        self.csv_files = {
+            k: {
+                'filename': None,
+                'file': None,
+                'csv': None,
+                'header': csvs[k]
+            } for k in csvs
+            }
 
         self.current_run = 0
 
@@ -167,7 +111,7 @@ class OfflineEvoManager(World):
         Copy the generations file in the snapshot
         :return:
         """
-        ret = yield From(super(OfflineEvoManager, self).create_snapshot())
+        ret = yield From(super(OnlineLearnManager, self).create_snapshot())
         if not ret:
             raise Return(ret)
 
@@ -182,7 +126,7 @@ class OfflineEvoManager(World):
         """
         :return:
         """
-        data = yield From(super(OfflineEvoManager, self).get_snapshot_data())
+        data = yield From(super(OnlineLearnManager, self).get_snapshot_data())
         data.update(self._snapshot_data)
         raise Return(data)
 
@@ -227,89 +171,6 @@ class OfflineEvoManager(World):
             sys.exit(15)
 
         raise Return(robot)
-
-    @trollius.coroutine
-    def evaluate_population(self, trees, bboxes, parents=None):
-        """
-        :param trees:
-        :param bboxes:
-        :param parents:
-        :return:
-        """
-        if parents is None:
-            parents = [None for _ in trees]
-
-        pairs = []
-        print("Evaluating population...")
-        for tree, bbox, par in itertools.izip(trees, bboxes, parents):
-            print("Evaluating individual...")
-            before = time.time()
-            robot = yield From(self.evaluate_pair(tree, bbox, par))
-            pairs.append((robot, time.time() - before))
-            print("Done.")
-
-        print("Done evaluating population.")
-        raise Return(pairs)
-
-    @trollius.coroutine
-    def produce_generation(self, parents):
-        """
-        Produce the next generation of robots from
-        the current.
-        :param parents:
-        :return:
-        """
-        print("Producing generation...")
-        trees = []
-        bboxes = []
-        parent_pairs = []
-
-        while len(trees) < self.conf.num_children:
-            print("Producing individual...")
-            if self.conf.disable_selection:
-                p1, p2 = random.sample(parents, 2)
-            else:
-                p1, p2 = select_parents(parents, self.conf)
-
-            for j in xrange(self.conf.max_mating_attempts):
-                pair = yield From(self.attempt_mate(p1, p2))
-                if pair:
-                    trees.append(pair[0])
-                    bboxes.append(pair[1])
-                    parent_pairs.append((p1, p2))
-                    break
-
-            print("Done.")
-
-        print("Done producing generation.")
-        raise Return(trees, bboxes, parent_pairs)
-
-    def log_generation(self, evo, generation, pairs):
-        """
-        :param evo: The evolution run
-        :param generation:
-        :param pairs: List of tuples (robot, evaluation wallclock time)
-        :return:
-        """
-        print("================== GENERATION %d ==================" % generation)
-        if not self.output_directory:
-            return
-
-        go = self.csv_files['generations']['csv']
-        do = self.csv_files['robot_details']['csv']
-        for robot, t_eval in pairs:
-            robot_id = robot.robot.id
-            root = robot.tree.root
-            go.writerow([evo, generation, robot.robot.id, robot.velocity(),
-                         robot.displacement_velocity(), robot.fitness(), t_eval])
-
-            # TODO Write this once when robot is written instead
-            counter = 0
-            for extr in list_extremities(root):
-                num_joints = count_joints(extr)
-                num_motors = count_motors(extr)
-                do.writerow((robot_id, counter, len(extr), num_joints, num_motors))
-                counter += 1
 
     @trollius.coroutine
     def run(self):
@@ -387,31 +248,10 @@ class OfflineEvoManager(World):
         """
         :return:
         """
-        yield From(super(OfflineEvoManager, self).teardown())
+        yield From(super(OnlineLearnManager, self).teardown())
         for k in self.csv_files:
             if self.csv_files[k]['file']:
                 self.csv_files[k]['file'].close()
-
-
-def select_parent(parents, conf):
-    """
-    Select a parent using a binary tournament.
-    :param parents:
-    :param conf: Configuration object
-    :return:
-    """
-    return sorted(random.sample(parents, conf.tournament_size), key=lambda r: r.fitness())[-1]
-
-
-def select_parents(parents, conf):
-    """
-    :param parents:
-    :param conf: Configuration object
-    :return:
-    """
-    p1 = select_parent(parents, conf)
-    p2 = select_parent(list(parent for parent in parents if parent != p1), conf)
-    return p1, p2
 
 
 @trollius.coroutine
@@ -420,7 +260,7 @@ def run():
     :return:
     """
     conf = parser.parse_args()
-    world = yield From(OfflineEvoManager.create(conf))
+    world = yield From(OnlineLearnManager.create(conf))
     yield From(world.run())
 
 
