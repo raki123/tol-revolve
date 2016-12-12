@@ -8,14 +8,14 @@ PROGNAME=$(basename $0)
 # Default argument list
 robot_list=( spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC )
 
-config=rlpower.cfg
+config=./res/rlpower.cfg
 gz_command=gzserver
 load_controller=None
-manager=single_robot_manager.py
+manager=./experiments/single_robot_manager.py
 no_experiments=10
 output=output
 restore=restore
-world=gait-learning.world
+world=./res/worlds/gait-learning.world
 
 function error_exit() {
     echo "${PROGNAME}: ${1:-"Unknown Error"}" 1 >&2
@@ -75,18 +75,18 @@ function main() {
         done
     fi
 
-    # For each name in 'robot_list' run 'no_experiments' experiments
+    # For each name in 'robot_list' run 'no_experiments' experiment
     for index in ${!robot_list[*]}
     do
         for (( i = 1; i <= ${no_experiments}; ++ i ))
         do
-            python start.py \
+            python ./start.py \
                 --load-controller ${load_controller} \
                 --manager ${manager} \
                 --world ${world} \
                 --output ${output} \
                 --restore ${restore} \
-                --robot-name robots/${robot_list[$index]} \
+                --robot-name ./res/robots/${robot_list[$index]} \
                 --experiment-round ${i} \
                 --brain-conf-path ${config} \
                 --gazebo-cmd ${gz_command}
