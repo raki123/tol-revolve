@@ -2,12 +2,14 @@ import os
 import sys
 
 here = os.path.dirname(os.path.abspath(__file__))
-tol_path = os.path.abspath(os.path.join(here, '..', '..'))
+# tol_path = os.path.abspath(os.path.join(here, '..', '..'))
+tol_path = os.path.abspath(os.path.join(here))
+# rv_path = os.path.abspath(os.path.join(tol_path, '..', 'revolve'))
 rv_path = os.path.abspath(os.path.join(tol_path, '..', 'revolve'))
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from revolve.util import Supervisor
-from offline_evolve import parser
+from experiments.offline_evolve import parser
 
 
 class OfflineEvolutionSupervisor(Supervisor):
@@ -42,6 +44,7 @@ os.environ['GAZEBO_MODEL_PATH'] = os.path.join(tol_path, 'tools', 'models') + \
 
 supervisor = OfflineEvolutionSupervisor(
     manager_cmd=[sys.executable, args.manager,
+                 "--load-controller", args.load_controller,
                  "--robot-name", args.robot_name,
                  "--experiment-round", args.experiment_round,
                  "--brain-conf-path", args.brain_conf_path],
