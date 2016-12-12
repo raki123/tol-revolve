@@ -2,12 +2,14 @@ import os
 import sys
 
 here = os.path.dirname(os.path.abspath(__file__))
-tol_path = os.path.abspath(os.path.join(here, '..', '..'))
+# tol_path = os.path.abspath(os.path.join(here, '..', '..'))
+tol_path = os.path.abspath(os.path.join(here))
+# rv_path = os.path.abspath(os.path.join(tol_path, '..', 'revolve'))
 rv_path = os.path.abspath(os.path.join(tol_path, '..', 'revolve'))
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from revolve.util import Supervisor
-from offline_evolve import parser
+from experiments.offline_evolve import parser
 
 
 class OfflineEvolutionSupervisor(Supervisor):
