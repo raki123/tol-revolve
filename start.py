@@ -9,7 +9,7 @@ rv_path = os.path.abspath(os.path.join(tol_path, '..', 'revolve'))
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from revolve.util import Supervisor
-from experiments.offline_evolve import parser
+from experiments.online_learn import parser
 
 
 class OfflineEvolutionSupervisor(Supervisor):
