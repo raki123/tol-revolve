@@ -22,7 +22,7 @@ namespace tol {
                      EvaluatorPtr evaluator,
                      std::vector<revolve::gazebo::MotorPtr> &actuators,
                      std::vector<revolve::gazebo::SensorPtr> &sensors) :
-		revolve::brain::ConvSplitBrain<std::vector<double>, std::vector<std::vector<double>>>(&forController, &forLearner)  { 
+		revolve::brain::ConvSplitBrain<std::vector<double>, std::vector<std::vector<double>>>(&forController, &forLearner, modelName)  { 
 	boost::shared_ptr<revolve::brain::ExtNNController> swap1(new revolve::brain::ExtNNController(modelName,
 												      ExtNN::parseSDF(brain, actuators, sensors),  
 												      evaluator, 

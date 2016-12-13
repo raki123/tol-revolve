@@ -10,7 +10,7 @@
 #include "simple_split_brain.h"
 #include "extended_neural_network.h"
 #include "rlpowered_network.h"
-#include "neat/neat_ext_nn.h"
+#include "neat_ext_nn.h"
 
 #include <iostream>
 

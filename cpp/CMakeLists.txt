@@ -67,8 +67,8 @@ file(GLOB_RECURSE
         tol/plugin/rlpower.cpp
 	tol/plugin/simple_split_brain.cpp
  	tol/plugin/extended_neural_network.cpp
- 	tol/plugin/rlpowered_network.cpp)
-#  	tol/plugin/neat_ext_nn.cpp)
+ 	tol/plugin/rlpowered_network.cpp
+  	tol/plugin/neat_ext_nn.cpp)
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
 add_library(tolrobotcontrol SHARED ${TOL_ROBOT_SRC})
@@ -138,9 +138,9 @@ include_directories(../../revolve-brain/cpp)
 include_directories(${Boost_INCLUDE_DIRS} ${REVOLVE_INCLUDE_PATH} ${GAZEBO_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS})
 set(TOL_DEPS ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${REVOLVE_LIBRARIES} ${GAZEBO_LIBRARIES} ${GSL_LIBRARIES})
 
-add_subdirectory("tol/plugin/neat")
+#add_subdirectory("tol/plugin/neat")
 
-target_link_libraries(tolrobotcontrol neatnet)
+#target_link_libraries(tolrobotcontrol neatnet)
 target_link_libraries(tolrobotcontrol ${TOL_DEPS} revolve-brain-static)
 target_link_libraries(tolworldcontrol ${TOL_DEPS} tolrobotcontrol)
 

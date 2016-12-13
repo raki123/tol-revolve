@@ -4,7 +4,7 @@
 #include "brain/split_cpg/converting_split_brain.h"
 #include "brain/split_cpg/ext_nn.h"
 #include "brain/cppneat/neat_learner.h"
-#include "../evaluator.h"
+#include "evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 
 

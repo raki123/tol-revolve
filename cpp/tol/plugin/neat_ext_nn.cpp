@@ -1,9 +1,9 @@
 #include "neat_ext_nn.h"
 #include "brain/cppneat/neuron_gene.h"
 #include "brain/cppneat/connection_gene.h"
-#include "../helper.h"
-#include "../sensor.h"
-#include "../actuator.h"
+#include "helper.h"
+#include "sensor.h"
+#include "actuator.h"
 #include "brain/split_cpg/conversion.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
@@ -17,9 +17,8 @@ namespace tol {
 		     sdf::ElementPtr node,
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors) 
-    :  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController, &revolve::brain::convertForLearner) {
-	
-	int innov_number = 0;
+    :  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController, &revolve::brain::convertForLearner, modelName) {
+	int innov_number = 1;
 	//sleep(20);
 	revolve::brain::learning_configuration.start_from = parseSDF(node, actuators, sensors, innov_number);
 	boost::shared_ptr<revolve::brain::ExtNNController1> swap1(new revolve::brain::ExtNNController1(modelName,
@@ -30,11 +29,11 @@ namespace tol {
 	controller = swap1;
 	revolve::brain::set_learning_conf();
 	revolve::brain::set_brain_spec();
-	CPPNEAT::Mutator mutator(revolve::brain::brain_spec,
-				1,
-				0,
-				100,
-				std::vector<CPPNEAT::Neuron::Ntype>());
+	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
+					1,
+					0,
+					100,
+					std::vector<CPPNEAT::Neuron::Ntype>()));
 	boost::shared_ptr<CPPNEAT::Learner> swap2(new CPPNEAT::Learner(mutator, 
 								       revolve::brain::learning_configuration));
 	learner = boost::static_pointer_cast<revolve::brain::Learner<CPPNEAT::GeneticEncodingPtr>>(swap2);
@@ -318,9 +317,9 @@ CPPNEAT::NeuronGenePtr NeatExtNN::addNeuron(const std::string &neuronId,
 		else if ("Simple" == neuronType) {
 			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::HIDDEN_LAYER, CPPNEAT::Neuron::SIMPLE, params));
 		}
-// 		else if ("Oscillator" == neuronType) {
-// 			newNeuron.reset(new revolve::brain::OscillatorNeuron(neuronId, params));
-// 		}
+		else if ("Oscillator" == neuronType) {
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::HIDDEN_LAYER, CPPNEAT::Neuron::OSCILLATOR, params));
+		}
 // 		else if ("V-Neuron" == neuronType) {
 // 			newNeuron.reset(new revolve::brain::VOscillator(neuronId, params));
 // 		}
@@ -347,9 +346,9 @@ CPPNEAT::NeuronGenePtr NeatExtNN::addNeuron(const std::string &neuronId,
 		else if ("Simple" == neuronType) {
 			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::OUTPUT_LAYER, CPPNEAT::Neuron::SIMPLE, params));
 		}
-// 		else if ("Oscillator" == neuronType) {
-// 			newNeuron.reset(new revolve::brain::OscillatorNeuron(neuronId, params));
-// 		}
+		else if ("Oscillator" == neuronType) {
+			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::OUTPUT_LAYER, CPPNEAT::Neuron::OSCILLATOR, params));
+		}
 // 		else if ("V-Neuron" == neuronType) {
 // 			newNeuron.reset(new revolve::brain::VOscillator(neuronId, params));
 // 		}

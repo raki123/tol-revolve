@@ -12,7 +12,7 @@ namespace tol {
 		     tol::EvaluatorPtr evaluator,
 		     sdf::ElementPtr node,
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
-                     const std::vector<revolve::gazebo::SensorPtr> &sensors) :  revolve::brain::SimpleSplitBrain<std::vector<double>>() {
+                     const std::vector<revolve::gazebo::SensorPtr> &sensors) :  revolve::brain::SimpleSplitBrain<std::vector<double>>(modelName) {
 // 	std::cout << "i get here \n";
 	boost::shared_ptr<revolve::brain::ExtNNController> swap1(new revolve::brain::ExtNNController(modelName,
 							parseSDF(node, actuators, sensors),  
