@@ -31,7 +31,7 @@ namespace tol {
 	revolve::brain::set_brain_spec();
 	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
 					1,
-					0,
+					innov_number,
 					100,
 					std::vector<CPPNEAT::Neuron::Ntype>()));
 	boost::shared_ptr<CPPNEAT::Learner> swap2(new CPPNEAT::Learner(mutator, 
@@ -247,7 +247,7 @@ void NeatExtNN::connectionHelper(const std::string &src,
 					     CPPNEAT::GeneticEncodingPtr ret,
 					     int &innov_number)
 {
-// 	std::cout << "connection from " + src + " to " + dst + " was added with weight: " << weight << std::endl;
+ 	std::cout << "connection from " + src + " to " + dst + " was added with weight: " << weight << std::endl;
 	auto srcNeuron = idToNeuron.find(src);
 	if (srcNeuron == idToNeuron.end()) {
 		std::cerr << "Could not find source neuron '" << src << "'" << std::endl;
@@ -304,12 +304,12 @@ CPPNEAT::NeuronGenePtr NeatExtNN::addNeuron(const std::string &neuronId,
 {
 	CPPNEAT::NeuronGenePtr newNeuronGene;
 	CPPNEAT::NeuronPtr newNeuron;
-// 	std::cout << neuronType + " " + neuronId  + " was added in"+ " "+ neuronLayer << std::endl;
+ 	std::cout << neuronType + " " + neuronId  + " was added in"+ " "+ neuronLayer << std::endl;
 	if ("input" == neuronLayer) {
 		newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::INPUT_LAYER, CPPNEAT::Neuron::INPUT, params));
 
 	}
-	else if("output" == neuronLayer) {
+	else if("hidden" == neuronLayer) {
 
 		if ("Sigmoid" == neuronType) {
 			newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::HIDDEN_LAYER, CPPNEAT::Neuron::SIGMOID, params));

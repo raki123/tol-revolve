@@ -28,6 +28,7 @@ void RobotController::Load(::gazebo::physics::ModelPtr _parent, sdf::ElementPtr 
 void RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
     evaluator_ = boost::make_shared<Evaluator>();
+    std::cout << sdf->ToString("") <<std::endl;
 
     if (!sdf->HasElement("rv:brain")) {
         std::cerr << "No robot brain detected, this is probably an error." << std::endl;
