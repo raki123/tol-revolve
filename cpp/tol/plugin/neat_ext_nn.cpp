@@ -4,6 +4,7 @@
 #include "helper.h"
 #include "sensor.h"
 #include "actuator.h"
+#include "body.h"
 #include "brain/split_cpg/conversion.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
@@ -38,6 +39,7 @@ namespace tol {
 								       revolve::brain::learning_configuration));
 	learner = boost::static_pointer_cast<revolve::brain::Learner<CPPNEAT::GeneticEncodingPtr>>(swap2);
 	evaluator_ = evaluator;
+	//Body body(modelName + ".yaml");
     }
 
     NeatExtNN::~NeatExtNN()
