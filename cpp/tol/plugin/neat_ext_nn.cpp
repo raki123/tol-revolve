@@ -19,15 +19,26 @@ namespace tol {
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors) 
     :  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController, &revolve::brain::convertForLearner, modelName) {
-	int innov_number = 1;
-	//sleep(20);
-	revolve::brain::learning_configuration.start_from = parseSDF(node, actuators, sensors, innov_number);
+// 	sleep(20);
+	    
+	//initialise controller
+	std::string name(modelName.substr(0, modelName.find("-")) + ".yaml");
+	Body body(name);
+	std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> in_out = body.get_input_output_map(actuators, sensors);
+	revolve::brain::input_map = in_out.first;
+	revolve::brain::output_map = in_out.second;
+	revolve::brain::learning_configuration.start_from = body.get_coupled_cpg_network();
 	boost::shared_ptr<revolve::brain::ExtNNController1> swap1(new revolve::brain::ExtNNController1(modelName,
-							revolve::brain::convertForController(revolve::brain::learning_configuration.start_from),  
-							evaluator, 
-							Helper::createWrapper(actuators),
-							Helper::createWrapper(sensors)));
+													revolve::brain::convertForController(revolve::brain::learning_configuration.start_from),  
+													evaluator, 
+													Helper::createWrapper(actuators),
+													Helper::createWrapper(sensors)));
+	std::ofstream networkOutput("debug.dot"); //debug
+	swap1->writeNetwork(networkOutput);       //debug
+	int innov_number = body.getInnovNumber();
 	controller = swap1;
+	
+	//initialise learner
 	revolve::brain::set_learning_conf();
 	revolve::brain::set_brain_spec();
 	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
@@ -39,7 +50,6 @@ namespace tol {
 								       revolve::brain::learning_configuration));
 	learner = boost::static_pointer_cast<revolve::brain::Learner<CPPNEAT::GeneticEncodingPtr>>(swap2);
 	evaluator_ = evaluator;
-	//Body body(modelName + ".yaml");
     }
 
     NeatExtNN::~NeatExtNN()
@@ -60,7 +70,7 @@ namespace tol {
         );
     }
 
-    
+    /*
 CPPNEAT::GeneticEncodingPtr NeatExtNN::parseSDF(sdf::ElementPtr node,
 		       const std::vector< revolve::gazebo::MotorPtr > & motors,
 		       const std::vector< revolve::gazebo::SensorPtr > & sensors,
@@ -249,7 +259,7 @@ void NeatExtNN::connectionHelper(const std::string &src,
 					     CPPNEAT::GeneticEncodingPtr ret,
 					     int &innov_number)
 {
- 	std::cout << "connection from " + src + " to " + dst + " was added with weight: " << weight << std::endl;
+//  	std::cout << "connection from " + src + " to " + dst + " was added with weight: " << weight << std::endl;
 	auto srcNeuron = idToNeuron.find(src);
 	if (srcNeuron == idToNeuron.end()) {
 		std::cerr << "Could not find source neuron '" << src << "'" << std::endl;
@@ -306,7 +316,7 @@ CPPNEAT::NeuronGenePtr NeatExtNN::addNeuron(const std::string &neuronId,
 {
 	CPPNEAT::NeuronGenePtr newNeuronGene;
 	CPPNEAT::NeuronPtr newNeuron;
- 	std::cout << neuronType + " " + neuronId  + " was added in"+ " "+ neuronLayer << std::endl;
+//  	std::cout << neuronType + " " + neuronId  + " was added in"+ " "+ neuronLayer << std::endl;
 	if ("input" == neuronLayer) {
 		newNeuron.reset(new CPPNEAT::Neuron(neuronId, CPPNEAT::Neuron::INPUT_LAYER, CPPNEAT::Neuron::INPUT, params));
 
@@ -375,5 +385,6 @@ CPPNEAT::NeuronGenePtr NeatExtNN::addNeuron(const std::string &neuronId,
 	ret->add_neuron_gene(newNeuronGene);
 	return newNeuronGene;
 }
+*/
 } /* namespace tol */
 

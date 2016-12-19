@@ -68,7 +68,8 @@ file(GLOB_RECURSE
 	tol/plugin/simple_split_brain.cpp
  	tol/plugin/extended_neural_network.cpp
  	tol/plugin/rlpowered_network.cpp
-  	tol/plugin/neat_ext_nn.cpp)
+  	tol/plugin/neat_ext_nn.cpp
+  	tol/plugin/body.cpp)
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
 add_library(tolrobotcontrol SHARED ${TOL_ROBOT_SRC})
