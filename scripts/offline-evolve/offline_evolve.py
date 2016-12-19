@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 # Offline evolution scheme
 # - We use a population of constant size 10
 # - Each robot is evaluated for 20 seconds, though we may vary this number

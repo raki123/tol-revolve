@@ -7,6 +7,7 @@ PROGNAME=$(basename $0)
 
 # Default argument list
 robot_list=( spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC )
+robot_list=( gecko7 )
 
 config=rlpower.cfg
 manager=single_robot_manager.py
@@ -15,6 +16,19 @@ output=output
 restore=restore
 gz_command=gzserver
 no_experiments=10
+REVOLVE_HOME='/home/matteo/progetti/revolve'
+
+function recompile() {
+  cur_dir=$PWD
+  cd "${REVOLVE_HOME}/revolve/build"
+  echo '-> BUILDING REVOLVE'
+  make
+  cd "${REVOLVE_HOME}/tol-revolve/build"
+  echo '-> BUILDING TOL-REVOLVE'
+  make
+  cd $cur_dir
+}
+
 
 function error_exit() {
     echo "${PROGNAME}: ${1:-"Unknown Error"}" 1 >&2
@@ -37,6 +51,8 @@ function help() {
 }
 
 function main() {
+
+    recompile
 
     # Read out the argument list
     if [ $# -gt 0 ]; then
