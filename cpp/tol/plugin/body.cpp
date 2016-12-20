@@ -213,6 +213,75 @@ std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> Body::get_in
 	return std::make_pair(input_map, output_map);
 }
 
+CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
+{
+	int innov_number = 1;
+	CPPNEAT::GeneticEncodingPtr ret(new CPPNEAT::GeneticEncodingPtr());
+	//add inputs
+	std::map<std::string, double> empty;
+	for(int i = 0; i < 6; i++)
+	{
+		CPPNEAT::NeuronPtr neuron(new CPPNEAT::Neuron("Input" + std::to_string(i), //better names (like input x1 etc) might help
+							      CPPNEAT::Neuron::INPUT_LAYER,
+							      CPPNEAT::Neuron::INPUT,
+							      empty));
+		CPPNEAT::NeuronGenePtr neuron_gene(new CPPNEAT::NeuronGene(neuron, innov_number++, true)); //means innovation number is i + 1
+		ret->add_neuron_gene(neuron_gene);
+	}
+	
+	//add outputs
+	empty["rv:bias"] = 0;
+	empty["rv:gain"] = 1;
+	CPPNEAT::NeuronPtr weight_neuron(new CPPNEAT::Neuron("weight",
+							CPPNEAT::Neuron::OUTPUT_LAYER,
+							CPPNEAT::Neuron::SIMPLE,
+							empty));
+	CPPNEAT::NeuronGenePtr weight_neuron_gene(new CPPNEAT::NeuronGene(weight_neuron, innov_number++, true));
+	ret->add_neuron_gene(weight_neuron_gene);
+	CPPNEAT::NeuronPtr bias_neuron(new CPPNEAT::Neuron("rv:bias", 
+							CPPNEAT::Neuron::OUTPUT_LAYER,
+							CPPNEAT::Neuron::SIMPLE,
+							empty));
+	CPPNEAT::NeuronGenePtr bias_neuron_gene(new CPPNEAT::NeuronGene(bias_neuron, innov_number++, true));
+	ret->add_neuron_gene(bias_neuron_gene);
+	CPPNEAT::NeuronPtr gain_neuron(new CPPNEAT::Neuron("rv:gain",
+							CPPNEAT::Neuron::OUTPUT_LAYER,
+							CPPNEAT::Neuron::SIMPLE,
+							empty));
+	CPPNEAT::NeuronGenePtr gain_neuron_gene(new CPPNEAT::NeuronGene(gain_neuron, innov_number++, true));
+	ret->add_neuron_gene(gain_neuron_gene);
+	
+	//connect every input with every output
+	for(int i = 0; i < 6; i++) 
+	{
+		CPPNEAT::ConnectionGenePtr connection_to_weight(new CPPNEAT::ConnectionGene(weight_neuron_gene->getInnovNumber(),
+										  i + 1,
+										  10,
+										  innov_number++,
+										  true,
+										  ""));
+		ret->add_connection_gene(connection_to_weight);
+		
+		CPPNEAT::ConnectionGenePtr connection_to_bias(new CPPNEAT::ConnectionGene(bias_neuron_gene->getInnovNumber(),
+										  i + 1,
+										  10,
+										  innov_number++,
+										  true,
+										  ""));
+		ret->add_connection_gene(connection_to_bias);
+		
+		CPPNEAT::ConnectionGenePtr connection_to_gain(new CPPNEAT::ConnectionGene(gain_neuron_gene->getInnovNumber(),
+										  i + 1,
+										  10,
+										  innov_number++,
+										  true,
+										  ""));
+		ret->add_connection_gene(connection_to_gain);
+	}
+	return ret;
+}
+
+
 
 void Body::set_coordinates(int x, int y, BodyPart *part) 
 {

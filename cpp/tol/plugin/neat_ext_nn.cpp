@@ -33,8 +33,8 @@ namespace tol {
 													evaluator, 
 													Helper::createWrapper(actuators),
 													Helper::createWrapper(sensors)));
-	std::ofstream networkOutput("debug.dot"); //debug
-	swap1->writeNetwork(networkOutput);       //debug
+// 	std::ofstream networkOutput("debug.dot"); //debug
+// 	swap1->writeNetwork(networkOutput);       //debug
 	int innov_number = body.getInnovNumber();
 	controller = swap1;
 	

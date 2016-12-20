@@ -30,6 +30,7 @@ namespace tol {
 		CPPNEAT::GeneticEncodingPtr get_coupled_cpg_network();
 		std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuators,
 													 const std::vector<revolve::gazebo::SensorPtr> &sensors);
+		CPPNEAT::GeneticEncodingPtr get_hyper_neat_network();
 		int getInnovNumber() { return innov_number + 1; };
 	private:
 		//Body parsing
