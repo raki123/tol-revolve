@@ -19,6 +19,8 @@
 
 #include "helper.h"
 
+#include <boost/make_shared.hpp>
+
 using namespace tol;
 
 const std::vector<revolve::brain::ActuatorPtr>
