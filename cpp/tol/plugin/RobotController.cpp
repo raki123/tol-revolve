@@ -8,6 +8,7 @@
 #include "RobotController.h"
 #include "rlpower.h"
 #include "rlpowered_network.h"
+#include "hyper_ext_nn.h"
 
 #include <boost/make_shared.hpp>
 #include <iostream>
@@ -47,9 +48,9 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
         } else if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::net") {
             brain_.reset(new tol::RLPowerNet(this->model->GetName(), brain, evaluator_, motors_, sensors_));
         } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::net") {
-
+	    brain_.reset(new tol::HyperExtNN(this->model->GetName(), evaluator_, motors_, sensors_));
 	} else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::spline") {
-		
+	  
         } else {
             std::cout << "Calling default ANN brain." << std::endl;
             revolve::gazebo::RobotController::LoadBrain(sdf);

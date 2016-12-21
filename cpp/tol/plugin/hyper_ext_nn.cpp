@@ -1,4 +1,4 @@
-#include "neat_ext_nn.h"
+#include "hyper_ext_nn.h"
 #include "helper.h"
 #include "sensor.h"
 #include "actuator.h"
@@ -11,12 +11,11 @@
 namespace tol {
 
 
-    NeatExtNN::NeatExtNN(std::string modelName,
+    HyperExtNN::HyperExtNN(std::string modelName,
 		     tol::EvaluatorPtr evaluator,
-		     sdf::ElementPtr node,
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors) 
-    :  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController, &revolve::brain::convertForLearner, modelName) {
+    :  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForExtNNFromHyper, &revolve::brain::convertForHyperFromExtNN, modelName) {
 // 	sleep(20);
 	    
 	//initialise controller
@@ -25,22 +24,21 @@ namespace tol {
 	std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> in_out = body.get_input_output_map(actuators, sensors);
 	revolve::brain::input_map = in_out.first;
 	revolve::brain::output_map = in_out.second;
-	revolve::brain::learning_configuration.start_from = body.get_coupled_cpg_network();
+	revolve::brain::cpg_network = revolve::brain::convertForController(body.get_coupled_cpg_network());
+	revolve::brain::neuron_coordinates = body.get_id_to_coordinate_map();
 	boost::shared_ptr<revolve::brain::ExtNNController1> swap1(new revolve::brain::ExtNNController1(modelName,
-													revolve::brain::convertForController(revolve::brain::learning_configuration.start_from),  
-													Helper::createWrapper(actuators),
-													Helper::createWrapper(sensors)));
-// 	std::ofstream networkOutput("debug.dot"); //debug
-// 	swap1->writeNetwork(networkOutput);       //debug
-	int innov_number = body.getInnovNumber();
+												       revolve::brain::cpg_network,  
+												       Helper::createWrapper(actuators),
+												       Helper::createWrapper(sensors)));
 	controller = swap1;
 	
 	//initialise learner
 	revolve::brain::set_learning_conf();
 	revolve::brain::set_brain_spec();
+	revolve::brain::learning_configuration.start_from = body.get_hyper_neat_network();
 	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
 					1,
-					innov_number,
+					revolve::brain::learning_configuration.start_from->min_max_innov_numer().second,
 					100,
 					std::vector<CPPNEAT::Neuron::Ntype>()));
 	boost::shared_ptr<CPPNEAT::Learner> swap2(new CPPNEAT::Learner(mutator, 
@@ -49,13 +47,13 @@ namespace tol {
 	evaluator_ = evaluator;
     }
 
-    NeatExtNN::~NeatExtNN()
+    HyperExtNN::~HyperExtNN()
     {
 
     }
 
 
-    void NeatExtNN::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+    void HyperExtNN::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                          const std::vector<revolve::gazebo::SensorPtr> &sensors,
                          double t,
                          double step) {

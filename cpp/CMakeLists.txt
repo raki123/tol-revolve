@@ -68,6 +68,7 @@ file(GLOB_RECURSE
         tol/plugin/rlpowered_network.cpp
         tol/plugin/body.cpp
         tol/plugin/neat_ext_nn.cpp
+        tol/plugin/hyper_ext_nn.cpp
         )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})

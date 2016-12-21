@@ -221,7 +221,7 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 	std::map<std::string, double> empty;
 	for(int i = 0; i < 6; i++)
 	{
-		CPPNEAT::NeuronPtr neuron(new CPPNEAT::Neuron("Input" + std::to_string(i), //better names (like input x1 etc) might help
+		CPPNEAT::NeuronPtr neuron(new CPPNEAT::Neuron("Input-" + std::to_string(i), //better names (like input x1 etc) might help
 							      CPPNEAT::Neuron::INPUT_LAYER,
 							      CPPNEAT::Neuron::INPUT,
 							      empty));
@@ -281,7 +281,15 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 	return ret;
 }
 
-
+std::map< std::string, std::tuple< int, int, int > > Body::get_id_to_coordinate_map()
+{
+	std::map< std::string, std::tuple< int, int, int > > ret;
+	for(std::pair<CPPNEAT::NeuronGenePtr, std::tuple<int,int,int>> pair : neuron_coordinates) 
+	{
+		ret[pair.first->neuron->neuron_id] = pair.second;
+	}
+	return ret;
+}
 
 void Body::set_coordinates(int x, int y, BodyPart *part) 
 {
