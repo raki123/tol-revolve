@@ -8,7 +8,7 @@ PROGNAME=$(basename $0)
 # Default argument list
 robot_list=( spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC )
 
-config=./res/rlpower.cfg
+config=./res/rlpower_spline.cfg
 gz_command=gzserver
 load_controller=None
 manager=./experiments/single_robot_manager.py
