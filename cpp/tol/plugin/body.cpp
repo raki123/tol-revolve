@@ -136,7 +136,7 @@ CPPNEAT::GeneticEncodingPtr Body::get_coupled_cpg_network()
 }
 
 std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> Body::get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuators,
-																     const std::vector<revolve::gazebo::SensorPtr> &sensors) 
+											       const std::vector<revolve::gazebo::SensorPtr> &sensors) 
 {
  	unsigned int p = 0;
 	std::map<int, unsigned int> output_map;
@@ -216,7 +216,7 @@ std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> Body::get_in
 CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 {
 	int innov_number = 1;
-	CPPNEAT::GeneticEncodingPtr ret(new CPPNEAT::GeneticEncoding());
+	CPPNEAT::GeneticEncodingPtr ret(new CPPNEAT::GeneticEncoding(true));
 	//add inputs
 	std::map<std::string, double> empty;
 	for(int i = 0; i < 6; i++)
@@ -226,7 +226,7 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 							      CPPNEAT::Neuron::INPUT,
 							      empty));
 		CPPNEAT::NeuronGenePtr neuron_gene(new CPPNEAT::NeuronGene(neuron, innov_number++, true)); //means innovation number is i + 1
-		ret->add_neuron_gene(neuron_gene);
+		ret->add_neuron_gene(neuron_gene, 0, i == 0);
 	}
 	
 	//add outputs
@@ -237,19 +237,23 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 							CPPNEAT::Neuron::SIMPLE,
 							empty));
 	CPPNEAT::NeuronGenePtr weight_neuron_gene(new CPPNEAT::NeuronGene(weight_neuron, innov_number++, true));
-	ret->add_neuron_gene(weight_neuron_gene);
+	ret->add_neuron_gene(weight_neuron_gene, 1, true);
 	CPPNEAT::NeuronPtr bias_neuron(new CPPNEAT::Neuron("rv:bias", 
 							CPPNEAT::Neuron::OUTPUT_LAYER,
 							CPPNEAT::Neuron::SIMPLE,
 							empty));
 	CPPNEAT::NeuronGenePtr bias_neuron_gene(new CPPNEAT::NeuronGene(bias_neuron, innov_number++, true));
-	ret->add_neuron_gene(bias_neuron_gene);
+	ret->add_neuron_gene(bias_neuron_gene, 1, false);
 	CPPNEAT::NeuronPtr gain_neuron(new CPPNEAT::Neuron("rv:gain",
 							CPPNEAT::Neuron::OUTPUT_LAYER,
 							CPPNEAT::Neuron::SIMPLE,
 							empty));
 	CPPNEAT::NeuronGenePtr gain_neuron_gene(new CPPNEAT::NeuronGene(gain_neuron, innov_number++, true));
-	ret->add_neuron_gene(gain_neuron_gene);
+	ret->add_neuron_gene(gain_neuron_gene, 1, false);
+	
+	if(!ret->is_valid()) {
+		std::cerr << "invalid hyper neat net (before adding conncetions)" << std::endl;
+	}
 	
 	//connect every input with every output
 	for(int i = 0; i < 6; i++) 
@@ -277,6 +281,12 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 										  true,
 										  ""));
 		ret->add_connection_gene(connection_to_gain);
+			if(!ret->is_valid()) {
+		std::cerr << "invalid hyper neat net(while adding connections)" << i << std::endl;
+	}
+	}
+	if(!ret->is_valid()) {
+		std::cerr << "invalid hyper neat net" << std::endl;
 	}
 	return ret;
 }

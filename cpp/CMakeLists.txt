@@ -19,7 +19,7 @@ add_definitions(-DSOURCE_DIR=${CMAKE_SOURCE_DIR})
 add_definitions(-pedantic -Wno-long-long -Wall -Wextra -Wformat=2
         -Wredundant-decls -Wwrite-strings -Wmissing-include-dirs
         -Wswitch-enum -Wuninitialized
-        -Wswitch-default -Winit-self -Wfloat-equal -fPIC)
+        -Wswitch-default -Winit-self -Wfloat-equal -fPIC -g)
 
 # Use C++11 (removed, this is added below by the Gazebo flags)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")

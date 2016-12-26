@@ -1,5 +1,5 @@
-#ifndef REVOLVE_GAZEBO_BRAIN_NEAT_SPLIT_BRAIN_H_
-#define REVOLVE_GAZEBO_BRAIN_NEAT_SPLIT_BRAIN_H_
+#ifndef REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLIT_BRAIN_H_
+#define REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLIT_BRAIN_H_
 
 #include "brain/converting_split_brain.h"
 #include "brain/controller/ext_nn_weights.h"
@@ -51,6 +51,6 @@ namespace tol {
 
 } /* namespace tol */
 
-#endif //REVOLVE_GAZEBO_BRARN_DIFFERENTIAL_SPLIT_BRAIN_H_
+#endif //REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLIT_BRAIN_H_
 
 
