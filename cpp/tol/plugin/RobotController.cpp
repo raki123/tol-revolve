@@ -6,7 +6,7 @@
  */
 
 #include "RobotController.h"
-#include "rlpower.h"
+#include "rlpowered_splines.h"
 #include "rlpowered_network.h"
 #include "hyper_ext_nn.h"
 
@@ -44,7 +44,7 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
         return;
     }
     if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::spline") {
-        brain_.reset(new tol::RLPower(this->model->GetName(), brain, evaluator_, motors_, sensors_));
+        brain_.reset(new tol::RLPowerSplines(this->model->GetName(), brain, evaluator_, motors_, sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::net") {
         brain_.reset(new tol::RLPowerNet(this->model->GetName(), brain, evaluator_, motors_, sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::net") {

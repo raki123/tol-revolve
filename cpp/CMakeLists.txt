@@ -66,6 +66,7 @@ file(GLOB_RECURSE
         tol/plugin/helper.cpp
         tol/plugin/rlpower.cpp
         tol/plugin/rlpowered_network.cpp
+        tol/plugin/rlpowered_splines.cpp
         tol/plugin/body.cpp
         tol/plugin/neat_ext_nn.cpp
         tol/plugin/hyper_ext_nn.cpp

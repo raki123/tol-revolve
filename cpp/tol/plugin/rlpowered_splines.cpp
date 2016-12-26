@@ -2,7 +2,7 @@
 // Created by Milan Jelisavcic on 28/03/16.
 //
 
-#include "rlpowered_network.h"
+#include "rlpowered_splines.h"
 #include "brain/conversion.h"
 #include "brain/controller/ext_nn_weights.h"
 #include "body.h"
@@ -16,51 +16,45 @@ namespace tol {
 
 
 
-    RLPowerNet::RLPowerNet(std::string modelName,
+    RLPowerSplines::RLPowerSplines(std::string modelName,
                      sdf::ElementPtr brain,
                      EvaluatorPtr evaluator,
                      std::vector<revolve::gazebo::MotorPtr> &actuators,
                      std::vector<revolve::gazebo::SensorPtr> &sensors) :
-		revolve::brain::ConvSplitBrain<std::vector<double>,
-				revolve::brain::PolicyPtr>(&revolve::brain::forController, &revolve::brain::forLearner, modelName)  {
+		revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>(modelName)  {
 
+	revolve::brain::RLPowerLearner::Config config = parseSDF(brain);
         //initialise controller
-        std::string name(modelName.substr(0, modelName.find("-")) + ".yaml");
-        Body body(name);
-        std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> in_out =
-                body.get_input_output_map(actuators, sensors);
-        revolve::brain::input_map = in_out.first;
-        revolve::brain::output_map = in_out.second;
-
-	controller = boost::shared_ptr<revolve::brain::ExtNNController>
-				(new revolve::brain::ExtNNController(modelName,
-                                                     revolve::brain::convertForController(body.get_coupled_cpg_network()),
-													 Helper::createWrapper(actuators),
-													 Helper::createWrapper(sensors)));
-        revolve::brain::RLPowerLearner::Config config = parseSDF(brain);
-        config.source_y_size = (unsigned int)controller->getGenome().size();
-
+	unsigned int n_actuators = 0;
+	for(auto it : actuators) {
+		n_actuators += it->outputs();
+	}
+	controller = boost::shared_ptr<revolve::brain::PolicyController>
+		     (new revolve::brain::PolicyController(n_actuators, 
+							   config.interpolation_spline_size));
+       
+	//initialise learner
         learner = boost::shared_ptr<revolve::brain::RLPowerLearner>
                 (new revolve::brain::RLPowerLearner(modelName,
                                                     config,
-                                                    1));
+                                                    n_actuators));
         evaluator_ = evaluator;
     }
 
-    RLPowerNet::~RLPowerNet() { }
+    RLPowerSplines::~RLPowerSplines() { }
 
-    void RLPowerNet::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+    void RLPowerSplines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                          const std::vector<revolve::gazebo::SensorPtr> &sensors,
                          double t,
                          double step) {
-        revolve::brain::ConvSplitBrain<std::vector<double>,revolve::brain::PolicyPtr>::update(
+        revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>::update(
                 Helper::createWrapper(actuators),
                 Helper::createWrapper(sensors),
                 t, step
         );
     }
 
-    revolve::brain::RLPowerLearner::Config RLPowerNet::parseSDF(sdf::ElementPtr brain) {
+    revolve::brain::RLPowerLearner::Config RLPowerSplines::parseSDF(sdf::ElementPtr brain) {
         revolve::brain::RLPowerLearner::Config config;
 
         // Read out brain configuration attributes
@@ -84,7 +78,12 @@ namespace tol {
         config.sigma_tau_correction = brain->HasAttribute("sigma_tau_correction") ?
                                       std::stod(brain->GetAttribute("sigma_tau_correction")->GetAsString()) :
                                       revolve::brain::RLPowerLearner::SIGMA_TAU_CORRECTION;
-        config.update_step = 0;
+        config.source_y_size = brain->HasAttribute("init_spline_size") ?
+                               std::stoul(brain->GetAttribute("init_spline_size")->GetAsString()) :
+                               revolve::brain::RLPowerLearner::INITIAL_SPLINE_SIZE;
+        config.update_step = brain->HasAttribute("update_step") ?
+                             std::stoul(brain->GetAttribute("update_step")->GetAsString()) :
+                             revolve::brain::RLPowerLearner::UPDATE_STEP;
         config.policy_load_path = "";
 
         return config;
