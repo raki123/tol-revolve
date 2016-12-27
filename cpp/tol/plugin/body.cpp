@@ -251,10 +251,6 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 	CPPNEAT::NeuronGenePtr gain_neuron_gene(new CPPNEAT::NeuronGene(gain_neuron, innov_number++, true));
 	ret->add_neuron_gene(gain_neuron_gene, 1, false);
 	
-	if(!ret->is_valid()) {
-		std::cerr << "invalid hyper neat net (before adding conncetions)" << std::endl;
-	}
-	
 	//connect every input with every output
 	for(int i = 0; i < 6; i++) 
 	{
@@ -281,12 +277,6 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 										  true,
 										  ""));
 		ret->add_connection_gene(connection_to_gain);
-			if(!ret->is_valid()) {
-		std::cerr << "invalid hyper neat net(while adding connections)" << i << std::endl;
-	}
-	}
-	if(!ret->is_valid()) {
-		std::cerr << "invalid hyper neat net" << std::endl;
 	}
 	return ret;
 }
@@ -300,6 +290,46 @@ std::map< std::string, std::tuple< int, int, int > > Body::get_id_to_coordinate_
 	}
 	return ret;
 }
+
+std::vector< std::pair< int, int > > Body::get_coordinates_sorted(const std::vector< revolve::gazebo::MotorPtr >& actuators)
+{
+	std::vector<std::pair<int,int>> ret;
+
+	// map of numbers of output neurons for each body part
+	std::map<std::string, unsigned int> outputCountMap;
+
+	for (auto it = actuators.begin(); it != actuators.end(); ++it) {
+		auto motor = *it;
+		auto partId = motor->partId();
+
+		if (!outputCountMap.count(partId)) {
+			outputCountMap[partId] = 0;
+		}
+
+		for (unsigned int i = 0, l = motor->outputs(); i < l; ++i) {
+			std::stringstream neuronId;
+			neuronId << partId << "-out-" << outputCountMap[partId];
+			outputCountMap[partId]++;
+			
+			unsigned int j;
+			for(j = 0; j < output_neurons.size(); j++) {
+				if(output_neurons[j]->neuron->neuron_id == neuronId.str()) {
+					break;
+				}
+			}
+			if (j == output_neurons.size()) {
+				std::cerr << "Required output neuron " << neuronId.str() <<
+						" for motor could not be located"
+						<< std::endl;
+				throw std::runtime_error("Robot brain error");
+			}
+			ret.push_back(std::pair<int,int>(std::get<0>(neuron_coordinates[output_neurons[j]]),
+							 std::get<1>(neuron_coordinates[output_neurons[j]])));
+		}
+	}
+	return ret;
+}
+
 
 void Body::set_coordinates(int x, int y, BodyPart *part) 
 {

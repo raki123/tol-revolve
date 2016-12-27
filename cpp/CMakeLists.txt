@@ -70,6 +70,7 @@ file(GLOB_RECURSE
         tol/plugin/body.cpp
         tol/plugin/neat_ext_nn.cpp
         tol/plugin/hyper_ext_nn.cpp
+        tol/plugin/hyper_splines.cpp
         )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})

@@ -32,6 +32,9 @@ namespace tol {
 													 const std::vector<revolve::gazebo::SensorPtr> &sensors);
 		CPPNEAT::GeneticEncodingPtr get_hyper_neat_network();
 		std::map<std::string, std::tuple<int,int,int>> get_id_to_coordinate_map();
+		//returns the coordinates of the actuators matching the order the actuators are given 
+		//coordinate of actuators[0] is in sorted_coordinates[0]
+		std::vector<std::pair<int,int>> get_coordinates_sorted(const std::vector<revolve::gazebo::MotorPtr> &actuators);
 		int getInnovNumber() { return innov_number + 1; };
 	private:
 		//Body parsing
