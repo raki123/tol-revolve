@@ -37,12 +37,13 @@ namespace tol {
 	
 	//initialise learner
 	revolve::brain::set_learning_conf();
-	revolve::brain::set_brain_spec();
+	revolve::brain::set_brain_spec(false);
 	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
 					1,
 					innov_number,
 					100,
-					std::vector<CPPNEAT::Neuron::Ntype>()));
+					std::vector<CPPNEAT::Neuron::Ntype>(),
+					false));
 	boost::shared_ptr<CPPNEAT::Learner> swap2(new CPPNEAT::Learner(mutator, 
 								       revolve::brain::learning_configuration));
 	learner = boost::static_pointer_cast<revolve::brain::Learner<CPPNEAT::GeneticEncodingPtr>>(swap2);

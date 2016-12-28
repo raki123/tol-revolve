@@ -136,7 +136,7 @@ CPPNEAT::GeneticEncodingPtr Body::get_coupled_cpg_network()
 }
 
 std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> Body::get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuators,
-																     const std::vector<revolve::gazebo::SensorPtr> &sensors) 
+											       const std::vector<revolve::gazebo::SensorPtr> &sensors) 
 {
  	unsigned int p = 0;
 	std::map<int, unsigned int> output_map;
@@ -216,7 +216,7 @@ std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> Body::get_in
 CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 {
 	int innov_number = 1;
-	CPPNEAT::GeneticEncodingPtr ret(new CPPNEAT::GeneticEncoding());
+	CPPNEAT::GeneticEncodingPtr ret(new CPPNEAT::GeneticEncoding(true));
 	//add inputs
 	std::map<std::string, double> empty;
 	for(int i = 0; i < 6; i++)
@@ -226,7 +226,7 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 							      CPPNEAT::Neuron::INPUT,
 							      empty));
 		CPPNEAT::NeuronGenePtr neuron_gene(new CPPNEAT::NeuronGene(neuron, innov_number++, true)); //means innovation number is i + 1
-		ret->add_neuron_gene(neuron_gene);
+		ret->add_neuron_gene(neuron_gene, 0, i == 0);
 	}
 	
 	//add outputs
@@ -237,19 +237,19 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 							CPPNEAT::Neuron::SIMPLE,
 							empty));
 	CPPNEAT::NeuronGenePtr weight_neuron_gene(new CPPNEAT::NeuronGene(weight_neuron, innov_number++, true));
-	ret->add_neuron_gene(weight_neuron_gene);
+	ret->add_neuron_gene(weight_neuron_gene, 1, true);
 	CPPNEAT::NeuronPtr bias_neuron(new CPPNEAT::Neuron("rv:bias", 
 							CPPNEAT::Neuron::OUTPUT_LAYER,
 							CPPNEAT::Neuron::SIMPLE,
 							empty));
 	CPPNEAT::NeuronGenePtr bias_neuron_gene(new CPPNEAT::NeuronGene(bias_neuron, innov_number++, true));
-	ret->add_neuron_gene(bias_neuron_gene);
+	ret->add_neuron_gene(bias_neuron_gene, 1, false);
 	CPPNEAT::NeuronPtr gain_neuron(new CPPNEAT::Neuron("rv:gain",
 							CPPNEAT::Neuron::OUTPUT_LAYER,
 							CPPNEAT::Neuron::SIMPLE,
 							empty));
 	CPPNEAT::NeuronGenePtr gain_neuron_gene(new CPPNEAT::NeuronGene(gain_neuron, innov_number++, true));
-	ret->add_neuron_gene(gain_neuron_gene);
+	ret->add_neuron_gene(gain_neuron_gene, 1, false);
 	
 	//connect every input with every output
 	for(int i = 0; i < 6; i++) 
@@ -290,6 +290,46 @@ std::map< std::string, std::tuple< int, int, int > > Body::get_id_to_coordinate_
 	}
 	return ret;
 }
+
+std::vector< std::pair< int, int > > Body::get_coordinates_sorted(const std::vector< revolve::gazebo::MotorPtr >& actuators)
+{
+	std::vector<std::pair<int,int>> ret;
+
+	// map of numbers of output neurons for each body part
+	std::map<std::string, unsigned int> outputCountMap;
+
+	for (auto it = actuators.begin(); it != actuators.end(); ++it) {
+		auto motor = *it;
+		auto partId = motor->partId();
+
+		if (!outputCountMap.count(partId)) {
+			outputCountMap[partId] = 0;
+		}
+
+		for (unsigned int i = 0, l = motor->outputs(); i < l; ++i) {
+			std::stringstream neuronId;
+			neuronId << partId << "-out-" << outputCountMap[partId];
+			outputCountMap[partId]++;
+			
+			unsigned int j;
+			for(j = 0; j < output_neurons.size(); j++) {
+				if(output_neurons[j]->neuron->neuron_id == neuronId.str()) {
+					break;
+				}
+			}
+			if (j == output_neurons.size()) {
+				std::cerr << "Required output neuron " << neuronId.str() <<
+						" for motor could not be located"
+						<< std::endl;
+				throw std::runtime_error("Robot brain error");
+			}
+			ret.push_back(std::pair<int,int>(std::get<0>(neuron_coordinates[output_neurons[j]]),
+							 std::get<1>(neuron_coordinates[output_neurons[j]])));
+		}
+	}
+	return ret;
+}
+
 
 void Body::set_coordinates(int x, int y, BodyPart *part) 
 {

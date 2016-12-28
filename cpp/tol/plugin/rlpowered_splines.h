@@ -2,11 +2,12 @@
 // Created by Milan Jelisavcic on 28/03/16.
 //
 
-#ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_NETWORK_H
-#define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_NETWORK_H
+#ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_SPLINES_H
+#define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_SPLINES_H
 
-#include "brain/converting_split_brain.h"
+#include "brain/simple_split_brain.h"
 #include "brain/learner/rlpower_learner.h"
+#include "brain/controller/policy_controller.h"
 #include "evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 
@@ -18,7 +19,7 @@
 
 namespace tol {
 
-    class RLPowerNet : public revolve::gazebo::Brain, private revolve::brain::ConvSplitBrain<std::vector<double>,revolve::brain::PolicyPtr> {
+    class RLPowerSplines : public revolve::gazebo::Brain, private revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr> {
 
     public:
         /**
@@ -31,13 +32,13 @@ namespace tol {
          * @param n_sensors: number of sensors
          * @return pointer to the RLPower class object
          */
-        RLPowerNet(std::string modelName,
+        RLPowerSplines(std::string modelName,
                 sdf::ElementPtr brain,
                 tol::EvaluatorPtr evaluator,
                 std::vector<revolve::gazebo::MotorPtr> &actuators,
                 std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-        virtual ~RLPowerNet();
+        virtual ~RLPowerSplines();
 
         /**
          * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy
@@ -56,5 +57,5 @@ namespace tol {
 
 } /* namespace tol */
 
-#endif //REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_NETWORK_H
+#endif //REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_SPLINES_H
 

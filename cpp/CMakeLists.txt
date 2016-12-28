@@ -19,7 +19,7 @@ add_definitions(-DSOURCE_DIR=${CMAKE_SOURCE_DIR})
 add_definitions(-pedantic -Wno-long-long -Wall -Wextra -Wformat=2
         -Wredundant-decls -Wwrite-strings -Wmissing-include-dirs
         -Wswitch-enum -Wuninitialized
-        -Wswitch-default -Winit-self -Wfloat-equal -fPIC)
+        -Wswitch-default -Winit-self -Wfloat-equal -fPIC -g)
 
 # Use C++11 (removed, this is added below by the Gazebo flags)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -66,9 +66,11 @@ file(GLOB_RECURSE
         tol/plugin/helper.cpp
         tol/plugin/rlpower.cpp
         tol/plugin/rlpowered_network.cpp
+        tol/plugin/rlpowered_splines.cpp
         tol/plugin/body.cpp
         tol/plugin/neat_ext_nn.cpp
         tol/plugin/hyper_ext_nn.cpp
+        tol/plugin/hyper_splines.cpp
         )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
