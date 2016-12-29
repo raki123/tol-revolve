@@ -36,7 +36,7 @@ namespace tol {
 	controller = swap1;
 	
 	//initialise learner
-	revolve::brain::set_learning_conf();
+	revolve::brain::set_learning_conf(1);
 	revolve::brain::set_brain_spec(false);
 	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
 					1,

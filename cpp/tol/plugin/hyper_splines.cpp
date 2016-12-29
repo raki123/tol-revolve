@@ -30,9 +30,8 @@ namespace tol {
 		     (new revolve::brain::PolicyController(revolve::brain::sorted_coordinates.size(), 
 							   conf.interpolation_spline_size));
 
-	
 	//initialise learner
-	revolve::brain::set_learning_conf();
+	revolve::brain::set_learning_conf(20);
 	std::cout << revolve::brain::getHyper() << std::endl;
 	revolve::brain::set_brain_spec(true);
 	revolve::brain::learning_configuration.start_from = revolve::brain::get_hyper_neat_net_splines();

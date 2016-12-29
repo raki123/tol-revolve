@@ -33,7 +33,7 @@ namespace tol {
 	controller = swap1;
 	
 	//initialise learner
-	revolve::brain::set_learning_conf();
+	revolve::brain::set_learning_conf(20);
 	std::cout << revolve::brain::getHyper() << std::endl;
 	revolve::brain::set_brain_spec(true);
 	revolve::brain::learning_configuration.start_from = body.get_hyper_neat_network();
