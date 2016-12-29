@@ -29,6 +29,7 @@ namespace tol {
 	 * @return pointer to the neural network
 	 */
         HyperExtNN(std::string modelName,
+		   sdf::ElementPtr brain,
 		tol::EvaluatorPtr evaluator,
                 const std::vector<revolve::gazebo::MotorPtr> &actuators,
                 const std::vector<revolve::gazebo::SensorPtr> &sensors);
@@ -46,6 +47,7 @@ namespace tol {
                             const std::vector<revolve::gazebo::SensorPtr> &sensors,
                             double t,
                             double step);
+	static CPPNEAT::Learner::LearningConfiguration parseLearningSDF(sdf::ElementPtr brain);
     };
 
 

@@ -31,19 +31,18 @@ namespace tol {
 							   conf.interpolation_spline_size));
 
 	//initialise learner
-	revolve::brain::set_learning_conf(20);
-	std::cout << revolve::brain::getHyper() << std::endl;
+	CPPNEAT::Learner::LearningConfiguration learn_conf = parseLearningSDF(brain);
 	revolve::brain::set_brain_spec(true);
-	revolve::brain::learning_configuration.start_from = revolve::brain::get_hyper_neat_net_splines();
+	learn_conf.start_from = revolve::brain::get_hyper_neat_net_splines();
 	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
 							 1,
-							 revolve::brain::learning_configuration.start_from->min_max_innov_numer().second,
+							 learn_conf.start_from->min_max_innov_numer().second,
 							 100,
 							 std::vector<CPPNEAT::Neuron::Ntype>(),
 							 true));
 	learner = boost::shared_ptr<revolve::brain::Learner<CPPNEAT::GeneticEncodingPtr>>
 		  (new CPPNEAT::Learner(mutator, 
-					revolve::brain::learning_configuration));
+					learn_conf));
 	evaluator_ = evaluator;
     }
 
@@ -82,6 +81,53 @@ namespace tol {
                              std::stoul(brain->GetAttribute("update_step")->GetAsString()) :
                              revolve::brain::RLPowerLearner::UPDATE_STEP;
 
+        return config;
+    }
+    
+
+    CPPNEAT::Learner::LearningConfiguration HyperSplines::parseLearningSDF(sdf::ElementPtr brain) {
+        CPPNEAT::Learner::LearningConfiguration config;
+
+        // Read out brain configuration attributes
+        config.layered_network = brain->HasAttribute("layered_network") ?
+                                 (brain->GetAttribute("layered_network")->GetAsString() == "true") :
+                                 CPPNEAT::Learner::LAYERED_NETWORK;
+        config.asexual = brain->HasAttribute("asexual") ?
+                                 (brain->GetAttribute("asexual")->GetAsString() == "true") :
+                                 CPPNEAT::Learner::ASEXUAL;
+        config.pop_size = brain->HasAttribute("pop_size") ?
+                                 std::stoi(brain->GetAttribute("pop_size")->GetAsString()) :
+                                 CPPNEAT::Learner::POP_SIZE;
+        config.tournament_size = brain->HasAttribute("tournament_size") ?
+                                 std::stoi(brain->GetAttribute("tournament_size")->GetAsString()) :
+                                 CPPNEAT::Learner::TOURNAMENT_SIZE;			 
+        config.num_children = brain->HasAttribute("num_children") ?
+                                 std::stoi(brain->GetAttribute("num_children")->GetAsString()) :
+                                 CPPNEAT::Learner::NUM_CHILDREN;
+        config.weight_mutation_probability = brain->HasAttribute("weight_mutation_probability") ?
+                                 std::stod(brain->GetAttribute("weight_mutation_probability")->GetAsString()) :
+                                 CPPNEAT::Learner::WEIGHT_MUTATION_PROBABILITY;
+        config.weight_mutation_sigma = brain->HasAttribute("weight_mutation_sigma") ?
+                                 std::stod(brain->GetAttribute("weight_mutation_sigma")->GetAsString()) :
+                                 CPPNEAT::Learner::WEIGHT_MUTATION_SIGMA;
+        config.param_mutation_probability = brain->HasAttribute("param_mutation_probability") ?
+                                 std::stod(brain->GetAttribute("param_mutation_probability")->GetAsString()) :
+                                 CPPNEAT::Learner::PARAM_MUTATION_PROBABILITY;
+        config.param_mutation_sigma = brain->HasAttribute("param_mutation_sigma") ?
+                                 std::stod(brain->GetAttribute("param_mutation_sigma")->GetAsString()) :
+                                 CPPNEAT::Learner::PARAM_MUTATION_SIGMA;
+        config.max_generations = brain->HasAttribute("max_generations") ?
+                                 std::stoi(brain->GetAttribute("max_generations")->GetAsString()) :
+                                 CPPNEAT::Learner::MAX_GENERATIONS;
+        config.speciation_threshold = brain->HasAttribute("speciation_threshold") ?
+                                 std::stod(brain->GetAttribute("speciation_threshold")->GetAsString()) :
+                                 CPPNEAT::Learner::SPECIATION_TRESHOLD;
+        config.repeat_evaluations = brain->HasAttribute("repeat_evaluations") ?
+                                 std::stoi(brain->GetAttribute("repeat_evaluations")->GetAsString()) :
+                                 CPPNEAT::Learner::REPEAT_EVALUATIONS;
+        config.initial_structural_mutations = brain->HasAttribute("initial_structural_mutations") ?
+                                 std::stoi(brain->GetAttribute("initial_structural_mutations")->GetAsString()) :
+                                 CPPNEAT::Learner::INITIAL_STRUCTURAL_MUTATIONS;
         return config;
     }
 
