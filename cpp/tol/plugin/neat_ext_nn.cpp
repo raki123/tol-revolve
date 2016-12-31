@@ -71,9 +71,6 @@ namespace tol {
         CPPNEAT::Learner::LearningConfiguration config;
 
         // Read out brain configuration attributes
-        config.layered_network = brain->HasAttribute("layered_network") ?
-                                 (brain->GetAttribute("layered_network")->GetAsString() == "true") :
-                                 CPPNEAT::Learner::LAYERED_NETWORK;
         config.asexual = brain->HasAttribute("asexual") ?
                                  (brain->GetAttribute("asexual")->GetAsString() == "true") :
                                  CPPNEAT::Learner::ASEXUAL;
