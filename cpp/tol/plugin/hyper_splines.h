@@ -49,6 +49,7 @@ namespace tol {
                             double t,
                             double step);
 	static revolve::brain::RLPowerLearner::Config parseSDF(sdf::ElementPtr brain);
+	static CPPNEAT::Learner::LearningConfiguration parseLearningSDF(sdf::ElementPtr brain);
     };
 
 

@@ -29,8 +29,8 @@ namespace tol {
 	 * @return pointer to the neural network
 	 */
         NeatExtNN(std::string modelName,
-		tol::EvaluatorPtr evaluator,
                 sdf::ElementPtr node,
+		tol::EvaluatorPtr evaluator,
                 const std::vector<revolve::gazebo::MotorPtr> &actuators,
                 const std::vector<revolve::gazebo::SensorPtr> &sensors);
 
@@ -47,6 +47,7 @@ namespace tol {
                             const std::vector<revolve::gazebo::SensorPtr> &sensors,
                             double t,
                             double step);
+	static CPPNEAT::Learner::LearningConfiguration parseLearningSDF(sdf::ElementPtr brain);
     };
 
 

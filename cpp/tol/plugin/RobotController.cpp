@@ -50,7 +50,7 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::net") {
         brain_.reset(new tol::RLPowerNet(this->model->GetName(), brain, evaluator_, motors_, sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::net") {
-        brain_.reset(new tol::HyperExtNN(this->model->GetName(), evaluator_, motors_, sensors_));
+        brain_.reset(new tol::HyperExtNN(this->model->GetName(), brain, evaluator_, motors_, sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::spline") {
 	brain_.reset(new tol::HyperSplines(this->model->GetName(), brain, evaluator_, motors_, sensors_));
     } else {

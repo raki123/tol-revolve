@@ -12,8 +12,8 @@ namespace tol {
 
 
     NeatExtNN::NeatExtNN(std::string modelName,
-		     tol::EvaluatorPtr evaluator,
 		     sdf::ElementPtr node,
+		     tol::EvaluatorPtr evaluator,
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors) 
     :  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController, &revolve::brain::convertForLearner, modelName) {
@@ -25,18 +25,16 @@ namespace tol {
 	std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> in_out = body.get_input_output_map(actuators, sensors);
 	revolve::brain::input_map = in_out.first;
 	revolve::brain::output_map = in_out.second;
-	revolve::brain::learning_configuration.start_from = body.get_coupled_cpg_network();
+	CPPNEAT::Learner::LearningConfiguration learn_conf = parseLearningSDF(node);
+	learn_conf.start_from = body.get_coupled_cpg_network();
 	boost::shared_ptr<revolve::brain::ExtNNController1> swap1(new revolve::brain::ExtNNController1(modelName,
-													revolve::brain::convertForController(revolve::brain::learning_configuration.start_from),  
+													revolve::brain::convertForController(learn_conf.start_from),  
 													Helper::createWrapper(actuators),
 													Helper::createWrapper(sensors)));
-// 	std::ofstream networkOutput("debug.dot"); //debug
-// 	swap1->writeNetwork(networkOutput);       //debug
 	int innov_number = body.getInnovNumber();
 	controller = swap1;
 	
 	//initialise learner
-	revolve::brain::set_learning_conf();
 	revolve::brain::set_brain_spec(false);
 	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
 					1,
@@ -45,7 +43,7 @@ namespace tol {
 					std::vector<CPPNEAT::Neuron::Ntype>(),
 					false));
 	boost::shared_ptr<CPPNEAT::Learner> swap2(new CPPNEAT::Learner(mutator, 
-								       revolve::brain::learning_configuration));
+								       learn_conf));
 	learner = boost::static_pointer_cast<revolve::brain::Learner<CPPNEAT::GeneticEncodingPtr>>(swap2);
 	evaluator_ = evaluator;
     }
@@ -66,6 +64,53 @@ namespace tol {
                 Helper::createWrapper(sensors),
                 t, step
         );
+    }
+    
+    
+    CPPNEAT::Learner::LearningConfiguration NeatExtNN::parseLearningSDF(sdf::ElementPtr brain) {
+        CPPNEAT::Learner::LearningConfiguration config;
+
+        // Read out brain configuration attributes
+        config.layered_network = brain->HasAttribute("layered_network") ?
+                                 (brain->GetAttribute("layered_network")->GetAsString() == "true") :
+                                 CPPNEAT::Learner::LAYERED_NETWORK;
+        config.asexual = brain->HasAttribute("asexual") ?
+                                 (brain->GetAttribute("asexual")->GetAsString() == "true") :
+                                 CPPNEAT::Learner::ASEXUAL;
+        config.pop_size = brain->HasAttribute("pop_size") ?
+                                 std::stoi(brain->GetAttribute("pop_size")->GetAsString()) :
+                                 CPPNEAT::Learner::POP_SIZE;
+        config.tournament_size = brain->HasAttribute("tournament_size") ?
+                                 std::stoi(brain->GetAttribute("tournament_size")->GetAsString()) :
+                                 CPPNEAT::Learner::TOURNAMENT_SIZE;			 
+        config.num_children = brain->HasAttribute("num_children") ?
+                                 std::stoi(brain->GetAttribute("num_children")->GetAsString()) :
+                                 CPPNEAT::Learner::NUM_CHILDREN;
+        config.weight_mutation_probability = brain->HasAttribute("weight_mutation_probability") ?
+                                 std::stod(brain->GetAttribute("weight_mutation_probability")->GetAsString()) :
+                                 CPPNEAT::Learner::WEIGHT_MUTATION_PROBABILITY;
+        config.weight_mutation_sigma = brain->HasAttribute("weight_mutation_sigma") ?
+                                 std::stod(brain->GetAttribute("weight_mutation_sigma")->GetAsString()) :
+                                 CPPNEAT::Learner::WEIGHT_MUTATION_SIGMA;
+        config.param_mutation_probability = brain->HasAttribute("param_mutation_probability") ?
+                                 std::stod(brain->GetAttribute("param_mutation_probability")->GetAsString()) :
+                                 CPPNEAT::Learner::PARAM_MUTATION_PROBABILITY;
+        config.param_mutation_sigma = brain->HasAttribute("param_mutation_sigma") ?
+                                 std::stod(brain->GetAttribute("param_mutation_sigma")->GetAsString()) :
+                                 CPPNEAT::Learner::PARAM_MUTATION_SIGMA;
+        config.max_generations = brain->HasAttribute("max_generations") ?
+                                 std::stoi(brain->GetAttribute("max_generations")->GetAsString()) :
+                                 CPPNEAT::Learner::MAX_GENERATIONS;
+        config.speciation_threshold = brain->HasAttribute("speciation_threshold") ?
+                                 std::stod(brain->GetAttribute("speciation_threshold")->GetAsString()) :
+                                 CPPNEAT::Learner::SPECIATION_TRESHOLD;
+        config.repeat_evaluations = brain->HasAttribute("repeat_evaluations") ?
+                                 std::stoi(brain->GetAttribute("repeat_evaluations")->GetAsString()) :
+                                 CPPNEAT::Learner::REPEAT_EVALUATIONS;
+        config.initial_structural_mutations = brain->HasAttribute("initial_structural_mutations") ?
+                                 std::stoi(brain->GetAttribute("initial_structural_mutations")->GetAsString()) :
+                                 CPPNEAT::Learner::INITIAL_STRUCTURAL_MUTATIONS;
+        return config;
     }
 
 } /* namespace tol */
