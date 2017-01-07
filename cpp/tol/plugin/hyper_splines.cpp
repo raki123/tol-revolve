@@ -35,7 +35,7 @@ namespace tol {
 	revolve::brain::set_brain_spec(true);
 	learn_conf.start_from = revolve::brain::get_hyper_neat_net_splines();
 	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
-							 1,
+							 0.8,
 							 learn_conf.start_from->min_max_innov_numer().second,
 							 100,
 							 std::vector<CPPNEAT::Neuron::Ntype>(),
@@ -125,6 +125,9 @@ namespace tol {
         config.initial_structural_mutations = brain->HasAttribute("initial_structural_mutations") ?
                                  std::stoi(brain->GetAttribute("initial_structural_mutations")->GetAsString()) :
                                  CPPNEAT::Learner::INITIAL_STRUCTURAL_MUTATIONS;
+	config.interspecies_mate_probability = brain->HasAttribute("interspecies_mate_probability") ?
+				 std::stod(brain->GetAttribute("interspecies_mate_probability")->GetAsString()) :
+				 CPPNEAT::Learner::INTERSPECIES_MATE_PROBABILITY;
         return config;
     }
 

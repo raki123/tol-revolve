@@ -231,7 +231,7 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 	
 	//add outputs
 	empty["rv:bias"] = 0;
-	empty["rv:gain"] = 1;
+	empty["rv:gain"] = 0;
 	CPPNEAT::NeuronPtr weight_neuron(new CPPNEAT::Neuron("weight",
 							CPPNEAT::Neuron::OUTPUT_LAYER,
 							CPPNEAT::Neuron::SIMPLE,
@@ -256,7 +256,7 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 	{
 		CPPNEAT::ConnectionGenePtr connection_to_weight(new CPPNEAT::ConnectionGene(weight_neuron_gene->getInnovNumber(),
 										  i + 1,
-										  10,
+										  0,
 										  innov_number++,
 										  true,
 										  ""));
@@ -264,7 +264,7 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 		
 		CPPNEAT::ConnectionGenePtr connection_to_bias(new CPPNEAT::ConnectionGene(bias_neuron_gene->getInnovNumber(),
 										  i + 1,
-										  10,
+										  0,
 										  innov_number++,
 										  true,
 										  ""));
@@ -272,7 +272,7 @@ CPPNEAT::GeneticEncodingPtr Body::get_hyper_neat_network()
 		
 		CPPNEAT::ConnectionGenePtr connection_to_gain(new CPPNEAT::ConnectionGene(gain_neuron_gene->getInnovNumber(),
 										  i + 1,
-										  10,
+										  0,
 										  innov_number++,
 										  true,
 										  ""));
