@@ -17,7 +17,6 @@ namespace tol {
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors) 
     :  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController, &revolve::brain::convertForLearner, modelName) {
-// 	sleep(20);
 	    
 	//initialise controller
 	std::string name(modelName.substr(0, modelName.find("-")) + ".yaml");
@@ -37,7 +36,7 @@ namespace tol {
 	//initialise learner
 	revolve::brain::set_brain_spec(false);
 	CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
-					1,
+					0.8,
 					innov_number,
 					100,
 					std::vector<CPPNEAT::Neuron::Ntype>(),
@@ -71,9 +70,6 @@ namespace tol {
         CPPNEAT::Learner::LearningConfiguration config;
 
         // Read out brain configuration attributes
-        config.layered_network = brain->HasAttribute("layered_network") ?
-                                 (brain->GetAttribute("layered_network")->GetAsString() == "true") :
-                                 CPPNEAT::Learner::LAYERED_NETWORK;
         config.asexual = brain->HasAttribute("asexual") ?
                                  (brain->GetAttribute("asexual")->GetAsString() == "true") :
                                  CPPNEAT::Learner::ASEXUAL;
@@ -110,6 +106,9 @@ namespace tol {
         config.initial_structural_mutations = brain->HasAttribute("initial_structural_mutations") ?
                                  std::stoi(brain->GetAttribute("initial_structural_mutations")->GetAsString()) :
                                  CPPNEAT::Learner::INITIAL_STRUCTURAL_MUTATIONS;
+	config.interspecies_mate_probability = brain->HasAttribute("interspecies_mate_probability") ?
+				 std::stod(brain->GetAttribute("interspecies_mate_probability")->GetAsString()) :
+				 CPPNEAT::Learner::INTERSPECIES_MATE_PROBABILITY;
         return config;
     }
 
