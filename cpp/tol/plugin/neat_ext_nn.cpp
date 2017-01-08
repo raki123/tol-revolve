@@ -94,6 +94,12 @@ namespace tol {
         config.param_mutation_sigma = brain->HasAttribute("param_mutation_sigma") ?
                                  std::stod(brain->GetAttribute("param_mutation_sigma")->GetAsString()) :
                                  CPPNEAT::Learner::PARAM_MUTATION_SIGMA;
+	config.structural_augmentation_probability = brain->HasAttribute("structural_augmentation_probability") ?
+                                 std::stod(brain->GetAttribute("structural_augmentation_probability")->GetAsString()) :
+                                 CPPNEAT::Learner::STRUCTURAL_AUGMENTATION_PROBABILITY;
+	config.structural_removal_probability = brain->HasAttribute("structural_removal_probability") ?
+                                 std::stod(brain->GetAttribute("structural_removal_probability")->GetAsString()) :
+                                 CPPNEAT::Learner::STRUCTURAL_REMOVAL_PROBABILITY;
         config.max_generations = brain->HasAttribute("max_generations") ?
                                  std::stoi(brain->GetAttribute("max_generations")->GetAsString()) :
                                  CPPNEAT::Learner::MAX_GENERATIONS;
