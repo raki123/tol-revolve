@@ -16,7 +16,10 @@ namespace tol {
 			       tol::EvaluatorPtr evaluator,
                                const std::vector<revolve::gazebo::MotorPtr> &actuators,
                                const std::vector<revolve::gazebo::SensorPtr> &sensors) 
-    :  revolve::brain::ConvSplitBrain<revolve::brain::PolicyPtr, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForSplinesFromHyper, &revolve::brain::convertForHyperFromSplines, modelName) {
+    :  revolve::brain::ConvSplitBrain<revolve::brain::PolicyPtr,
+			CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForSplinesFromHyper,
+										 &revolve::brain::convertForHyperFromSplines,
+										 modelName) {
 // 	sleep(20);
 	    
 	//initialise controller
