@@ -390,7 +390,7 @@ void RobotController::DoUpdate(const gazebo::common::UpdateInfo info)
     revolve::gazebo::RobotController::DoUpdate(info);
     auto pose = this->model->GetRelativePose().Ign();
     evaluator_->updatePosition(pose);
-    reinterpret_cast<SUPGBrainPhototaxis&>(*brain_).updateLightPosition(pose);
+    reinterpret_cast<SUPGBrainPhototaxis&>(*brain_).updateRobotPosition(pose);
 }
 
 // EVALUATOR CODE

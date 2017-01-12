@@ -21,6 +21,7 @@
 #define FAKELIGHTSENSOR_H
 
 #include "brain/fakelightsensor.h"
+#include <ignition/math/Pose3.hh>
 #include <string>
 
 namespace tol {
@@ -28,7 +29,7 @@ namespace tol {
 class FakeLightSensor : public revolve::brain::FakeLightSensor
 {
 public:
-    FakeLightSensor(std::string name, float fov);
+    FakeLightSensor(std::string name, float fov, ignition::math::Vector3d light_pos);
     virtual ~FakeLightSensor();
 
     virtual float light_distance() override;
@@ -36,8 +37,12 @@ public:
 
     virtual std::string sensorId() const override;
 
+    virtual void updateRobotPosition(ignition::math::Pose3d &robot_position);
+
 private:
     std::string sensor_name;
+    ignition::math::Vector3d light_pos;
+    ignition::math::Pose3d robot_position;
 };
 
 }

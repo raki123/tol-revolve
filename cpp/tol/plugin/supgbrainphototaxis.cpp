@@ -38,16 +38,22 @@ SUPGBrainPhototaxis::SUPGBrainPhototaxis(revolve::brain::EvaluatorPtr evaluator,
     )
 {
 
+//     ignition::math::Vector3d offset(0,0,0);
+//     ignition::math::Vector3d light_pos = this->robot_position.CoordPositionAdd(offset);
+
     light_constructor_left = [this] (std::vector<float> coordinates) -> FakeLightSensor * {
-        std::vector<float> offset = {0, 0, 0};
+        ignition::math::Vector3d offset(coordinates[0]/100, coordinates[1]/100, 0);
+        ignition::math::Vector3d light_pos = this->robot_position.CoordPositionAdd(offset);
         // this function is not supposed to delete the light
-        light_sensor_left = new FakeLightSensor("sensor_left", 160);
+        light_sensor_left = new FakeLightSensor("sensor_left", 160, light_pos);
         return light_sensor_left;
     };
+
     light_constructor_right = [this] (std::vector<float> coordinates) -> FakeLightSensor * {
-        std::vector<float> offset = {0, 0, 0};
+        ignition::math::Vector3d offset(coordinates[0]/100, coordinates[1]/100, 0);
+        ignition::math::Vector3d light_pos = this->robot_position.CoordPositionAdd(offset);
         // this function is not supposed to delete the light
-        light_sensor_right = new FakeLightSensor("sensor_right", 160);
+        light_sensor_right = new FakeLightSensor("sensor_right", 160, light_pos);
         return light_sensor_right;
     };
 }
@@ -64,8 +70,10 @@ void SUPGBrainPhototaxis::update(const std::vector <revolve::gazebo::MotorPtr> &
                                                 t, step);
 }
 
-void SUPGBrainPhototaxis::updateLightPosition(ignition::math::Pose3d &robot_position)
+void SUPGBrainPhototaxis::updateRobotPosition(ignition::math::Pose3d &robot_position)
 {
     this->robot_position = ignition::math::Pose3d(robot_position);
+    light_sensor_left->updateRobotPosition(robot_position);
+    light_sensor_right->updateRobotPosition(robot_position);
 }
 

@@ -41,7 +41,7 @@ public:
                 const std::vector< revolve::gazebo::SensorPtr > &sensors,
                 double t, double step) override;
 
-    void updateLightPosition(ignition::math::Pose3d &robot_position);
+    void updateRobotPosition(ignition::math::Pose3d &robot_position);
 
 private:
     FakeLightSensor *light_sensor_left;
