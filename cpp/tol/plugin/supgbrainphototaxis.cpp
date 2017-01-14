@@ -34,28 +34,33 @@ SUPGBrainPhototaxis::SUPGBrainPhototaxis(revolve::brain::EvaluatorPtr evaluator,
         light_radius_distance,
         neuron_coordinates,
         Helper::createWrapper(actuators),
-        Helper::createWrapper(sensors)
+        createEnhancedSensorWrapper(sensors)
     )
 {
-
-//     ignition::math::Vector3d offset(0,0,0);
-//     ignition::math::Vector3d light_pos = this->robot_position.CoordPositionAdd(offset);
-
-    light_constructor_left = [this] (std::vector<float> coordinates) -> FakeLightSensor * {
+    light_constructor_left = [this] (std::vector<float> coordinates)
+        -> boost::shared_ptr<FakeLightSensor>
+    {
         ignition::math::Vector3d offset(coordinates[0]/100, coordinates[1]/100, 0);
         ignition::math::Vector3d light_pos = this->robot_position.CoordPositionAdd(offset);
         // this function is not supposed to delete the light
-        light_sensor_left = new FakeLightSensor("sensor_left", 160, light_pos);
+        light_sensor_left.reset(new FakeLightSensor("sensor_left", 160, light_pos));
         return light_sensor_left;
     };
 
-    light_constructor_right = [this] (std::vector<float> coordinates) -> FakeLightSensor * {
+    light_constructor_right = [this] (std::vector<float> coordinates)
+        -> boost::shared_ptr<FakeLightSensor>
+    {
         ignition::math::Vector3d offset(coordinates[0]/100, coordinates[1]/100, 0);
         ignition::math::Vector3d light_pos = this->robot_position.CoordPositionAdd(offset);
         // this function is not supposed to delete the light
-        light_sensor_right = new FakeLightSensor("sensor_right", 160, light_pos);
+        light_sensor_right.reset(new FakeLightSensor("sensor_right", 160, light_pos));
         return light_sensor_right;
     };
+
+    light_constructor_left({1,1});
+    light_constructor_right({1,1});
+    sensors.push_back(light_sensor_left);
+    sensors.push_back(light_sensor_right);
 }
 
 SUPGBrainPhototaxis::~SUPGBrainPhototaxis()
@@ -77,3 +82,12 @@ void SUPGBrainPhototaxis::updateRobotPosition(ignition::math::Pose3d &robot_posi
     light_sensor_right->updateRobotPosition(robot_position);
 }
 
+
+const std::vector<revolve::brain::SensorPtr> tol::SUPGBrainPhototaxis::createEnhancedSensorWrapper(const std::vector<revolve::gazebo::SensorPtr>& original)
+{
+    std::vector<revolve::brain::SensorPtr> result = Helper::createWrapper(original);
+    result.push_back(boost::make_shared<tol::FakeLightSensor>("sensor_1_fake_filler", 0, ignition::math::Vector3d()));
+    result.push_back(boost::make_shared<tol::FakeLightSensor>("sensor_2_fake_filler", 0, ignition::math::Vector3d()));
+
+    return result;
+}

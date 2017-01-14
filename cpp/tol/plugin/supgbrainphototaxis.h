@@ -43,9 +43,14 @@ public:
 
     void updateRobotPosition(ignition::math::Pose3d &robot_position);
 
+private: // methods
+    static const std::vector<revolve::brain::SensorPtr>
+    createEnhancedSensorWrapper(const std::vector<revolve::gazebo::SensorPtr> &original);
+
+
 private:
-    FakeLightSensor *light_sensor_left;
-    FakeLightSensor *light_sensor_right;
+    boost::shared_ptr<FakeLightSensor> light_sensor_left,
+                                       light_sensor_right;
     ignition::math::Pose3<double> robot_position;
 };
 
