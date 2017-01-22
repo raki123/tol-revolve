@@ -46,6 +46,68 @@ namespace tol {
 					true));
 	learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator, 
 									   learn_conf));
+	//initialise starting population
+	int number_of_brains_from_first = brain->HasAttribute("number_of_brains_from_first") ?
+                                 std::stoi(brain->GetAttribute("number_of_brains_from_first")->GetAsString())
+				 :0;
+	int number_of_brains_from_second = brain->HasAttribute("number_of_brains_from_second") ?
+                                 std::stoi(brain->GetAttribute("number_of_brains_from_second")->GetAsString())
+				 :0;
+	std::string path_to_first_brains = brain->HasAttribute("path_to_first_brains") ?
+				 brain->GetAttribute("path_to_first_brains")->GetAsString()
+				 : "";
+	int innov_offset = 0;
+	std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_init = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_init_brains();
+	for(CPPNEAT::GeneticEncodingPtr genotype : brains_from_init) 
+	{
+		innov_offset = std::max(genotype->min_max_innov_numer().second, innov_offset);
+	}
+	std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_first;
+	if(path_to_first_brains == "" || path_to_first_brains == "none") 
+	{
+		number_of_brains_from_first = 0;
+	} else {
+		brains_from_first = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_first_brains, innov_offset + 1);
+	}
+	for(CPPNEAT::GeneticEncodingPtr genotype : brains_from_first) 
+	{
+		innov_offset = std::max(genotype->min_max_innov_numer().second, innov_offset);
+	}
+	std::string path_to_second_brains = brain->HasAttribute("path_to_first_brains") ?
+				 brain->GetAttribute("path_to_first_brains")->GetAsString()
+				 : "";
+	std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_second;
+	if(path_to_second_brains == "" || path_to_second_brains == "none")
+	{
+		number_of_brains_from_second = 0;	
+	} else {
+		brains_from_second = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_second_brains, innov_offset + 1);
+	}
+	
+	std::vector<CPPNEAT::GeneticEncodingPtr> init_brains;
+	int cur_number = 0;
+	int i = 0;
+	while(cur_number < number_of_brains_from_first) 
+	{
+		init_brains.push_back(brains_from_first[i]);
+		i++;
+		cur_number++;
+	}
+	i = 0;
+	while(cur_number < number_of_brains_from_first + number_of_brains_from_second)
+	{
+		init_brains.push_back(brains_from_second[i]);
+		i++;
+		cur_number++;
+	}
+	i = 0;
+	while(cur_number < learn_conf.pop_size)
+	{
+		init_brains.push_back(brains_from_init[i]);
+		i++;
+		cur_number++;
+	}
+	boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->initialise(init_brains);
 	evaluator_ = evaluator;
     }
 
