@@ -44,7 +44,11 @@ namespace tol {
 					100,
 					std::vector<CPPNEAT::Neuron::Ntype>(),
 					true));
-	learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator, 
+	std::string mutator_path = brain->HasAttribute("path_to_mutator") ?
+				 brain->GetAttribute("path_to_mutator")->GetAsString()
+				 : "none";
+	learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator,
+									   mutator_path,
 									   learn_conf));
 	//initialise starting population
 	int number_of_brains_from_first = brain->HasAttribute("number_of_brains_from_first") ?
