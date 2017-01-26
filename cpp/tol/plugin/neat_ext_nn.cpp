@@ -41,9 +41,12 @@ namespace tol {
 					100,
 					std::vector<CPPNEAT::Neuron::Ntype>(),
 					false));
-	boost::shared_ptr<CPPNEAT::Learner> swap2(new CPPNEAT::Learner(mutator, 
-								       learn_conf));
-	learner = boost::static_pointer_cast<revolve::brain::Learner<CPPNEAT::GeneticEncodingPtr>>(swap2);
+	std::string mutator_path = node->HasAttribute("path_to_mutator") ?
+				 node->GetAttribute("path_to_mutator")->GetAsString()
+				 : "none";
+	learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator,
+									   mutator_path,
+									   learn_conf));
 	evaluator_ = evaluator;
     }
 

@@ -44,7 +44,11 @@ namespace tol {
 					100,
 					std::vector<CPPNEAT::Neuron::Ntype>(),
 					true));
-	learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator, 
+	std::string mutator_path = brain->HasAttribute("path_to_mutator") ?
+				 brain->GetAttribute("path_to_mutator")->GetAsString()
+				 : "none";
+	learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator,
+									   mutator_path,
 									   learn_conf));
 	//initialise starting population
 	int number_of_brains_from_first = brain->HasAttribute("number_of_brains_from_first") ?
@@ -56,32 +60,23 @@ namespace tol {
 	std::string path_to_first_brains = brain->HasAttribute("path_to_first_brains") ?
 				 brain->GetAttribute("path_to_first_brains")->GetAsString()
 				 : "";
-	int innov_offset = 0;
 	std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_init = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_init_brains();
-	for(CPPNEAT::GeneticEncodingPtr genotype : brains_from_init) 
-	{
-		innov_offset = std::max(genotype->min_max_innov_numer().second, innov_offset);
-	}
 	std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_first;
 	if(path_to_first_brains == "" || path_to_first_brains == "none") 
 	{
 		number_of_brains_from_first = 0;
 	} else {
-		brains_from_first = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_first_brains, innov_offset + 1);
+		brains_from_first = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_first_brains, -1);
 	}
-	for(CPPNEAT::GeneticEncodingPtr genotype : brains_from_first) 
-	{
-		innov_offset = std::max(genotype->min_max_innov_numer().second, innov_offset);
-	}
-	std::string path_to_second_brains = brain->HasAttribute("path_to_first_brains") ?
-				 brain->GetAttribute("path_to_first_brains")->GetAsString()
+	std::string path_to_second_brains = brain->HasAttribute("path_to_second_brains") ?
+				 brain->GetAttribute("path_to_second_brains")->GetAsString()
 				 : "";
 	std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_second;
 	if(path_to_second_brains == "" || path_to_second_brains == "none")
 	{
 		number_of_brains_from_second = 0;	
 	} else {
-		brains_from_second = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_second_brains, innov_offset + 1);
+		brains_from_second = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_second_brains, -1);
 	}
 	
 	std::vector<CPPNEAT::GeneticEncodingPtr> init_brains;
