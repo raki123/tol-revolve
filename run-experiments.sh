@@ -7,7 +7,7 @@ PROGNAME=$(basename $0)
 
 # Default argument list
 # robot_list=(spider9 gecko7 spider13 spider17 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC)
-robot_list=(babyA)
+robot_list=(babyC)
 
 config=./res/rlpower_spline.cfg
 gz_command=gzserver
@@ -79,7 +79,7 @@ function main() {
     # For each name in 'robot_list' run 'no_experiments' experiment
     for index in ${!robot_list[*]}
     do
-        for (( i = 4; i <= ${no_experiments}; ++ i ))
+        for (( i = 1; i <= ${no_experiments}; ++ i ))
         do
             python ./start.py \
                 --load-controller ${load_controller} \
