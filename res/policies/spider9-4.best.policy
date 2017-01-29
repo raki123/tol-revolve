@@ -1,0 +1,1716 @@
+- evaluation: 800
+  brain:
+    connection_genes:
+      - con_1:
+            in_no: 12
+            from: 1
+            to: 9
+            weight: -3.31383
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 13
+            from: 2
+            to: 7
+            weight: 1.87654
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 14
+            from: 2
+            to: 8
+            weight: 2.40436
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 15
+            from: 2
+            to: 9
+            weight: -0.748599
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 16
+            from: 3
+            to: 7
+            weight: -1.74657
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 17
+            from: 3
+            to: 8
+            weight: -2.14006
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 18
+            from: 3
+            to: 9
+            weight: 0.987339
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 19
+            from: 4
+            to: 7
+            weight: 1.4814
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 20
+            from: 4
+            to: 8
+            weight: -5.98545
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 21
+            from: 4
+            to: 9
+            weight: 1.99524
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 22
+            from: 5
+            to: 7
+            weight: -1.85859
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 24
+            from: 5
+            to: 9
+            weight: -2.37515
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 25
+            from: 6
+            to: 7
+            weight: 4.92506
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 26
+            from: 6
+            to: 8
+            weight: -1.31631
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 54
+            from: 1
+            to: 53
+            weight: 2.53866
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 55
+            from: 53
+            to: 7
+            weight: -2.84399
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 84
+            from: 5
+            to: 53
+            weight: 2.18331
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 103
+            from: 53
+            to: 8
+            weight: 1.20001
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 132
+            from: 1
+            to: 131
+            weight: -2.13446
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 133
+            from: 131
+            to: 8
+            weight: 0.461295
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 160
+            from: 6
+            to: 53
+            weight: -4.37979
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 166
+            from: 2
+            to: 53
+            weight: 0.483568
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 234
+            from: 6
+            to: 233
+            weight: 1.08884
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 247
+            from: 5
+            to: 246
+            weight: 4.43576
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 248
+            from: 246
+            to: 8
+            weight: 1.16549
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 773
+            from: 4
+            to: 246
+            weight: 0.102678
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1191
+            from: 3
+            to: 1190
+            weight: 5.82063
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1192
+            from: 1190
+            to: 53
+            weight: -1.0087
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1257
+            from: 233
+            to: 1256
+            weight: 0.990849
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1258
+            from: 1256
+            to: 9
+            weight: 1
+            parent_name: none
+            parent_index: -1
+    layers:
+      - layer_1:
+          - nid: Input-0
+            ntype: 3
+            nlayer: 0
+            in_no: 1
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-1
+            ntype: 3
+            nlayer: 0
+            in_no: 2
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-2
+            ntype: 3
+            nlayer: 0
+            in_no: 3
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-3
+            ntype: 3
+            nlayer: 0
+            in_no: 4
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-4
+            ntype: 3
+            nlayer: 0
+            in_no: 5
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-5
+            ntype: 3
+            nlayer: 0
+            in_no: 6
+            parent_name:
+            parent_index: -1
+            params:
+      - layer_2:
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 1190
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: -0.910763
+              rv:gain: 1.33042
+          - nid: augment1309
+            ntype: 1
+            nlayer: 2
+            in_no: 233
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.882664
+              rv:gain: 0.0366348
+      - layer_3:
+          - nid: augment1178
+            ntype: 6
+            nlayer: 2
+            in_no: 53
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: 1.77868
+              rv:period: 0.534122
+              rv:phase_offset: 0.179352
+          - nid: augment1193
+            ntype: 0
+            nlayer: 2
+            in_no: 246
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.70939
+              rv:gain: -2.48195
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 131
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: -0.669313
+              rv:gain: 0.0838823
+          - nid: augment1309
+            ntype: 6
+            nlayer: 2
+            in_no: 1256
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: -0.415335
+              rv:period: -0.952661
+              rv:phase_offset: 0.786716
+      - layer_4:
+          - nid: weight
+            ntype: 0
+            nlayer: 1
+            in_no: 7
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 1.45273
+              rv:gain: 0.835084
+          - nid: rv:bias
+            ntype: 0
+            nlayer: 1
+            in_no: 8
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 4.17397
+              rv:gain: -0.173367
+          - nid: rv:gain
+            ntype: 0
+            nlayer: 1
+            in_no: 9
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 0.946318
+              rv:gain: -0.0242424
+- evaluation: 840
+  brain:
+    connection_genes:
+      - con_1:
+            in_no: 12
+            from: 1
+            to: 9
+            weight: -3.31383
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 13
+            from: 2
+            to: 7
+            weight: 1.87654
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 14
+            from: 2
+            to: 8
+            weight: 2.40436
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 15
+            from: 2
+            to: 9
+            weight: -0.748599
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 16
+            from: 3
+            to: 7
+            weight: -1.74657
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 17
+            from: 3
+            to: 8
+            weight: -2.14006
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 18
+            from: 3
+            to: 9
+            weight: 0.987339
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 19
+            from: 4
+            to: 7
+            weight: 1.4814
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 20
+            from: 4
+            to: 8
+            weight: -5.98545
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 21
+            from: 4
+            to: 9
+            weight: 1.99524
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 22
+            from: 5
+            to: 7
+            weight: -1.85859
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 24
+            from: 5
+            to: 9
+            weight: -2.37515
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 25
+            from: 6
+            to: 7
+            weight: 4.92506
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 26
+            from: 6
+            to: 8
+            weight: -1.31631
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 54
+            from: 1
+            to: 53
+            weight: 2.53866
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 55
+            from: 53
+            to: 7
+            weight: -2.84399
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 84
+            from: 5
+            to: 53
+            weight: 2.18331
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 103
+            from: 53
+            to: 8
+            weight: 1.20001
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 132
+            from: 1
+            to: 131
+            weight: -2.13446
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 133
+            from: 131
+            to: 8
+            weight: 0.461295
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 160
+            from: 6
+            to: 53
+            weight: -4.37979
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 166
+            from: 2
+            to: 53
+            weight: 0.483568
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 234
+            from: 6
+            to: 233
+            weight: 1.08884
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 247
+            from: 5
+            to: 246
+            weight: 4.43576
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 248
+            from: 246
+            to: 8
+            weight: 1.16549
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 773
+            from: 4
+            to: 246
+            weight: 0.102678
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1191
+            from: 3
+            to: 1190
+            weight: 5.82063
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1192
+            from: 1190
+            to: 53
+            weight: -1.0087
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1257
+            from: 233
+            to: 1256
+            weight: 0.990849
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1258
+            from: 1256
+            to: 9
+            weight: 1
+            parent_name: none
+            parent_index: -1
+    layers:
+      - layer_1:
+          - nid: Input-0
+            ntype: 3
+            nlayer: 0
+            in_no: 1
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-1
+            ntype: 3
+            nlayer: 0
+            in_no: 2
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-2
+            ntype: 3
+            nlayer: 0
+            in_no: 3
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-3
+            ntype: 3
+            nlayer: 0
+            in_no: 4
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-4
+            ntype: 3
+            nlayer: 0
+            in_no: 5
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-5
+            ntype: 3
+            nlayer: 0
+            in_no: 6
+            parent_name:
+            parent_index: -1
+            params:
+      - layer_2:
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 1190
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: -0.910763
+              rv:gain: 1.33042
+          - nid: augment1309
+            ntype: 1
+            nlayer: 2
+            in_no: 233
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.882664
+              rv:gain: 0.0366348
+      - layer_3:
+          - nid: augment1178
+            ntype: 6
+            nlayer: 2
+            in_no: 53
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: 1.77868
+              rv:period: 0.534122
+              rv:phase_offset: 0.179352
+          - nid: augment1193
+            ntype: 0
+            nlayer: 2
+            in_no: 246
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.70939
+              rv:gain: -2.48195
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 131
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: -0.669313
+              rv:gain: 0.0838823
+          - nid: augment1309
+            ntype: 6
+            nlayer: 2
+            in_no: 1256
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: -0.415335
+              rv:period: -0.952661
+              rv:phase_offset: 0.786716
+      - layer_4:
+          - nid: weight
+            ntype: 0
+            nlayer: 1
+            in_no: 7
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 1.45273
+              rv:gain: 0.835084
+          - nid: rv:bias
+            ntype: 0
+            nlayer: 1
+            in_no: 8
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 4.17397
+              rv:gain: -0.173367
+          - nid: rv:gain
+            ntype: 0
+            nlayer: 1
+            in_no: 9
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 0.946318
+              rv:gain: -0.0242424
+- evaluation: 820
+  brain:
+    connection_genes:
+      - con_1:
+            in_no: 12
+            from: 1
+            to: 9
+            weight: -3.31383
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 13
+            from: 2
+            to: 7
+            weight: 1.87654
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 14
+            from: 2
+            to: 8
+            weight: 2.40436
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 15
+            from: 2
+            to: 9
+            weight: -0.748599
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 16
+            from: 3
+            to: 7
+            weight: -1.74657
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 17
+            from: 3
+            to: 8
+            weight: -2.14006
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 18
+            from: 3
+            to: 9
+            weight: 0.987339
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 19
+            from: 4
+            to: 7
+            weight: 1.4814
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 20
+            from: 4
+            to: 8
+            weight: -5.98545
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 21
+            from: 4
+            to: 9
+            weight: 1.99524
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 22
+            from: 5
+            to: 7
+            weight: -1.85859
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 24
+            from: 5
+            to: 9
+            weight: -2.37515
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 25
+            from: 6
+            to: 7
+            weight: 4.92506
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 26
+            from: 6
+            to: 8
+            weight: -1.31631
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 54
+            from: 1
+            to: 53
+            weight: 2.53866
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 55
+            from: 53
+            to: 7
+            weight: -2.84399
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 84
+            from: 5
+            to: 53
+            weight: 2.18331
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 103
+            from: 53
+            to: 8
+            weight: 1.20001
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 132
+            from: 1
+            to: 131
+            weight: -2.13446
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 133
+            from: 131
+            to: 8
+            weight: 0.461295
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 160
+            from: 6
+            to: 53
+            weight: -4.37979
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 166
+            from: 2
+            to: 53
+            weight: 0.483568
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 234
+            from: 6
+            to: 233
+            weight: 1.08884
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 247
+            from: 5
+            to: 246
+            weight: 4.43576
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 248
+            from: 246
+            to: 8
+            weight: 1.16549
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 773
+            from: 4
+            to: 246
+            weight: 0.102678
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1191
+            from: 3
+            to: 1190
+            weight: 5.82063
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1192
+            from: 1190
+            to: 53
+            weight: -1.0087
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1257
+            from: 233
+            to: 1256
+            weight: 0.990849
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1258
+            from: 1256
+            to: 9
+            weight: 1
+            parent_name: none
+            parent_index: -1
+    layers:
+      - layer_1:
+          - nid: Input-0
+            ntype: 3
+            nlayer: 0
+            in_no: 1
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-1
+            ntype: 3
+            nlayer: 0
+            in_no: 2
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-2
+            ntype: 3
+            nlayer: 0
+            in_no: 3
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-3
+            ntype: 3
+            nlayer: 0
+            in_no: 4
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-4
+            ntype: 3
+            nlayer: 0
+            in_no: 5
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-5
+            ntype: 3
+            nlayer: 0
+            in_no: 6
+            parent_name:
+            parent_index: -1
+            params:
+      - layer_2:
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 1190
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: -0.910763
+              rv:gain: 1.33042
+          - nid: augment1309
+            ntype: 1
+            nlayer: 2
+            in_no: 233
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.882664
+              rv:gain: 0.0366348
+      - layer_3:
+          - nid: augment1178
+            ntype: 6
+            nlayer: 2
+            in_no: 53
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: 1.77868
+              rv:period: 0.534122
+              rv:phase_offset: 0.179352
+          - nid: augment1193
+            ntype: 0
+            nlayer: 2
+            in_no: 246
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.70939
+              rv:gain: -2.48195
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 131
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: -0.669313
+              rv:gain: 0.0838823
+          - nid: augment1309
+            ntype: 6
+            nlayer: 2
+            in_no: 1256
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: -0.415335
+              rv:period: -0.952661
+              rv:phase_offset: 0.786716
+      - layer_4:
+          - nid: weight
+            ntype: 0
+            nlayer: 1
+            in_no: 7
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 1.45273
+              rv:gain: 0.835084
+          - nid: rv:bias
+            ntype: 0
+            nlayer: 1
+            in_no: 8
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 4.17397
+              rv:gain: -0.173367
+          - nid: rv:gain
+            ntype: 0
+            nlayer: 1
+            in_no: 9
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 0.946318
+              rv:gain: -0.0242424
+- evaluation: 752
+  brain:
+    connection_genes:
+      - con_1:
+            in_no: 12
+            from: 1
+            to: 9
+            weight: -2.5961
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 13
+            from: 2
+            to: 7
+            weight: 1.03194
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 14
+            from: 2
+            to: 8
+            weight: 0.709117
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 15
+            from: 2
+            to: 9
+            weight: -0.276005
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 16
+            from: 3
+            to: 7
+            weight: -1.81062
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 17
+            from: 3
+            to: 8
+            weight: -2.51936
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 18
+            from: 3
+            to: 9
+            weight: -0.192782
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 19
+            from: 4
+            to: 7
+            weight: 2.0937
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 20
+            from: 4
+            to: 8
+            weight: -5.88598
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 21
+            from: 4
+            to: 9
+            weight: 1.38017
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 22
+            from: 5
+            to: 7
+            weight: -1.74911
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 24
+            from: 5
+            to: 9
+            weight: -1.99002
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 25
+            from: 6
+            to: 7
+            weight: 4.16272
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 26
+            from: 6
+            to: 8
+            weight: -1.96815
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 54
+            from: 1
+            to: 53
+            weight: 4.72398
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 55
+            from: 53
+            to: 7
+            weight: -2.0579
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 84
+            from: 5
+            to: 53
+            weight: 3.75484
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 103
+            from: 53
+            to: 8
+            weight: 1.5986
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 132
+            from: 1
+            to: 131
+            weight: -3.10164
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 133
+            from: 131
+            to: 8
+            weight: -1.74881
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 160
+            from: 6
+            to: 53
+            weight: -4.37979
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 166
+            from: 2
+            to: 53
+            weight: -0.329031
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 234
+            from: 6
+            to: 233
+            weight: 1.7867
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 247
+            from: 5
+            to: 246
+            weight: 4.43576
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 248
+            from: 246
+            to: 8
+            weight: 3.82289
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 773
+            from: 4
+            to: 246
+            weight: 0.89589
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1191
+            from: 3
+            to: 1190
+            weight: 7.55351
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1192
+            from: 1190
+            to: 53
+            weight: -2.11618
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1257
+            from: 233
+            to: 1256
+            weight: -0.184132
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1258
+            from: 1256
+            to: 9
+            weight: -0.0396894
+            parent_name: none
+            parent_index: -1
+    layers:
+      - layer_1:
+          - nid: Input-0
+            ntype: 3
+            nlayer: 0
+            in_no: 1
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-1
+            ntype: 3
+            nlayer: 0
+            in_no: 2
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-2
+            ntype: 3
+            nlayer: 0
+            in_no: 3
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-3
+            ntype: 3
+            nlayer: 0
+            in_no: 4
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-4
+            ntype: 3
+            nlayer: 0
+            in_no: 5
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-5
+            ntype: 3
+            nlayer: 0
+            in_no: 6
+            parent_name:
+            parent_index: -1
+            params:
+      - layer_2:
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 1190
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.468093
+              rv:gain: 2.05184
+          - nid: augment1309
+            ntype: 1
+            nlayer: 2
+            in_no: 233
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.882664
+              rv:gain: 0.503637
+      - layer_3:
+          - nid: augment1178
+            ntype: 6
+            nlayer: 2
+            in_no: 53
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: 2.48784
+              rv:period: 1.23209
+              rv:phase_offset: 0.179352
+          - nid: augment1193
+            ntype: 0
+            nlayer: 2
+            in_no: 246
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.380222
+              rv:gain: -3.08123
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 131
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: -0.669313
+              rv:gain: 0.321605
+          - nid: augment1309
+            ntype: 6
+            nlayer: 2
+            in_no: 1256
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: -2.2843
+              rv:period: -1.19033
+              rv:phase_offset: -1.74923
+      - layer_4:
+          - nid: weight
+            ntype: 0
+            nlayer: 1
+            in_no: 7
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 1.93383
+              rv:gain: 0.835084
+          - nid: rv:bias
+            ntype: 0
+            nlayer: 1
+            in_no: 8
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 4.37634
+              rv:gain: -0.173367
+          - nid: rv:gain
+            ntype: 0
+            nlayer: 1
+            in_no: 9
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 3.00786
+              rv:gain: -0.0242424
+- evaluation: 830
+  brain:
+    connection_genes:
+      - con_1:
+            in_no: 12
+            from: 1
+            to: 9
+            weight: -3.31383
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 13
+            from: 2
+            to: 7
+            weight: 1.87654
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 14
+            from: 2
+            to: 8
+            weight: 2.40436
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 15
+            from: 2
+            to: 9
+            weight: -0.748599
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 16
+            from: 3
+            to: 7
+            weight: -1.74657
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 17
+            from: 3
+            to: 8
+            weight: -2.14006
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 18
+            from: 3
+            to: 9
+            weight: 0.987339
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 19
+            from: 4
+            to: 7
+            weight: 1.4814
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 20
+            from: 4
+            to: 8
+            weight: -5.98545
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 21
+            from: 4
+            to: 9
+            weight: 1.99524
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 22
+            from: 5
+            to: 7
+            weight: -1.85859
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 24
+            from: 5
+            to: 9
+            weight: -2.37515
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 25
+            from: 6
+            to: 7
+            weight: 4.92506
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 26
+            from: 6
+            to: 8
+            weight: -1.31631
+            parent_name:
+            parent_index: -1
+      - con_1:
+            in_no: 54
+            from: 1
+            to: 53
+            weight: 2.53866
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 55
+            from: 53
+            to: 7
+            weight: -2.84399
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 84
+            from: 5
+            to: 53
+            weight: 2.18331
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 103
+            from: 53
+            to: 8
+            weight: 1.20001
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 132
+            from: 1
+            to: 131
+            weight: -2.13446
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 133
+            from: 131
+            to: 8
+            weight: 0.461295
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 160
+            from: 6
+            to: 53
+            weight: -4.37979
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 166
+            from: 2
+            to: 53
+            weight: 0.483568
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 234
+            from: 6
+            to: 233
+            weight: 1.08884
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 247
+            from: 5
+            to: 246
+            weight: 4.43576
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 248
+            from: 246
+            to: 8
+            weight: 1.16549
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 773
+            from: 4
+            to: 246
+            weight: 0.102678
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1191
+            from: 3
+            to: 1190
+            weight: 5.82063
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1192
+            from: 1190
+            to: 53
+            weight: -1.0087
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1257
+            from: 233
+            to: 1256
+            weight: 0.990849
+            parent_name: none
+            parent_index: -1
+      - con_1:
+            in_no: 1258
+            from: 1256
+            to: 9
+            weight: 1
+            parent_name: none
+            parent_index: -1
+    layers:
+      - layer_1:
+          - nid: Input-0
+            ntype: 3
+            nlayer: 0
+            in_no: 1
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-1
+            ntype: 3
+            nlayer: 0
+            in_no: 2
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-2
+            ntype: 3
+            nlayer: 0
+            in_no: 3
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-3
+            ntype: 3
+            nlayer: 0
+            in_no: 4
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-4
+            ntype: 3
+            nlayer: 0
+            in_no: 5
+            parent_name:
+            parent_index: -1
+            params:
+          - nid: Input-5
+            ntype: 3
+            nlayer: 0
+            in_no: 6
+            parent_name:
+            parent_index: -1
+            params:
+      - layer_2:
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 1190
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: -0.910763
+              rv:gain: 1.33042
+          - nid: augment1309
+            ntype: 1
+            nlayer: 2
+            in_no: 233
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.882664
+              rv:gain: 0.0366348
+      - layer_3:
+          - nid: augment1178
+            ntype: 6
+            nlayer: 2
+            in_no: 53
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: 1.77868
+              rv:period: 0.534122
+              rv:phase_offset: 0.179352
+          - nid: augment1193
+            ntype: 0
+            nlayer: 2
+            in_no: 246
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: 0.70939
+              rv:gain: -2.48195
+          - nid: augment1305
+            ntype: 0
+            nlayer: 2
+            in_no: 131
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:bias: -0.669313
+              rv:gain: 0.0838823
+          - nid: augment1309
+            ntype: 6
+            nlayer: 2
+            in_no: 1256
+            parent_name: none
+            parent_index: -1
+            params:
+              rv:amplitude: -0.415335
+              rv:period: -0.952661
+              rv:phase_offset: 0.786716
+      - layer_4:
+          - nid: weight
+            ntype: 0
+            nlayer: 1
+            in_no: 7
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 1.45273
+              rv:gain: 0.835084
+          - nid: rv:bias
+            ntype: 0
+            nlayer: 1
+            in_no: 8
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 4.17397
+              rv:gain: -0.173367
+          - nid: rv:gain
+            ntype: 0
+            nlayer: 1
+            in_no: 9
+            parent_name:
+            parent_index: -1
+            params:
+              rv:bias: 0.946318
+              rv:gain: -0.0242424
+

@@ -1,0 +1,32 @@
+{
+    'algorithm': 'hyperneat::net',
+    'type': 'A', # original rlpower
+    'evaluation_rate': '30.0',
+    'max_evaluations': '1000',
+    'max_ranked_policies': '10',
+    'init_spline_size': '3',
+    'interpolation_spline_size': '100',
+    'init_sigma': '0.8',
+#    'policy_load_path': 'spider.policy', # Used to load policy
+    'sigma_tau_correction': '0.2',
+    'asexual': 'false',
+    'pop_size': '10',
+    'tournament_size': '2',
+    'num_children': '9',
+    'weight_mutation_probability': '0.8',
+    'weight_mutation_sigma': '0.8',
+    'param_mutation_probability': '0.8',
+    'param_mutation_sigma': '0.8',
+    'structural_augmentation_probability': '0.8',
+    'structural_removal_probability': '0',
+    'max_generations': '100',
+    'speciation_threshold': '0.5',
+    'repeat_evaluations': '1',
+    'initial_structural_mutations': '0',  #how often should structural augmentation be applied to the starting network (0 for just random weights/parameters)
+    'interspecies_mate_probability': '0.01',
+    'number_of_brains_from_first': '3',
+    'number_of_brains_from_second': '3',
+    'path_to_first_brains': 'res/policies/spider9-6.best.policy',
+    'path_to_second_brains': 'res/policies/gecko7-6.best.policy',
+    'path_to_mutator': 'res/known_innovations.yaml' #use 'none' to not remember the innovation number assignments from/for previous/later runs
+}

@@ -6,7 +6,8 @@ trap " exit " INT
 PROGNAME=$(basename $0)
 
 # Default argument list
-robot_list=(spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC)
+# robot_list=(spider9 gecko7 spider13 spider17 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC)
+robot_list=(babyA)
 
 config=./res/rlpower_spline.cfg
 gz_command=gzserver
@@ -78,7 +79,7 @@ function main() {
     # For each name in 'robot_list' run 'no_experiments' experiment
     for index in ${!robot_list[*]}
     do
-        for (( i = 1; i <= ${no_experiments}; ++ i ))
+        for (( i = 4; i <= ${no_experiments}; ++ i ))
         do
             python ./start.py \
                 --load-controller ${load_controller} \
@@ -88,7 +89,7 @@ function main() {
                 --restore ${restore} \
                 --robot-name ./res/robots/${robot_list[$index]} \
                 --experiment-round ${i} \
-                --brain-conf-path ${config} \
+                --brain-conf-path ${config}${i} \
                 --gazebo-cmd ${gz_command}
         done
     done
