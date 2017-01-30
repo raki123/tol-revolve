@@ -37,12 +37,12 @@ FakeLightSensor::~FakeLightSensor()
 }
 
 
-float FakeLightSensor::light_distance()
+double FakeLightSensor::light_distance()
 {
     return 1/(robot_position.Pos() - light_pos).Length();
 }
 
-float FakeLightSensor::light_angle()
+double FakeLightSensor::light_angle()
 {
     return 0;
 }

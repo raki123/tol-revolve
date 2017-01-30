@@ -36,8 +36,8 @@ public:
                     ignition::math::Vector3d light_pos);
     virtual ~FakeLightSensor();
 
-    virtual float light_distance() override;
-    virtual float light_angle() override;
+    virtual double light_distance() override;
+    virtual double light_angle() override;
 
     virtual std::string sensorId() const override;
 
