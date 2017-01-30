@@ -6,7 +6,9 @@ trap " exit " INT
 PROGNAME=$(basename $0)
 
 # Default argument list
-robot_list=(spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC)
+#robot_list=(spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC)
+#robot_list=(babyA babyB babyC)
+robot_list=(babyAC)
 
 config=./res/rlpower_spline.cfg
 gz_command=gzserver
