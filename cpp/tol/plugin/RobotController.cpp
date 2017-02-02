@@ -64,14 +64,43 @@ RobotController::RobotController() {
         std::unique_ptr<NEAT::GenomeManager>(
             new SUPGGenomeManager()
     ));
-    unsigned long populationSize = 10;
+    unsigned int populationSize = 10;
+    NEAT::real_t mutate_add_node_prob = 0.01;
+    NEAT::real_t mutate_add_link_prob = 0.3;
     NEAT::GeneticSearchType geneticSearchType = NEAT::GeneticSearchType::PHASED;
 
     if(const char* env_p = getVARenv("NEAT_POP_SIZE")) {
-        //TODO catch exception
-        populationSize = std::stol(env_p);
+        try {
+            populationSize = (unsigned int) std::stoul(env_p);
+        } catch (const std::invalid_argument &e) {
+            std::cout << "ERROR DECODING STRING \"NEAT_POP_SIZE\" to unsigned long:"
+                      << " using default value " << populationSize << " instead" << std::endl;
+        }
+
     } else {
         std::cout << populationSize << std::endl;
+    }
+
+    if(const char* env_p = getVARenv("NEAT_MUTATE_ADD_NODE_PROB")) {
+        try {
+            mutate_add_node_prob = (float) std::stod(env_p);
+        } catch (const std::invalid_argument &e) {
+            std::cout << "ERROR DECODING STRING \"NEAT_MUTATE_ADD_NODE_PROB\" to double:"
+                      << " using default value " << mutate_add_node_prob << " instead" << std::endl;
+        }
+    } else {
+        std::cout << mutate_add_node_prob << std::endl;
+    }
+
+    if(const char* env_p = getVARenv("NEAT_MUTATE_ADD_LINK_PROB")) {
+        try {
+            mutate_add_link_prob = (float) std::stod(env_p);
+        } catch (const std::invalid_argument &e) {
+            std::cout << "ERROR DECODING STRING \"NEAT_MUTATE_ADD_LINK_PROB\" to double:"
+                      << " using default value " << mutate_add_link_prob << " instead" << std::endl;
+        }
+    } else {
+        std::cout << mutate_add_link_prob << std::endl;
     }
 
     if(const char* env_p = getVARenv("NEAT_SEARCH_TYPE")) {
@@ -81,6 +110,8 @@ RobotController::RobotController() {
     }
 
     AsyncNeat::SetPopulationSize(populationSize); // 10 - 25 - 50 - 75 - 100 - 1000
+    AsyncNeat::SetMutateAddNodeProb(mutate_add_node_prob);
+    AsyncNeat::SetMutateAddLinkProb(mutate_add_link_prob);
     std::cout << "Setting up genetic search type to: " << getGeneticSearchType(geneticSearchType) << std::endl;
     AsyncNeat::SetSearchType(geneticSearchType);
 }
