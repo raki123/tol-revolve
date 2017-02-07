@@ -140,6 +140,7 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 
     const std::string robot_type_str = getVARenv("ROBOT_TYPE");
     const Helper::RobotType robot_type = Helper::parseRobotType(robot_type_str);
+    std::cout << "Loading SUPG configuration for robot " << robot_type << std::endl;
     switch (robot_type) {
         case Helper::spider9:
             // SPIDER 9
