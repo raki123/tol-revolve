@@ -11,6 +11,7 @@
 #include "supgbrainphototaxis.h"
 #include "brain/supg/supggenomemanager.h"
 #include "neat/accneat/src/neat.h"
+#include "helper.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -135,260 +136,333 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
 
 /*  SUPG brain   */
     // joints 00 and 10 are opposites, therefore on the same axis
+    std::vector<std::vector<float> > coordinates;
 
-    // SPIDER 9
-    //     #
-    //     #
-    // # # O # #
-    //     #
-    //     #
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint Leg01Joint
-//          {  1,  0, 1}, { .5,  0, -1},
-//       // Leg10Joint Leg11Joint
-//          { -1,  0, 1}, {-.5,  0, -1},
-//       // Leg20Joint Leg21Joint
-//          {  0,  1, 1}, {  0, .5, -1},
-//       // Leg30Joint Leg31Joint
-//          {  0, -1, 1}, {  0,-.5, -1}
-//     } );
+    const std::string robot_type_str = getVARenv("ROBOT_TYPE");
+    const Helper::RobotType robot_type = Helper::parseRobotType(robot_type_str);
+    switch (robot_type) {
+        case Helper::spider9:
+            // SPIDER 9
+            //     #
+            //     #
+            // # # O # #
+            //     #
+            //     #
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint Leg01Joint
+                             {1,    0,    1},
+                             {.5,   0,    -1},
+                             // Leg10Joint Leg11Joint
+                             {-1,   0,    1},
+                             {-.5f, 0,    -1},
+                             // Leg20Joint Leg21Joint
+                             {0,    1,    1},
+                             {0,    .5,   -1},
+                             // Leg30Joint Leg31Joint
+                             {0,    -1,   1},
+                             {0,    -.5f, -1}
+                     });
+            break;
+        case Helper::spider13:
+            // SPIDER 13
+            //       #
+            //       #
+            //       #
+            // # # # O # # #
+            //       #
+            //       #
+            //       #
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint Leg01Joint Leg02Joint
+                             {.333,   0},
+                             {.666,   0},
+                             {1,      0},
+                             // Leg10Joint Leg11Joint Leg12Joint
+                             {-.333f, 0},
+                             {-.666f, 0},
+                             {-1,     0},
+                             // Leg20Joint Leg21Joint Leg22Joint
+                             {0,      .333},
+                             {0,      .666},
+                             {0,      1},
+                             // Leg30Joint Leg31Joint Leg32Joint
+                             {0,      -.333f},
+                             {0,      -.666f},
+                             {0,      -1},
+                     });
+            break;
+        case Helper::spider17:
+            // SPIDER 17
+            //         #
+            //         #
+            //         #
+            //         #
+            // # # # # O # # # #
+            //         #
+            //         #
+            //         #
+            //         #
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint Leg01Joint Leg02Joint
+                             {.25,   0},
+                             {.5,    0},
+                             {.75,   0},
+                             {1,     0},
+                             // Leg10Joint Leg11Joint Leg12Joint
+                             {-.25f, 0},
+                             {-.5f,  0},
+                             {-.75f, 0},
+                             {-1,    0},
+                             // Leg20Joint Leg21Joint Leg22Joint
+                             {0,     .25},
+                             {0,     .5},
+                             {0,     .75},
+                             {0,     1},
+                             // Leg30Joint Leg31Joint Leg32Joint
+                             {0,     -.25f},
+                             {0,     -.5f},
+                             {0,     -.75f},
+                             {0,     -1},
+                     });
+            break;
+        case Helper::gecko7:
+            // GECKO 5
+            // #   #
+            // O # #
+            // #   #
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint
+                             {-1,   +1},
+                             // Leg01Joint
+                             {-1,   -1},
+                             // BodyJoint0
+                             {-.5f, 0},
+                             // BodyJoint1
+                             {+.5f, 0},
+                             // Leg10Joint
+                             {+1,   +1},
+                             // Leg11Joint
+                             {+1,   -1},
+                     });
+            break;
+        case Helper::gecko12:
 
-    // SPIDER 13
-    //       #
-    //       #
-    //       #
-    // # # # O # # #
-    //       #
-    //       #
-    //       #
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint Leg01Joint Leg02Joint
-//          {  .333,  0}, {  .666,  0}, {  1,  0},
-//       // Leg10Joint Leg11Joint Leg12Joint
-//          { -.333,  0}, { -.666,  0}, { -1,  0},
-//       // Leg20Joint Leg21Joint Leg22Joint
-//          {  0,  .333}, {  0,  .666}, {  0,  1},
-//       // Leg30Joint Leg31Joint Leg32Joint
-//          {  0, -.333}, {  0, -.666}, {  0, -1},
-//     } );
+            // GECKO 12
+            // #     #
+            // #     #
+            // O # # #
+            // #     #
+            // #     #
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint Leg001Joint
+                             {-1.0f, +0.5f},
+                             {-1,    +1},
+                             // Leg01Joint Leg011Joint
+                             {-1.0f, -0.5f},
+                             {-1,    -1},
+                             // BodyJoint0 BodyJoint1 BodyJoint2
+                             {-.5f,  0},
+                             {0,     0},
+                             {+.5f,  0},
+                             // Leg10Joint Leg101Joint
+                             {+1,    +0.5f},
+                             {+1,    +1},
+                             // Leg11Joint Leg111Joint
+                             {+1,    -0.5f},
+                             {+1,    -1},
+                     });
+            break;
+        case Helper::gecko17:
+            // GECKO 17
+            // #     #
+            // #     #
+            // O # # #
+            // #     #
+            // #     #
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint Leg001Joint Leg002Joint
+                             {-1.0f,  +.333f},
+                             {-1.0f,  +.666f},
+                             {-1,     +1},
+                             // Leg01Joint Leg011Joint Leg012Joint
+                             {-1.0f,  -.333f},
+                             {-1.0f,  -.333f},
+                             {-1,     -1},
+                             // BodyJoint0 BodyJoint1 BodyJoint2 BodyJoint3
+                             {-.666f, 0},
+                             {-.333f, 0},
+                             {+.333f, 0},
+                             {+.666f, 0},
+                             // Leg10Joint Leg101Joint Leg102Joint
+                             {+1,     +.333f},
+                             {+1,     +.666f},
+                             {+1,     +1},
+                             // Leg11Joint Leg111Joint Leg112Joint
+                             {+1,     -.333f},
+                             {+1,     -.666f},
+                             {+1,     -1},
+                     });
+            break;
+        case Helper::snake5:
 
-    // SPIDER 17
-    //         #
-    //         #
-    //         #
-    //         #
-    // # # # # O # # # #
-    //         #
-    //         #
-    //         #
-    //         #
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint Leg01Joint Leg02Joint
-//          {  .25,  0}, {  .5,  0}, {  .75,  0}, {  1,  0},
-//       // Leg10Joint Leg11Joint Leg12Joint
-//          { -.25,  0}, { -.5,  0}, { -.75,  0}, { -1,  0},
-//       // Leg20Joint Leg21Joint Leg22Joint
-//          {  0,  .25}, {  0,  .5}, {  0,  .75}, {  0,  1},
-//       // Leg30Joint Leg31Joint Leg32Joint
-//          {  0, -.25}, {  0, -.5}, {  0, -.75}, {  0, -1},
-//     } );
 
-    // GECKO 5
-    // #   #
-    // O # #
-    // #   #
-    std::vector< std::vector< float> > coordinates
-    ( {
-      // Leg00Joint
-         { -1, +1},
-      // Leg01Joint
-         { -1, -1},
-      // BodyJoint0
-         { -.5, 0},
-      // BodyJoint1
-         { +.5, 0},
-      // Leg10Joint
-         { +1, +1},
-      // Leg11Joint
-         { +1, -1},
-    } );
+            // SNAKE 5
+            //
+            // # # O # #
+            //
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint
+                             {-.5f, 0},
+                             // Leg01Joint
+                             {-1,   0},
+                             // Leg10Joint
+                             {+.5f, 0},
+                             // Leg11Joint
+                             {+1,   0},
+                     });
+            break;
+        case Helper::snake7:
+            // SNAKE 7
+            //
+            // # # # O # # #
+            //
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint
+                             {-.333f, 0},
+                             // Leg01Joint
+                             {-.666f, 0},
+                             // Leg02Joint
+                             {-1,     0},
+                             // Leg10Joint
+                             {+.333f, 0},
+                             // Leg11Joint
+                             {+.666f, 0},
+                             // Leg12Joint
+                             {+1,     0},
+                     });
+            break;
+        case Helper::snake9:
+            // SNAKE 9
+            //
+            // # # # # O # # # #
+            //
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint
+                             {-.25f, 0},
+                             // Leg01Joint
+                             {-.50f, 0},
+                             // Leg02Joint
+                             {-.75f, 0},
+                             // Leg03Joint
+                             {-1,    0},
+                             // Leg10Joint
+                             {+.25f, 0},
+                             // Leg11Joint
+                             {+.50f, 0},
+                             // Leg12Joint
+                             {+.75f, 0},
+                             // Leg13Joint
+                             {+1,    0},
+                     });
+            break;
+        case Helper::babyA:
 
-    // GECKO 12
-    // #     #
-    // #     #
-    // O # # #
-    // #     #
-    // #     #
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint Leg001Joint
-//          { -1, +0.5}, { -1, +1},
-//       // Leg01Joint Leg011Joint
-//          { -1, -0.5}, { -1, -1},
-//       // BodyJoint0 BodyJoint1 BodyJoint2
-//          { -.5, 0},
-//          {   0, 0},
-//          { +.5, 0},
-//       // Leg10Joint Leg101Joint
-//          { +1, +0.5}, { +1, +1},
-//       // Leg11Joint Leg111Joint
-//          { +1, -0.5}, { +1, -1},
-//     } );
+            // BABY 1
+            // #
+            // #   #
+            // O # #
+            // #   #
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint
+                             {-1.0f,   +1},
+                             // Leg01Joint
+                             {-1.0f,  -.3f},
+                             // Leg011Joint
+                             {-1.0f,  -.6f},
+                             // Leg021Joint
+                             {-1.0f,   -1.0f},
+                             // BodyJoint0
+                             {-.5f, 0},
+                             // BodyJoint1
+                             {+.5f, 0},
+                             // Leg10Joint
+                             {+1,   +1},
+                             // Leg11Joint
+                             {+1,   -1},
+                     });
+            break;
+        case Helper::babyB:
+            // BABY 2
+            //
+            //       #
+            // # # # O # # #
+            //       #
+            //       #
+            //       #
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint Leg01Joint Leg02Joint
+                             {1,     0},
+                             {.666f, 0},
+                             {.333f, 0},
+                             // Leg10Joint
+                             {-1,    0},
+                             // Leg20Joint Leg21Joint Leg22Joint
+                             {0,     1},
+                             {0,     .666f},
+                             {0,     .333f},
+                             // Leg30Joint Leg31Joint Leg32Joint
+                             {0,     -1},
+                             {0,     -.666f},
+                             {0,     .333f},
+                     });
+            break;
+        case Helper::babyC:
+            // BABY 3
+            // #       #
+            // #       x
+            // #       #
+            // O # # # #
+            // #       #
+            // #       #
+            // #       #
+            coordinates = std::vector<std::vector<float> >
+                    ({
+                             // Leg00Joint Leg001Joint Leg002Joint
+                             {-1.0f,  +.333f},
+                             {-1.0f,  +.666f},
+                             {-1.0f,  +1},
+                             // Leg01Joint Leg011Joint Leg012Joint
+                             {-1.0f,  -.333f},
+                             {-1.0f,  -.333f},
+                             {-1.0f,  -1},
+                             // BodyJoint0 BodyJoint1 BodyJoint2 BodyJoint3
+                             {-.666f, 0},
+                             {-.333f, 0},
+                             {+.333f, 0},
+                             {+.666f, 0},
+                             // Leg10Joint Leg101Joint Leg102Joint
+                             {+1.0f,  +.333f},
+                             {+1.0f,  +.666f},
+                             {+1.0f,  +1},
+                             // Leg11Joint Leg111Joint Leg112Joint
+                             {+1.0f,  -.333f},
+                             {+1.0f,  -.666f},
+                             {+1.0f,  -.9f},
+                     });
+            break;
+    }
 
-    // GECKO 17
-    // #     #
-    // #     #
-    // O # # #
-    // #     #
-    // #     #
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint Leg001Joint Leg002Joint
-//          { -1, +.333}, { -1, +.666}, { -1, +1},
-//       // Leg01Joint Leg011Joint Leg012Joint
-//          { -1, -.333}, { -1, -.333}, { -1, -1},
-//       // BodyJoint0 BodyJoint1 BodyJoint2 BodyJoint3
-//          { -.666, 0},
-//          { -.333, 0},
-//          { +.333, 0},
-//          { +.666, 0},
-//       // Leg10Joint Leg101Joint Leg102Joint
-//          { +1, +.333}, { +1, +.666}, { +1, +1},
-//       // Leg11Joint Leg111Joint Leg112Joint
-//          { +1, -.333}, { +1, -.666}, { +1, -1},
-//     } );
-
-    // SNAKE 5
-    //
-    // # # O # #
-    //
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint
-//          { -.5, 0},
-//       // Leg01Joint
-//          { -1,  0},
-//       // Leg10Joint
-//          { +.5, 0},
-//       // Leg11Joint
-//          { +1,  0},
-//     } );
-
-    // SNAKE 7
-    //
-    // # # # O # # #
-    //
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint
-//          { -.333, 0},
-//       // Leg01Joint
-//          { -.666, 0},
-//       // Leg02Joint
-//          {    -1, 0},
-//       // Leg10Joint
-//          { +.333, 0},
-//       // Leg11Joint
-//          { +.666, 0},
-//       // Leg12Joint
-//          {    +1, 0},
-//     } );
-
-    // SNAKE 9
-    //
-    // # # # # O # # # #
-    //
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint
-//          { -.25, 0},
-//       // Leg01Joint
-//          { -.50, 0},
-//       // Leg02Joint
-//          { -.75, 0},
-//       // Leg03Joint
-//          {   -1, 0},
-//       // Leg10Joint
-//          { +.25, 0},
-//       // Leg11Joint
-//          { +.50, 0},
-//       // Leg12Joint
-//          { +.75, 0},
-//       // Leg13Joint
-//          {   +1, 0},
-//     } );
-
-    // BABY 1
-    // #
-    // #   #
-    // O # #
-    // #   #
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint
-//          { -1, +1},
-//       // Leg01Joint
-//          { -1, -.3},
-//       // Leg011Joint
-//          { -1, -.6},
-//       // Leg021Joint
-//          { -1, -1},
-//       // BodyJoint0
-//          { -.5, 0},
-//       // BodyJoint1
-//          { +.5, 0},
-//       // Leg10Joint
-//          { +1, +1},
-//       // Leg11Joint
-//          { +1, -1},
-//     } );
-
-    // BABY 2
-    //
-    //       #
-    // # # # O # # #
-    //       #
-    //       #
-    //       #
-//     std::vector< std::vector< float> > coordinates
-//     ( {
-//       // Leg00Joint Leg01Joint Leg02Joint
-//          {  1,  0}, { .666,  0}, { .333,  0},
-//       // Leg10Joint
-//          { -1,  0},
-//       // Leg20Joint Leg21Joint Leg22Joint
-//          {  0,  1}, {  0, .666}, { 0,  .333},
-//       // Leg30Joint Leg31Joint Leg32Joint
-//          {  0, -1}, {  0,-.666}, { 0,  .333},
-//     } );
-
-    // BABY 3
-    // #       #
-    // #       x
-    // #       #
-    // O # # # #
-    // #       #
-    // #       #
-    // #       #
-//     std::vector< std::vector<float> > coordinates
-//     ( {
-//       // Leg00Joint Leg001Joint Leg002Joint
-//          { -1, +.333}, { -1, +.666}, { -1, +1},
-//       // Leg01Joint Leg011Joint Leg012Joint
-//          { -1, -.333}, { -1, -.333}, { -1, -1},
-//       // BodyJoint0 BodyJoint1 BodyJoint2 BodyJoint3
-//          { -.666, 0},
-//          { -.333, 0},
-//          { +.333, 0},
-//          { +.666, 0},
-//       // Leg10Joint Leg101Joint Leg102Joint
-//          { +1, +.333}, { +1, +.666}, { +1, +1},
-//       // Leg11Joint Leg111Joint Leg112Joint
-//          { +1, -.333}, { +1, -.666}, { +1, -.9},
-//     } );
 
 //     brain_.reset(new SUPGBrain(evaluator_, coordinates, motors_, sensors_));
     brain_.reset(new SUPGBrainPhototaxis(evaluator_,
