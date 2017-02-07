@@ -152,17 +152,17 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
             coordinates = std::vector<std::vector<float> >
                     ({
                              // Leg00Joint Leg01Joint
-                             {1,    0,    1},
-                             {.5,   0,    -1},
+                             {1,    0},//    1},
+                             {.5,   0},//    -1},
                              // Leg10Joint Leg11Joint
-                             {-1,   0,    1},
-                             {-.5f, 0,    -1},
+                             {-1,   0},//    1},
+                             {-.5f, 0},//    -1},
                              // Leg20Joint Leg21Joint
-                             {0,    1,    1},
-                             {0,    .5,   -1},
+                             {0,    1},//    1},
+                             {0,    .5},//   -1},
                              // Leg30Joint Leg31Joint
-                             {0,    -1,   1},
-                             {0,    -.5f, -1}
+                             {0,    -1},//   1},
+                             {0,    -.5f}//, -1}
                      });
             break;
         case Helper::spider13:
