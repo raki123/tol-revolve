@@ -12,81 +12,88 @@
 
 #include <boost/make_shared.hpp>
 
-namespace tol {
+namespace tol
+{
 
+RLPowerSplines::RLPowerSplines(std::string modelName,
+                               sdf::ElementPtr brain,
+                               EvaluatorPtr evaluator,
+                               std::vector<revolve::gazebo::MotorPtr> &actuators,
+                               std::vector<revolve::gazebo::SensorPtr> &sensors) :
+        revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>(modelName)
+{
 
+  revolve::brain::RLPowerLearner::Config config = parseSDF(brain);
+  //initialise controller
+  unsigned int n_actuators = 0;
+  for (auto it : actuators) {
+    n_actuators += it->outputs();
+  }
+  controller = boost::shared_ptr<revolve::brain::PolicyController>
+          (new revolve::brain::PolicyController(n_actuators,
+                                                config.interpolation_spline_size));
 
-    RLPowerSplines::RLPowerSplines(std::string modelName,
-                     sdf::ElementPtr brain,
-                     EvaluatorPtr evaluator,
-                     std::vector<revolve::gazebo::MotorPtr> &actuators,
-                     std::vector<revolve::gazebo::SensorPtr> &sensors) :
-		revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>(modelName)  {
+  //initialise learner
+  learner = boost::shared_ptr<revolve::brain::RLPowerLearner>
+          (new revolve::brain::RLPowerLearner(modelName,
+                                              config,
+                                              n_actuators));
+  evaluator_ = evaluator;
+}
 
-	revolve::brain::RLPowerLearner::Config config = parseSDF(brain);
-        //initialise controller
-	unsigned int n_actuators = 0;
-	for(auto it : actuators) {
-		n_actuators += it->outputs();
-	}
-	controller = boost::shared_ptr<revolve::brain::PolicyController>
-		     (new revolve::brain::PolicyController(n_actuators, 
-							   config.interpolation_spline_size));
-       
-	//initialise learner
-        learner = boost::shared_ptr<revolve::brain::RLPowerLearner>
-                (new revolve::brain::RLPowerLearner(modelName,
-                                                    config,
-                                                    n_actuators));
-        evaluator_ = evaluator;
-    }
+RLPowerSplines::~RLPowerSplines()
+{}
 
-    RLPowerSplines::~RLPowerSplines() { }
+void
+RLPowerSplines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+                       const std::vector<revolve::gazebo::SensorPtr> &sensors,
+                       double t,
+                       double step)
+{
+  revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>::update(
+          Helper::createWrapper(actuators),
+          Helper::createWrapper(sensors),
+          t,
+          step
+  );
+}
 
-    void RLPowerSplines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
-                         const std::vector<revolve::gazebo::SensorPtr> &sensors,
-                         double t,
-                         double step) {
-        revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>::update(
-                Helper::createWrapper(actuators),
-                Helper::createWrapper(sensors),
-                t, step
-        );
-    }
+revolve::brain::RLPowerLearner::Config
+RLPowerSplines::parseSDF(sdf::ElementPtr brain)
+{
+  revolve::brain::RLPowerLearner::Config config;
 
-    revolve::brain::RLPowerLearner::Config RLPowerSplines::parseSDF(sdf::ElementPtr brain) {
-        revolve::brain::RLPowerLearner::Config config;
+  // Read out brain configuration attributes
+  config.algorithm_type = brain->HasAttribute("type") ? brain->GetAttribute("type")
+          ->GetAsString() : "A";
 
-        // Read out brain configuration attributes
-        config.algorithm_type = brain->HasAttribute("type") ? brain->GetAttribute("type")->GetAsString() : "A";
+  config.evaluation_rate = brain->HasAttribute("evaluation_rate") ?
+                           std::stod(brain->GetAttribute("evaluation_rate")->GetAsString()) :
+                           revolve::brain::RLPowerLearner::EVALUATION_RATE;
+  config.interpolation_spline_size = brain->HasAttribute("interpolation_spline_size") ?
+                                     std::stoul(brain->GetAttribute("interpolation_spline_size")->GetAsString()) :
+                                     revolve::brain::RLPowerLearner::INTERPOLATION_CACHE_SIZE;
+  config.max_evaluations = brain->HasAttribute("max_evaluations") ?
+                           std::stoul(brain->GetAttribute("max_evaluations")->GetAsString()) :
+                           revolve::brain::RLPowerLearner::MAX_EVALUATIONS;
+  config.max_ranked_policies = brain->HasAttribute("max_ranked_policies") ?
+                               std::stoul(brain->GetAttribute("max_ranked_policies")->GetAsString()) :
+                               revolve::brain::RLPowerLearner::MAX_RANKED_POLICIES;
+  config.noise_sigma = brain->HasAttribute("init_sigma") ?
+                       std::stod(brain->GetAttribute("init_sigma")->GetAsString()) :
+                       revolve::brain::RLPowerLearner::SIGMA_START_VALUE;
+  config.sigma_tau_correction = brain->HasAttribute("sigma_tau_correction") ?
+                                std::stod(brain->GetAttribute("sigma_tau_correction")->GetAsString()) :
+                                revolve::brain::RLPowerLearner::SIGMA_TAU_CORRECTION;
+  config.source_y_size = brain->HasAttribute("init_spline_size") ?
+                         std::stoul(brain->GetAttribute("init_spline_size")->GetAsString()) :
+                         revolve::brain::RLPowerLearner::INITIAL_SPLINE_SIZE;
+  config.update_step = brain->HasAttribute("update_step") ?
+                       std::stoul(brain->GetAttribute("update_step")->GetAsString()) :
+                       revolve::brain::RLPowerLearner::UPDATE_STEP;
+  config.policy_load_path = "";
 
-        config.evaluation_rate = brain->HasAttribute("evaluation_rate") ?
-                                 std::stod(brain->GetAttribute("evaluation_rate")->GetAsString()) :
-                                 revolve::brain::RLPowerLearner::EVALUATION_RATE;
-        config.interpolation_spline_size = brain->HasAttribute("interpolation_spline_size") ?
-                                          std::stoul(brain->GetAttribute("interpolation_spline_size")->GetAsString()) :
-                                          revolve::brain::RLPowerLearner::INTERPOLATION_CACHE_SIZE;
-        config.max_evaluations = brain->HasAttribute("max_evaluations") ?
-                                 std::stoul(brain->GetAttribute("max_evaluations")->GetAsString()) :
-                                 revolve::brain::RLPowerLearner::MAX_EVALUATIONS;
-        config.max_ranked_policies = brain->HasAttribute("max_ranked_policies") ?
-                                     std::stoul(brain->GetAttribute("max_ranked_policies")->GetAsString()) :
-                                     revolve::brain::RLPowerLearner::MAX_RANKED_POLICIES;
-        config.noise_sigma = brain->HasAttribute("init_sigma") ?
-                             std::stod(brain->GetAttribute("init_sigma")->GetAsString()) :
-                             revolve::brain::RLPowerLearner::SIGMA_START_VALUE;
-        config.sigma_tau_correction = brain->HasAttribute("sigma_tau_correction") ?
-                                      std::stod(brain->GetAttribute("sigma_tau_correction")->GetAsString()) :
-                                      revolve::brain::RLPowerLearner::SIGMA_TAU_CORRECTION;
-        config.source_y_size = brain->HasAttribute("init_spline_size") ?
-                               std::stoul(brain->GetAttribute("init_spline_size")->GetAsString()) :
-                               revolve::brain::RLPowerLearner::INITIAL_SPLINE_SIZE;
-        config.update_step = brain->HasAttribute("update_step") ?
-                             std::stoul(brain->GetAttribute("update_step")->GetAsString()) :
-                             revolve::brain::RLPowerLearner::UPDATE_STEP;
-        config.policy_load_path = "";
-
-        return config;
-    }
+  return config;
+}
 
 } /* namespace tol */
