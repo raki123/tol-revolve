@@ -131,17 +131,17 @@ file(GLOB_RECURSE
 
 file(GLOB_RECURSE
      TOL_ROBOT_SRC
-     tol/plugin/evaluator.cpp
+     tol/plugin/Evaluator.cpp
      tol/plugin/RobotController.cpp
-     tol/plugin/fakebrain.cpp
-     tol/plugin/helper.cpp
-     tol/plugin/rlpower.cpp
-     tol/plugin/rlpowered_network.cpp
-     tol/plugin/rlpowered_splines.cpp
-     tol/plugin/body.cpp
-     tol/plugin/neat_ext_nn.cpp
-     tol/plugin/hyper_ext_nn.cpp
-     tol/plugin/hyper_splines.cpp
+     tol/plugin/FakeBrain.cpp
+     tol/plugin/Helper.cpp
+     tol/plugin/RLPower.cpp
+     tol/plugin/RLPower_CPPN.cpp
+     tol/plugin/RLPower_Splines.cpp
+     tol/plugin/Body.cpp
+     tol/plugin/NEAT_CPPN.cpp
+     tol/plugin/HyperNEAT_CPPN.cpp
+     tol/plugin/HyperNEAT_Splines.cpp
      )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})

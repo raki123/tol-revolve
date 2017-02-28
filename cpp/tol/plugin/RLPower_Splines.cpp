@@ -2,11 +2,11 @@
 // Created by Milan Jelisavcic on 28/03/16.
 //
 
-#include "rlpowered_splines.h"
+#include "RLPower_Splines.h"
 #include "brain/conversion.h"
 #include "brain/controller/ext_nn_weights.h"
-#include "body.h"
-#include "helper.h"
+#include "Body.h"
+#include "Helper.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 

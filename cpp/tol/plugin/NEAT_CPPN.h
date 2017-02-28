@@ -1,11 +1,10 @@
-#ifndef REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLINE_SPLIT_BRAIN_H_
-#define REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLINE_SPLIT_BRAIN_H_
+#ifndef REVOLVE_GAZEBO_BRAIN_NEAT_SPLIT_BRAIN_H_
+#define REVOLVE_GAZEBO_BRAIN_NEAT_SPLIT_BRAIN_H_
 
 #include "brain/converting_split_brain.h"
-#include "brain/controller/policy_controller.h"
+#include "brain/controller/ext_nn_net.h"
 #include "brain/learner/neat_learner.h"
-#include "brain/learner/rlpower_learner.h"
-#include "evaluator.h"
+#include "Evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 
 
@@ -17,7 +16,7 @@
 
 namespace tol {
 
-    class HyperSplines : public revolve::gazebo::Brain, private revolve::brain::ConvSplitBrain<revolve::brain::PolicyPtr, CPPNEAT::GeneticEncodingPtr>{
+    class NeatExtNN : public revolve::gazebo::Brain, private revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>{
 
     public:
       	 /**
@@ -29,13 +28,13 @@ namespace tol {
 	 * @param sensors: vector list of robot's sensors
 	 * @return pointer to the neural network
 	 */
-        HyperSplines(std::string modelName,
-		     sdf::ElementPtr brain,
-		     tol::EvaluatorPtr evaluator,
-                     const std::vector<revolve::gazebo::MotorPtr> &actuators,
-                     const std::vector<revolve::gazebo::SensorPtr> &sensors);
+        NeatExtNN(std::string modelName,
+                sdf::ElementPtr node,
+		tol::EvaluatorPtr evaluator,
+                const std::vector<revolve::gazebo::MotorPtr> &actuators,
+                const std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-        virtual ~HyperSplines();
+        virtual ~NeatExtNN();
 
         /**
          * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy
@@ -48,13 +47,12 @@ namespace tol {
                             const std::vector<revolve::gazebo::SensorPtr> &sensors,
                             double t,
                             double step);
-	static revolve::brain::RLPowerLearner::Config parseSDF(sdf::ElementPtr brain);
 	static CPPNEAT::Learner::LearningConfiguration parseLearningSDF(sdf::ElementPtr brain);
     };
 
 
 } /* namespace tol */
 
-#endif //REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLINE_SPLIT_BRAIN_H_
+#endif //REVOLVE_GAZEBO_BRARN_DIFFERENTIAL_SPLIT_BRAIN_H_
 
 

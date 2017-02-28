@@ -2,8 +2,8 @@
 // Created by Milan Jelisavcic on 28/03/16.
 //
 
-#include "rlpower.h"
-#include "helper.h"
+#include "RLPower.h"
+#include "Helper.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 

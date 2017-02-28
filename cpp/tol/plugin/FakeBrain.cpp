@@ -1,4 +1,4 @@
-#include "fakebrain.h"
+#include "FakeBrain.h"
 #include <iostream>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>

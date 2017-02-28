@@ -7,10 +7,10 @@
 
 #include "RobotController.h"
 
-#include "rlpowered_splines.h"
-#include "rlpowered_network.h"
-#include "hyper_ext_nn.h"
-#include "hyper_splines.h"
+#include "RLPower_Splines.h"
+#include "RLPower_CPPN.h"
+#include "HyperNEAT_CPPN.h"
+#include "HyperNEAT_Splines.h"
 
 #include <boost/make_shared.hpp>
 #include <iostream>

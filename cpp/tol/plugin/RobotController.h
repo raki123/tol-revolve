@@ -9,8 +9,8 @@
 #define TOL_ROBOTCONTROLLER_H_
 
 #include <revolve/gazebo/plugin/RobotController.h>
-#include "rlpower.h"
-#include "evaluator.h"
+#include "RLPower.h"
+#include "Evaluator.h"
 
 namespace tol {
 

@@ -1,4 +1,4 @@
-#include "evaluator.h"
+#include "Evaluator.h"
 
 using namespace tol;
 

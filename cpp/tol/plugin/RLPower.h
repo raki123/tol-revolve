@@ -2,12 +2,11 @@
 // Created by Milan Jelisavcic on 28/03/16.
 //
 
-#ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_NETWORK_H
-#define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_NETWORK_H
+#ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
+#define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
 
-#include "brain/converting_split_brain.h"
-#include "brain/learner/rlpower_learner.h"
-#include "evaluator.h"
+#include "brain/rlpower.h"
+#include "Evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 
 #include <string>
@@ -18,7 +17,7 @@
 
 namespace tol {
 
-    class RLPowerNet : public revolve::gazebo::Brain, private revolve::brain::ConvSplitBrain<std::vector<double>,revolve::brain::PolicyPtr> {
+    class RLPower : public revolve::gazebo::Brain, private revolve::brain::RLPower {
 
     public:
         /**
@@ -31,13 +30,13 @@ namespace tol {
          * @param n_sensors: number of sensors
          * @return pointer to the RLPower class object
          */
-        RLPowerNet(std::string modelName,
+        RLPower(std::string modelName,
                 sdf::ElementPtr brain,
                 tol::EvaluatorPtr evaluator,
                 std::vector<revolve::gazebo::MotorPtr> &actuators,
                 std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-        virtual ~RLPowerNet();
+        virtual ~RLPower();
 
         /**
          * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy
@@ -50,11 +49,11 @@ namespace tol {
                             const std::vector<revolve::gazebo::SensorPtr> &sensors,
                             double t,
                             double step);
-	
-	static revolve::brain::RLPowerLearner::Config parseSDF(sdf::ElementPtr brain);
+
+        static Config parseSDF(sdf::ElementPtr brain);
     };
 
 } /* namespace tol */
 
-#endif //REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_NETWORK_H
+#endif //REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
 

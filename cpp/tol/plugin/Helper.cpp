@@ -17,27 +17,28 @@
  *
  */
 
-#ifndef HELPER_H
-#define HELPER_H
+#include "Helper.h"
 
-#include "actuator.h"
-#include "sensor.h"
+#include <boost/make_shared.hpp>
 
-#include <vector>
+using namespace tol;
 
-namespace tol {
+const std::vector<revolve::brain::ActuatorPtr>
+Helper::createWrapper(const std::vector<revolve::gazebo::MotorPtr> &original) {
+    std::vector<revolve::brain::ActuatorPtr> result;
+    for (unsigned int i = 0; i < original.size(); i++) {
+        result.push_back(boost::make_shared<tol::Actuator>(tol::Actuator(original[i])));
+    }
 
-    class Helper {
-    public:
-        static const std::vector<revolve::brain::ActuatorPtr>
-        createWrapper(const std::vector<revolve::gazebo::MotorPtr> &original);
-
-        static const std::vector<revolve::brain::SensorPtr>
-        createWrapper(const std::vector<revolve::gazebo::SensorPtr> &original);
-
-    private:
-        explicit Helper() {}
-    };
+    return result;
 }
 
-#endif // HELPER_H
+const std::vector<revolve::brain::SensorPtr>
+Helper::createWrapper(const std::vector<revolve::gazebo::SensorPtr> &original) {
+    std::vector<revolve::brain::SensorPtr> result;
+    for (unsigned int i = 0; i < original.size(); i++) {
+        result.push_back(boost::make_shared<tol::Sensor>(tol::Sensor(original[i])));
+    }
+
+    return result;
+}
