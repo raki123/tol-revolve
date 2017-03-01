@@ -1,7 +1,7 @@
 #ifndef YAML_BODY_PARSE_H
 #define YAML_BODY_PARSE_H
 
-#include "brain/learner/cppneat/genetic_encoding.h"
+#include "brain/learner/cppneat/GeneticEncoding.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 

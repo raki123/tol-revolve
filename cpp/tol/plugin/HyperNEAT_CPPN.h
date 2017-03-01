@@ -1,9 +1,9 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLIT_BRAIN_H_
 #define REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLIT_BRAIN_H_
 
-#include "brain/converting_split_brain.h"
-#include "brain/controller/ext_nn_weights.h"
-#include "brain/learner/neat_learner.h"
+#include "brain/ConvertingSplitBrain.h"
+#include "brain/controller/ExtendedANNWeights.h"
+#include "brain/learner/NEATLearner.h"
 #include "Evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 

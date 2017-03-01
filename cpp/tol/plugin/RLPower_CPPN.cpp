@@ -3,8 +3,8 @@
 //
 
 #include "RLPower_CPPN.h"
-#include "brain/conversion.h"
-#include "brain/controller/ext_nn_weights.h"
+#include "brain/Conversion.h"
+#include "brain/controller/ExtendedANNWeights.h"
 #include "Body.h"
 #include "Helper.h"
 #include "revolve/gazebo/motors/Motor.h"

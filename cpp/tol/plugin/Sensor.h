@@ -1,7 +1,7 @@
 #ifndef ACTUATOR_H
 #define ACTUATOR_H
 
-#include "brain/sensor.h"
+#include "brain/Sensor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
 namespace tol {

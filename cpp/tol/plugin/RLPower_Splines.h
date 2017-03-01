@@ -5,9 +5,9 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_SPLINES_H
 #define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_SPLINES_H
 
-#include "brain/simple_split_brain.h"
-#include "brain/learner/rlpower_learner.h"
-#include "brain/controller/policy_controller.h"
+#include "brain/SimpleSplitBrain.h"
+#include "brain/learner/RLPowerLearner.h"
+#include "brain/controller/PolicyController.h"
 #include "Evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 

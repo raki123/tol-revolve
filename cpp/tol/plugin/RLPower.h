@@ -5,7 +5,7 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
 #define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
 
-#include "brain/rlpower.h"
+#include "brain/RLPower.h"
 #include "Evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 

@@ -5,8 +5,8 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_NETWORK_H
 #define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_NETWORK_H
 
-#include "brain/converting_split_brain.h"
-#include "brain/learner/rlpower_learner.h"
+#include "brain/ConvertingSplitBrain.h"
+#include "brain/learner/RLPowerLearner.h"
 #include "Evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 

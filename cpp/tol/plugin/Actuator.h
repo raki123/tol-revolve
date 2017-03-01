@@ -1,7 +1,7 @@
 #ifndef TOL_ACTUATOR_H
 #define TOL_ACTUATOR_H
 
-#include "brain/actuator.h"
+#include "brain/Actuator.h"
 #include "revolve/gazebo/motors/Motor.h"
 
 namespace tol

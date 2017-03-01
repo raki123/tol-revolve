@@ -1,10 +1,10 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLINE_SPLIT_BRAIN_H_
 #define REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLINE_SPLIT_BRAIN_H_
 
-#include "brain/converting_split_brain.h"
-#include "brain/controller/policy_controller.h"
-#include "brain/learner/neat_learner.h"
-#include "brain/learner/rlpower_learner.h"
+#include "brain/ConvertingSplitBrain.h"
+#include "brain/controller/PolicyController.h"
+#include "brain/learner/NEATLearner.h"
+#include "brain/learner/RLPowerLearner.h"
 #include "Evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 
