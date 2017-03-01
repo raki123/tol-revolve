@@ -5,15 +5,16 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
 #define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
 
-#include "brain/RLPower.h"
-#include "Evaluator.h"
-#include "revolve/gazebo/brain/Brain.h"
-
 #include <string>
 #include <vector>
 
 #include <gazebo/gazebo.hh>
+
 #include <revolve/msgs/neural_net.pb.h>
+#include "revolve/gazebo/brain/Brain.h"
+
+#include "Evaluator.h"
+#include "brain/RLPower.h"
 
 namespace tol
 {

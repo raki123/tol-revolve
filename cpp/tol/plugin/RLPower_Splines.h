@@ -5,17 +5,19 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_SPLINES_H
 #define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_SPLINES_H
 
-#include "brain/SimpleSplitBrain.h"
-#include "brain/learner/RLPowerLearner.h"
-#include "brain/controller/PolicyController.h"
-#include "Evaluator.h"
-#include "revolve/gazebo/brain/Brain.h"
-
 #include <string>
 #include <vector>
 
 #include <gazebo/gazebo.hh>
+
 #include <revolve/msgs/neural_net.pb.h>
+
+#include "revolve/gazebo/brain/Brain.h"
+
+#include "Evaluator.h"
+#include "brain/SimpleSplitBrain.h"
+#include "brain/controller/PolicyController.h"
+#include "brain/learner/RLPowerLearner.h"
 
 namespace tol
 {

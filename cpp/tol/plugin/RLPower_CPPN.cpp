@@ -3,14 +3,16 @@
 //
 
 #include "RLPower_CPPN.h"
-#include "brain/Conversion.h"
-#include "brain/controller/ExtendedANNWeights.h"
-#include "Body.h"
-#include "Helper.h"
+
+#include <boost/make_shared.hpp>
+
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
-#include <boost/make_shared.hpp>
+#include "Body.h"
+#include "Helper.h"
+#include "brain/Conversion.h"
+#include "brain/controller/ExtendedANNWeights.h"
 
 namespace tol
 {

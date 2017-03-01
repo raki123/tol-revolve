@@ -4,11 +4,9 @@
 
 #include "InteractiveEvolutionPlugin.h"
 
-//#include <gazebo/gui/MainWindow.hh>
-//#include <gazebo/gui/GLWidget.hh>
-#include <gazebo/rendering/Visual.hh>
-#include <gazebo/msgs/msgs.hh>
 #include <gazebo/gui/KeyEventHandler.hh>
+#include <gazebo/msgs/msgs.hh>
+#include <gazebo/rendering/Visual.hh>
 
 namespace gz = gazebo;
 

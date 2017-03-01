@@ -1,16 +1,17 @@
 #ifndef YAML_BODY_PARSE_H
 #define YAML_BODY_PARSE_H
 
-#include "brain/learner/cppneat/GeneticEncoding.h"
+#include <vector>
+#include <map>
+#include <string>
+#include <tuple>
+
+#include <yaml-cpp/yaml.h>
+
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
-#include <string>
-#include <vector>
-#include <map>
-#include <tuple>
-#include <yaml-cpp/yaml.h>
-
+#include "brain/learner/cppneat/GeneticEncoding.h"
 
 namespace tol
 {

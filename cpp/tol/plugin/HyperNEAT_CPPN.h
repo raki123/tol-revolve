@@ -1,18 +1,18 @@
 #ifndef REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLIT_BRAIN_H_
 #define REVOLVE_GAZEBO_BRAIN_HYPER_NEAT_SPLIT_BRAIN_H_
 
-#include "brain/ConvertingSplitBrain.h"
-#include "brain/controller/ExtendedANNWeights.h"
-#include "brain/learner/NEATLearner.h"
-#include "Evaluator.h"
-#include "revolve/gazebo/brain/Brain.h"
-
-
 #include <string>
 #include <vector>
 
 #include <gazebo/gazebo.hh>
+
 #include <revolve/msgs/neural_net.pb.h>
+#include "revolve/gazebo/brain/Brain.h"
+
+#include "Evaluator.h"
+#include "brain/ConvertingSplitBrain.h"
+#include "brain/controller/ExtendedANNWeights.h"
+#include "brain/learner/NEATLearner.h"
 
 namespace tol
 {

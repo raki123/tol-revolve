@@ -2,10 +2,11 @@
 // Created by Milan Jelisavcic on 28/03/16.
 //
 
-#include "RLPower.h"
-#include "Helper.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
+
+#include "Helper.h"
+#include "RLPower.h"
 
 namespace tol
 {

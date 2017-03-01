@@ -20,10 +20,10 @@
 #ifndef HELPER_H
 #define HELPER_H
 
+#include <vector>
+
 #include "Actuator.h"
 #include "Sensor.h"
-
-#include <vector>
 
 namespace tol
 {

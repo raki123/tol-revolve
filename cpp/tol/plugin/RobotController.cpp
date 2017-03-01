@@ -12,9 +12,6 @@
 #include "HyperNEAT_CPPN.h"
 #include "HyperNEAT_Splines.h"
 
-#include <boost/make_shared.hpp>
-#include <iostream>
-
 namespace tol
 {
 

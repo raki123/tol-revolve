@@ -1,7 +1,10 @@
 #include "FakeBrain.h"
+
 #include <iostream>
+
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
+
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 

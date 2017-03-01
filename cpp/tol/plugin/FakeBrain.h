@@ -1,10 +1,10 @@
 #ifndef FAKEBRAIN_H
 #define FAKEBRAIN_H
 
-#include "revolve/gazebo/brain/Brain.h"
 #include <gazebo/gazebo.hh>
-#include <revolve/msgs/neural_net.pb.h>
 
+#include <revolve/msgs/neural_net.pb.h>
+#include "revolve/gazebo/brain/Brain.h"
 
 namespace tol
 {

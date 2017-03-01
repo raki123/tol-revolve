@@ -17,9 +17,9 @@
  *
  */
 
-#include "Helper.h"
-
 #include <boost/make_shared.hpp>
+
+#include "Helper.h"
 
 using namespace tol;
 

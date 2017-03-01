@@ -1,12 +1,13 @@
 #include "NEAT_CPPN.h"
-#include "Helper.h"
-#include "Sensor.h"
-#include "Actuator.h"
-#include "Body.h"
-#include "brain/Conversion.h"
+
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
+#include "Actuator.h"
+#include "Body.h"
+#include "Helper.h"
+#include "Sensor.h"
+#include "brain/Conversion.h"
 
 namespace tol
 {

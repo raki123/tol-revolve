@@ -1,8 +1,9 @@
 #ifndef EVALUATOR_H
 #define EVALUATOR_H
 
-#include <brain/Evaluator.h>
 #include <boost/shared_ptr.hpp>
+
+#include <brain/Evaluator.h>
 
 namespace tol
 {
