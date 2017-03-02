@@ -17,8 +17,7 @@
 #include "brain/ConvertingSplitBrain.h"
 #include "brain/learner/RLPowerLearner.h"
 
-namespace tol
-{
+namespace tol {
 
 class RLPowerNet
         : public revolve::gazebo::Brain
@@ -64,4 +63,3 @@ public:
 } /* namespace tol */
 
 #endif // TOL_PLUGIN_RLPOWER_CPPN_H_
-

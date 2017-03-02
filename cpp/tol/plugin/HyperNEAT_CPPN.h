@@ -14,8 +14,7 @@
 #include "brain/controller/ExtendedANNWeights.h"
 #include "brain/learner/NEATLearner.h"
 
-namespace tol
-{
+namespace tol {
 
 class HyperExtNN
         : public revolve::gazebo::Brain
@@ -61,5 +60,3 @@ public:
 } /* namespace tol */
 
 #endif // TOL_PLUGIN_HYPERNEAT_CPPN_H_
-
-

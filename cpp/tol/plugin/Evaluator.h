@@ -5,8 +5,7 @@
 
 #include <brain/Evaluator.h>
 
-namespace tol
-{
+namespace tol {
 
 class Evaluator
         : public revolve::brain::Evaluator

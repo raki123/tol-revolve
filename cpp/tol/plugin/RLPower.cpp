@@ -8,8 +8,7 @@
 #include "Helper.h"
 #include "RLPower.h"
 
-namespace tol
-{
+namespace tol {
 
 RLPower::RLPower(std::string modelName,
                  sdf::ElementPtr brain,

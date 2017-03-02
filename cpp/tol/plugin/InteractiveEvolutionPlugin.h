@@ -16,8 +16,7 @@
 
 #endif
 
-namespace tol
-{
+namespace tol {
 
 class InteractiveEvolutionPlugin
         : public ::gazebo::GUIPlugin

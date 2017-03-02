@@ -6,11 +6,9 @@
 #include "Actuator.h"
 #include "Body.h"
 #include "Helper.h"
-#include "Sensor.h"
 #include "brain/Conversion.h"
 
-namespace tol
-{
+namespace tol {
 
 
 NeatExtNN::NeatExtNN(std::string modelName,
@@ -53,7 +51,7 @@ NeatExtNN::NeatExtNN(std::string modelName,
                                                    false));
   std::string mutator_path = node->HasAttribute("path_to_mutator") ?
                              node->GetAttribute("path_to_mutator")
-                                     ->GetAsString()
+                                 ->GetAsString()
                                                                    : "none";
   learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator,
                                                                      mutator_path,
@@ -114,10 +112,12 @@ NeatExtNN::parseLearningSDF(sdf::ElementPtr brain)
                                 std::stod(brain->GetAttribute("param_mutation_sigma")->GetAsString()) :
                                 CPPNEAT::Learner::PARAM_MUTATION_SIGMA;
   config.structural_augmentation_probability = brain->HasAttribute("structural_augmentation_probability") ?
-                                               std::stod(brain->GetAttribute("structural_augmentation_probability")->GetAsString()) :
+                                               std::stod(brain->GetAttribute("structural_augmentation_probability")->GetAsString())
+                                                                                                          :
                                                CPPNEAT::Learner::STRUCTURAL_AUGMENTATION_PROBABILITY;
   config.structural_removal_probability = brain->HasAttribute("structural_removal_probability") ?
-                                          std::stod(brain->GetAttribute("structural_removal_probability")->GetAsString()) :
+                                          std::stod(brain->GetAttribute("structural_removal_probability")->GetAsString())
+                                                                                                :
                                           CPPNEAT::Learner::STRUCTURAL_REMOVAL_PROBABILITY;
   config.max_generations = brain->HasAttribute("max_generations") ?
                            std::stoi(brain->GetAttribute("max_generations")->GetAsString()) :
@@ -132,7 +132,8 @@ NeatExtNN::parseLearningSDF(sdf::ElementPtr brain)
                                         std::stoi(brain->GetAttribute("initial_structural_mutations")->GetAsString()) :
                                         CPPNEAT::Learner::INITIAL_STRUCTURAL_MUTATIONS;
   config.interspecies_mate_probability = brain->HasAttribute("interspecies_mate_probability") ?
-                                         std::stod(brain->GetAttribute("interspecies_mate_probability")->GetAsString()) :
+                                         std::stod(brain->GetAttribute("interspecies_mate_probability")->GetAsString())
+                                                                                              :
                                          CPPNEAT::Learner::INTERSPECIES_MATE_PROBABILITY;
   return config;
 }

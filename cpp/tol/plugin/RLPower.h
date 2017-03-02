@@ -16,8 +16,7 @@
 #include "Evaluator.h"
 #include "brain/RLPower.h"
 
-namespace tol
-{
+namespace tol {
 
 class RLPower
         : public revolve::gazebo::Brain
@@ -64,4 +63,3 @@ public:
 } /* namespace tol */
 
 #endif // TOL_PLUGIN_RLPOWER_H_
-

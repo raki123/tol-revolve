@@ -19,8 +19,7 @@
 #include "brain/controller/PolicyController.h"
 #include "brain/learner/RLPowerLearner.h"
 
-namespace tol
-{
+namespace tol {
 
 class RLPowerSplines
         : public revolve::gazebo::Brain
@@ -66,4 +65,3 @@ public:
 } /* namespace tol */
 
 #endif // TOL_PLUGIN_RLPOWER_SPLINES_H_
-

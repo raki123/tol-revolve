@@ -5,8 +5,7 @@
 
 #include "brain/Actuator.h"
 
-namespace tol
-{
+namespace tol {
 
 class Actuator
         : public revolve::brain::Actuator

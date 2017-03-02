@@ -13,8 +13,7 @@
 
 #include "brain/learner/cppneat/GeneticEncoding.h"
 
-namespace tol
-{
+namespace tol {
 
 class Body
 {
@@ -86,9 +85,8 @@ private:
     std::vector<CPPNEAT::NeuronGenePtr> input_neurons;
     std::vector<CPPNEAT::NeuronGenePtr> output_neurons;
     std::map<CPPNEAT::NeuronGenePtr, std::tuple<int, int, int>> neuron_coordinates;
-
-
 };
+
 }
 
 #endif // TOL_PLUGIN_BODY_H_

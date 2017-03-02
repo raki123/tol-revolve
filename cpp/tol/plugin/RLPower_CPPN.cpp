@@ -4,8 +4,6 @@
 
 #include "RLPower_CPPN.h"
 
-#include <boost/make_shared.hpp>
-
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
@@ -14,9 +12,7 @@
 #include "brain/Conversion.h"
 #include "brain/controller/ExtendedANNWeights.h"
 
-namespace tol
-{
-
+namespace tol {
 
 RLPowerNet::RLPowerNet(std::string modelName,
                        sdf::ElementPtr brain,
@@ -24,9 +20,9 @@ RLPowerNet::RLPowerNet(std::string modelName,
                        std::vector<revolve::gazebo::MotorPtr> &actuators,
                        std::vector<revolve::gazebo::SensorPtr> &sensors) :
         revolve::brain::ConvSplitBrain<std::vector<double>,
-                revolve::brain::PolicyPtr>(&revolve::brain::forController,
-                                           &revolve::brain::forLearner,
-                                           modelName)
+                                       revolve::brain::PolicyPtr>(&revolve::brain::forController,
+                                                                  &revolve::brain::forLearner,
+                                                                  modelName)
 {
 
   //initialise controller
@@ -46,7 +42,7 @@ RLPowerNet::RLPowerNet(std::string modelName,
                                                Helper::createWrapper(sensors)));
   revolve::brain::RLPowerLearner::Config config = parseSDF(brain);
   config.source_y_size = (unsigned int)controller->getGenome()
-          .size();
+                                                 .size();
 
   learner = boost::shared_ptr<revolve::brain::RLPowerLearner>
           (new revolve::brain::RLPowerLearner(modelName,
@@ -79,31 +75,31 @@ RLPowerNet::parseSDF(sdf::ElementPtr brain)
 
   // Read out brain configuration attributes
   config.algorithm_type = brain->HasAttribute("type") ? brain->GetAttribute("type")
-          ->GetAsString() : "A";
+                                                             ->GetAsString() : "A";
 
   config.evaluation_rate = brain->HasAttribute("evaluation_rate") ?
                            std::stod(brain->GetAttribute("evaluation_rate")
-                                             ->GetAsString()) :
+                                          ->GetAsString()) :
                            revolve::brain::RLPowerLearner::EVALUATION_RATE;
   config.interpolation_spline_size = brain->HasAttribute("interpolation_spline_size") ?
                                      std::stoul(brain->GetAttribute("interpolation_spline_size")
-                                                        ->GetAsString()) :
+                                                     ->GetAsString()) :
                                      revolve::brain::RLPowerLearner::INTERPOLATION_CACHE_SIZE;
   config.max_evaluations = brain->HasAttribute("max_evaluations") ?
                            std::stoul(brain->GetAttribute("max_evaluations")
-                                              ->GetAsString()) :
+                                           ->GetAsString()) :
                            revolve::brain::RLPowerLearner::MAX_EVALUATIONS;
   config.max_ranked_policies = brain->HasAttribute("max_ranked_policies") ?
                                std::stoul(brain->GetAttribute("max_ranked_policies")
-                                                  ->GetAsString()) :
+                                               ->GetAsString()) :
                                revolve::brain::RLPowerLearner::MAX_RANKED_POLICIES;
   config.noise_sigma = brain->HasAttribute("init_sigma") ?
                        std::stod(brain->GetAttribute("init_sigma")
-                                         ->GetAsString()) :
+                                      ->GetAsString()) :
                        revolve::brain::RLPowerLearner::SIGMA_START_VALUE;
   config.sigma_tau_correction = brain->HasAttribute("sigma_tau_correction") ?
                                 std::stod(brain->GetAttribute("sigma_tau_correction")
-                                                  ->GetAsString()) :
+                                               ->GetAsString()) :
                                 revolve::brain::RLPowerLearner::SIGMA_TAU_CORRECTION;
   config.update_step = 0;
   config.policy_load_path = "";

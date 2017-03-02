@@ -15,8 +15,7 @@
 #include "brain/learner/NEATLearner.h"
 #include "brain/learner/RLPowerLearner.h"
 
-namespace tol
-{
+namespace tol {
 
 class HyperSplines
         : public revolve::gazebo::Brain

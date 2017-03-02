@@ -4,8 +4,7 @@
 #include "brain/Sensor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
-namespace tol
-{
+namespace tol {
 
 class Sensor
         : public revolve::brain::Sensor

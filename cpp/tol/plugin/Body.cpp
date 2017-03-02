@@ -1,10 +1,8 @@
 #include "Body.h"
 
 #include <iostream>
-#include <utility>
 
-namespace tol
-{
+namespace tol {
 
 Body::Body(std::string &yaml_path)
         :
@@ -162,7 +160,7 @@ Body::get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuato
       unsigned int j;
       for (j = 0; j < output_neurons.size(); j++) {
         if (output_neurons[j]->neuron
-                    ->neuron_id == neuronId.str()) {
+                             ->neuron_id == neuronId.str()) {
           break;
         }
       }
@@ -200,7 +198,7 @@ Body::get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuato
       unsigned int j;
       for (j = 0; j < input_neurons.size(); j++) {
         if (input_neurons[j]->neuron
-                    ->neuron_id == neuronId.str()) {
+                            ->neuron_id == neuronId.str()) {
           break;
         }
       }
@@ -337,7 +335,7 @@ Body::get_coordinates_sorted(const std::vector<revolve::gazebo::MotorPtr> &actua
       unsigned int j;
       for (j = 0; j < output_neurons.size(); j++) {
         if (output_neurons[j]->neuron
-                    ->neuron_id == neuronId.str()) {
+                             ->neuron_id == neuronId.str()) {
           break;
         }
       }

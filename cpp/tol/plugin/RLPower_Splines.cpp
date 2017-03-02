@@ -4,8 +4,6 @@
 
 #include "RLPower_Splines.h"
 
-#include <boost/smart_ptr/shared_ptr.hpp>
-
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
@@ -14,8 +12,7 @@
 #include "brain/Conversion.h"
 #include "brain/controller/ExtendedANNWeights.h"
 
-namespace tol
-{
+namespace tol {
 
 RLPowerSplines::RLPowerSplines(std::string modelName,
                                sdf::ElementPtr brain,
@@ -67,7 +64,7 @@ RLPowerSplines::parseSDF(sdf::ElementPtr brain)
 
   // Read out brain configuration attributes
   config.algorithm_type = brain->HasAttribute("type") ? brain->GetAttribute("type")
-          ->GetAsString() : "A";
+                                                             ->GetAsString() : "A";
 
   config.evaluation_rate = brain->HasAttribute("evaluation_rate") ?
                            std::stod(brain->GetAttribute("evaluation_rate")->GetAsString()) :

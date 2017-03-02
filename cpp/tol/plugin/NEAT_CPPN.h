@@ -14,8 +14,7 @@
 #include "brain/controller/ExtendedANN.h"
 #include "brain/learner/NEATLearner.h"
 
-namespace tol
-{
+namespace tol {
 
 class NeatExtNN
         : public revolve::gazebo::Brain

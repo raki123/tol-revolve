@@ -13,8 +13,7 @@
 #include "Evaluator.h"
 #include "RLPower.h"
 
-namespace tol
-{
+namespace tol {
 
 class RobotController
         : public revolve::gazebo::RobotController

@@ -6,8 +6,7 @@
 #include <revolve/msgs/neural_net.pb.h>
 #include "revolve/gazebo/brain/Brain.h"
 
-namespace tol
-{
+namespace tol {
 
 class FakeBrain
         : public revolve::gazebo::Brain

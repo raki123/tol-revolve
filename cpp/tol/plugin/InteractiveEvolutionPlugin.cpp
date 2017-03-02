@@ -4,14 +4,11 @@
 
 #include "InteractiveEvolutionPlugin.h"
 
-#include <gazebo/gui/KeyEventHandler.hh>
-#include <gazebo/msgs/msgs.hh>
 #include <gazebo/rendering/Visual.hh>
 
 namespace gz = gazebo;
 
-namespace tol
-{
+namespace tol {
 
 InteractiveEvolutionPlugin::InteractiveEvolutionPlugin() :
         GUIPlugin()
@@ -29,7 +26,9 @@ InteractiveEvolutionPlugin::InteractiveEvolutionPlugin() :
 
   // Register key event handler
   gz::gui::KeyEventHandler::Instance()->AddPressFilter("building_maker",
-                                                       boost::bind(&InteractiveEvolutionPlugin::OnKeyDown, this, _1));
+                                                       boost::bind(&InteractiveEvolutionPlugin::OnKeyDown,
+                                                                   this,
+                                                                   _1));
 
   // Set the frame background and foreground colors
   this->setStyleSheet(

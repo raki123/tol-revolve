@@ -12,8 +12,7 @@
 #include "HyperNEAT_CPPN.h"
 #include "HyperNEAT_Splines.h"
 
-namespace tol
-{
+namespace tol {
 
 RobotController::RobotController()
 {}
@@ -104,8 +103,10 @@ double
 RobotController::Evaluator::fitness()
 {
   double dS = sqrt(
-          pow(previousPosition_.Pos().X() - currentPosition_.Pos().X(), 2) +
-          pow(previousPosition_.Pos().Y() - currentPosition_.Pos().Y(), 2));
+          pow(previousPosition_.Pos().X() - currentPosition_.Pos().X(),
+              2) +
+          pow(previousPosition_.Pos().Y() - currentPosition_.Pos().Y(),
+              2));
   previousPosition_ = currentPosition_;
   return dS / 30.0; // dS / RLPower::FREQUENCY_RATE
 }

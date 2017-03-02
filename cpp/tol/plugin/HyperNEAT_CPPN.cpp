@@ -1,17 +1,14 @@
 #include "HyperNEAT_CPPN.h"
 
-#include <fstream>
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
 #include "Actuator.h"
 #include "Body.h"
 #include "Helper.h"
-#include "Sensor.h"
 #include "brain/Conversion.h"
 
-namespace tol
-{
+namespace tol {
 
 HyperExtNN::HyperExtNN(std::string modelName,
                        sdf::ElementPtr brain,
@@ -47,14 +44,14 @@ HyperExtNN::HyperExtNN(std::string modelName,
   CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
                                                    0.8,
                                                    learn_conf.start_from
-                                                           ->min_max_innov_numer()
-                                                           .second,
+                                                             ->min_max_innov_numer()
+                                                             .second,
                                                    100,
                                                    std::vector<CPPNEAT::Neuron::Ntype>(),
                                                    true));
   std::string mutator_path = brain->HasAttribute("path_to_mutator") ?
                              brain->GetAttribute("path_to_mutator")
-                                     ->GetAsString()
+                                  ->GetAsString()
                                                                     : "none";
   learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator,
                                                                      mutator_path,
@@ -62,15 +59,15 @@ HyperExtNN::HyperExtNN(std::string modelName,
   //initialise starting population
   int number_of_brains_from_first = brain->HasAttribute("number_of_brains_from_first") ?
                                     std::stoi(brain->GetAttribute("number_of_brains_from_first")
-                                                      ->GetAsString())
+                                                   ->GetAsString())
                                                                                        : 0;
   int number_of_brains_from_second = brain->HasAttribute("number_of_brains_from_second") ?
                                      std::stoi(brain->GetAttribute("number_of_brains_from_second")
-                                                       ->GetAsString())
+                                                    ->GetAsString())
                                                                                          : 0;
   std::string path_to_first_brains = brain->HasAttribute("path_to_first_brains") ?
                                      brain->GetAttribute("path_to_first_brains")
-                                             ->GetAsString()
+                                          ->GetAsString()
                                                                                  : "";
   std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_init = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_init_brains();
   std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_first;
@@ -82,7 +79,7 @@ HyperExtNN::HyperExtNN(std::string modelName,
   }
   std::string path_to_second_brains = brain->HasAttribute("path_to_second_brains") ?
                                       brain->GetAttribute("path_to_second_brains")
-                                              ->GetAsString()
+                                           ->GetAsString()
                                                                                    : "";
   std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_second;
   if (path_to_second_brains == "" || path_to_second_brains == "none") {
@@ -145,66 +142,65 @@ HyperExtNN::parseLearningSDF(sdf::ElementPtr brain)
   // Read out brain configuration attributes
   config.asexual = brain->HasAttribute("asexual") ?
                    (brain->GetAttribute("asexual")
-                            ->GetAsString() == "true") :
+                         ->GetAsString() == "true") :
                    CPPNEAT::Learner::ASEXUAL;
   config.pop_size = brain->HasAttribute("pop_size") ?
                     std::stoi(brain->GetAttribute("pop_size")
-                                      ->GetAsString()) :
+                                   ->GetAsString()) :
                     CPPNEAT::Learner::POP_SIZE;
   config.tournament_size = brain->HasAttribute("tournament_size") ?
                            std::stoi(brain->GetAttribute("tournament_size")
-                                             ->GetAsString()) :
+                                          ->GetAsString()) :
                            CPPNEAT::Learner::TOURNAMENT_SIZE;
   config.num_children = brain->HasAttribute("num_children") ?
                         std::stoi(brain->GetAttribute("num_children")
-                                          ->GetAsString()) :
+                                       ->GetAsString()) :
                         CPPNEAT::Learner::NUM_CHILDREN;
   config.weight_mutation_probability = brain->HasAttribute("weight_mutation_probability") ?
                                        std::stod(brain->GetAttribute("weight_mutation_probability")
-                                                         ->GetAsString()) :
+                                                      ->GetAsString()) :
                                        CPPNEAT::Learner::WEIGHT_MUTATION_PROBABILITY;
   config.weight_mutation_sigma = brain->HasAttribute("weight_mutation_sigma") ?
                                  std::stod(brain->GetAttribute("weight_mutation_sigma")
-                                                   ->GetAsString()) :
+                                                ->GetAsString()) :
                                  CPPNEAT::Learner::WEIGHT_MUTATION_SIGMA;
   config.param_mutation_probability = brain->HasAttribute("param_mutation_probability") ?
                                       std::stod(brain->GetAttribute("param_mutation_probability")
-                                                        ->GetAsString()) :
+                                                     ->GetAsString()) :
                                       CPPNEAT::Learner::PARAM_MUTATION_PROBABILITY;
   config.param_mutation_sigma = brain->HasAttribute("param_mutation_sigma") ?
                                 std::stod(brain->GetAttribute("param_mutation_sigma")
-                                                  ->GetAsString()) :
+                                               ->GetAsString()) :
                                 CPPNEAT::Learner::PARAM_MUTATION_SIGMA;
   config.structural_augmentation_probability = brain->HasAttribute("structural_augmentation_probability") ?
                                                std::stod(brain->GetAttribute("structural_augmentation_probability")
-                                                                 ->GetAsString()) :
+                                                              ->GetAsString()) :
                                                CPPNEAT::Learner::STRUCTURAL_AUGMENTATION_PROBABILITY;
   config.structural_removal_probability = brain->HasAttribute("structural_removal_probability") ?
                                           std::stod(brain->GetAttribute("structural_removal_probability")
-                                                            ->GetAsString()) :
+                                                         ->GetAsString()) :
                                           CPPNEAT::Learner::STRUCTURAL_REMOVAL_PROBABILITY;
   config.max_generations = brain->HasAttribute("max_generations") ?
                            std::stoi(brain->GetAttribute("max_generations")
-                                             ->GetAsString()) :
+                                          ->GetAsString()) :
                            CPPNEAT::Learner::MAX_GENERATIONS;
   config.speciation_threshold = brain->HasAttribute("speciation_threshold") ?
                                 std::stod(brain->GetAttribute("speciation_threshold")
-                                                  ->GetAsString()) :
+                                               ->GetAsString()) :
                                 CPPNEAT::Learner::SPECIATION_TRESHOLD;
   config.repeat_evaluations = brain->HasAttribute("repeat_evaluations") ?
                               std::stoi(brain->GetAttribute("repeat_evaluations")
-                                                ->GetAsString()) :
+                                             ->GetAsString()) :
                               CPPNEAT::Learner::REPEAT_EVALUATIONS;
   config.initial_structural_mutations = brain->HasAttribute("initial_structural_mutations") ?
                                         std::stoi(brain->GetAttribute("initial_structural_mutations")
-                                                          ->GetAsString()) :
+                                                       ->GetAsString()) :
                                         CPPNEAT::Learner::INITIAL_STRUCTURAL_MUTATIONS;
   config.interspecies_mate_probability = brain->HasAttribute("interspecies_mate_probability") ?
                                          std::stod(brain->GetAttribute("interspecies_mate_probability")
-                                                           ->GetAsString()) :
+                                                        ->GetAsString()) :
                                          CPPNEAT::Learner::INTERSPECIES_MATE_PROBABILITY;
   return config;
 }
 
 } /* namespace tol */
-

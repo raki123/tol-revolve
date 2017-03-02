@@ -25,8 +25,7 @@
 #include "Actuator.h"
 #include "Sensor.h"
 
-namespace tol
-{
+namespace tol {
 
 class Helper
 {
