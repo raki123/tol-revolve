@@ -1,5 +1,5 @@
-#ifndef TOL_ACTUATOR_H
-#define TOL_ACTUATOR_H
+#ifndef TOL_PLUGIN_ACTUATOR_H_
+#define TOL_PLUGIN_ACTUATOR_H_
 
 #include "revolve/gazebo/motors/Motor.h"
 
@@ -46,4 +46,4 @@ private:
 
 }
 
-#endif // TOL_ACTUATOR_H
+#endif // TOL_PLUGIN_ACTUATOR_H_

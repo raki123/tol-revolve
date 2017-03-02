@@ -1,5 +1,5 @@
-#ifndef ACTUATOR_H
-#define ACTUATOR_H
+#ifndef TOL_PLUGIN_SENSOR_H_
+#define TOL_PLUGIN_SENSOR_H_
 
 #include "brain/Sensor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
@@ -41,4 +41,4 @@ private:
 
 }
 
-#endif // ACTUATOR_H
+#endif // TOL_PLUGIN_SENSOR_H_

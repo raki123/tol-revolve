@@ -1,5 +1,5 @@
-#ifndef REVOLVE_GAZEBO_BRAIN_NEAT_SPLIT_BRAIN_H_
-#define REVOLVE_GAZEBO_BRAIN_NEAT_SPLIT_BRAIN_H_
+#ifndef TOL_PLUGIN_NEAT_CPPN_H_
+#define TOL_PLUGIN_NEAT_CPPN_H_
 
 #include <string>
 #include <vector>
@@ -59,6 +59,6 @@ public:
 
 } /* namespace tol */
 
-#endif //REVOLVE_GAZEBO_BRARN_DIFFERENTIAL_SPLIT_BRAIN_H_
+#endif // TOL_PLUGIN_NEAT_CPPN_H_
 
 

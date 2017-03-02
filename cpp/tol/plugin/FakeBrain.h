@@ -1,5 +1,5 @@
-#ifndef FAKEBRAIN_H
-#define FAKEBRAIN_H
+#ifndef TOL_PLUGIN_FAKEBRAIN_H_
+#define TOL_PLUGIN_FAKEBRAIN_H_
 
 #include <gazebo/gazebo.hh>
 
@@ -62,4 +62,4 @@ private:
 
 } /* namespace tol */
 
-#endif // FAKEBRAIN_H
+#endif // TOL_PLUGIN_FAKEBRAIN_H_

@@ -5,8 +5,8 @@
  *      Author: elte
  */
 
-#ifndef TOL_ROBOTCONTROLLER_H_
-#define TOL_ROBOTCONTROLLER_H_
+#ifndef TOL_PLUGIN_ROBOTCONTROLLER_H_
+#define TOL_PLUGIN_ROBOTCONTROLLER_H_
 
 #include <revolve/gazebo/plugin/RobotController.h>
 
@@ -61,4 +61,4 @@ private:
 
 GZ_REGISTER_MODEL_PLUGIN(tol::RobotController)
 
-#endif /* TOL_ROBOTCONTROLLER_H_ */
+#endif // TTOL_PLUGIN_ROBOTCONTROLLER_H_

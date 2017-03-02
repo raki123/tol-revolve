@@ -1,5 +1,5 @@
-#ifndef EVALUATOR_H
-#define EVALUATOR_H
+#ifndef TOL_PLUGIN_EVALUATOR_H_
+#define TOL_PLUGIN_EVALUATOR_H_
 
 #include <boost/shared_ptr.hpp>
 
@@ -23,4 +23,4 @@ typedef boost::shared_ptr<tol::Evaluator> EvaluatorPtr;
 
 }
 
-#endif // EVALUATOR_H
+#endif // TOL_PLUGIN_EVALUATOR_H_

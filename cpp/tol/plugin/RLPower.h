@@ -2,8 +2,8 @@
 // Created by Milan Jelisavcic on 28/03/16.
 //
 
-#ifndef REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
-#define REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
+#ifndef TOL_PLUGIN_RLPOWER_H_
+#define TOL_PLUGIN_RLPOWER_H_
 
 #include <string>
 #include <vector>
@@ -63,5 +63,5 @@ public:
 
 } /* namespace tol */
 
-#endif //REVOLVE_GAZEBO_BRAIN_REINFORCEDLEARNING_H
+#endif // TOL_PLUGIN_RLPOWER_H_
 

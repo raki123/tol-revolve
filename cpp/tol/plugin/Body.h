@@ -1,5 +1,5 @@
-#ifndef YAML_BODY_PARSE_H
-#define YAML_BODY_PARSE_H
+#ifndef TOL_PLUGIN_BODY_H_
+#define TOL_PLUGIN_BODY_H_
 
 #include <vector>
 #include <map>
@@ -91,4 +91,4 @@ private:
 };
 }
 
-#endif // YAML_BODY_PARSE_H
+#endif // TOL_PLUGIN_BODY_H_

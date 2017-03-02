@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef HELPER_H
-#define HELPER_H
+#ifndef TOL_PLUGIN_HELPER_H_
+#define TOL_PLUGIN_HELPER_H_
 
 #include <vector>
 
@@ -43,4 +43,4 @@ private:
 };
 }
 
-#endif // HELPER_H
+#endif // TOL_PLUGIN_HELPER_H_

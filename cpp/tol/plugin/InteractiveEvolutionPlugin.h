@@ -2,8 +2,8 @@
 // Created by elte on 20-9-15.
 //
 
-#ifndef TRIANGLEOFLIFE_EVOLUTIONKEYS_H
-#define TRIANGLEOFLIFE_EVOLUTIONKEYS_H
+#ifndef TOL_PLUGIN_INTERACTIVEEVOLUTION_H_
+#define TOL_PLUGIN_INTERACTIVEEVOLUTION_H_
 
 #ifndef Q_MOC_RUN  // See: https://bugreports.qt-project.org/browse/QTBUG-22829
 
@@ -49,4 +49,4 @@ private:
 }
 
 
-#endif //TRIANGLEOFLIFE_EVOLUTIONKEYS_H
+#endif // TOL_PLUGIN_INTERACTIVEEVOLUTION_H_
