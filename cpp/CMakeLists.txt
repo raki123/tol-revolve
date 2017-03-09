@@ -138,6 +138,7 @@ file(GLOB_RECURSE
      tol/plugin/RLPower.cpp
      tol/plugin/RLPower_CPPN.cpp
      tol/plugin/RLPower_Splines.cpp
+     tol/plugin/MLMPCPGBrain.cpp
      tol/plugin/Body.cpp
      tol/plugin/NEAT_CPPN.cpp
      tol/plugin/HyperNEAT_CPPN.cpp
