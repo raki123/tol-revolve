@@ -143,6 +143,7 @@ file(GLOB_RECURSE
      tol/plugin/NEAT_CPPN.cpp
      tol/plugin/HyperNEAT_CPPN.cpp
      tol/plugin/HyperNEAT_Splines.cpp
+     tol/plugin/GenericLearnerBrain.cpp
      )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
