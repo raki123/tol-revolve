@@ -86,7 +86,10 @@ find_package(GSL REQUIRED)
 
 # add revolve-brain
 add_subdirectory(../../revolve-brain/cpp revolve-brain)
-include_directories(../../revolve-brain/cpp)
+include_directories(
+        ../../revolve-brain/cpp
+        ../../revolve-brain/cpp/neat/accneat/src
+)
 
 if (DEFINED REVOLVE_BUILD_PATH)
   message("Deriving include path / libary path from custom build path.")

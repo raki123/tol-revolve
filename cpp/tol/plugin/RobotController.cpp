@@ -12,12 +12,14 @@
 #include "HyperNEAT_CPPN.h"
 #include "HyperNEAT_Splines.h"
 #include "MLMPCPGBrain.h"
+#include "GenericLearnerBrain.h"
 
 #include <iostream>
 #include <exception>
 #include <cmath>
 #include <revolve/gazebo/motors/Motor.h>
 #include <revolve/gazebo/sensors/VirtualSensor.h>
+#include <brain/learner/HyperAccNEATLearner_CPGController.h>
 
 namespace tol {
 
@@ -93,6 +95,21 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
                                          evaluator_,
                                          motor_n,
                                          sensor_n));
+    } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::mlmp_cpg") {
+      std::vector<std::vector<bool, std::allocator<bool>>> connections;
+      std::vector<std::vector<float>> cpgs_coordinates;
+      brain_.reset(new tol::GenericLearnerBrain(
+          new revolve::brain::HyperAccNEATLearner_CPGController(
+              evaluator_,
+              sensor_n,
+              motor_n,
+              2, // coordinates cardinality
+              connections,
+              cpgs_coordinates,
+              30, //seconds
+              -1 // infinite evaluations
+          )
+      ));
     } else {
       std::cout << "Calling default ANN brain." << std::endl;
       revolve::gazebo::RobotController::LoadBrain(sdf);

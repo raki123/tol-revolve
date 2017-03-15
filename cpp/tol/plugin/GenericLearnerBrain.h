@@ -13,7 +13,7 @@ namespace tol {
     class GenericLearnerBrain : public revolve::gazebo::Brain,
                                 private revolve::brain::GenericLearnerBrain {
     public:
-        GenericLearnerBrain(const std::unique_ptr<revolve::brain::BaseLearner> &learner);
+        GenericLearnerBrain(std::unique_ptr<revolve::brain::BaseLearner> learner);
 
         GenericLearnerBrain(revolve::brain::BaseLearner *learner);
 
