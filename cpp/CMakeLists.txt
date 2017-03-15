@@ -86,7 +86,10 @@ find_package(GSL REQUIRED)
 
 # add revolve-brain
 add_subdirectory(../../revolve-brain/cpp revolve-brain)
-include_directories(../../revolve-brain/cpp)
+include_directories(
+        ../../revolve-brain/cpp
+        ../../revolve-brain/cpp/neat/accneat/src
+)
 
 if (DEFINED REVOLVE_BUILD_PATH)
   message("Deriving include path / libary path from custom build path.")
@@ -143,6 +146,7 @@ file(GLOB_RECURSE
      tol/plugin/NEAT_CPPN.cpp
      tol/plugin/HyperNEAT_CPPN.cpp
      tol/plugin/HyperNEAT_Splines.cpp
+     tol/plugin/GenericLearnerBrain.cpp
      )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
