@@ -1,0 +1,188 @@
+---
+body:
+  id          : Core
+  type        : Core
+  children    :
+    1:
+        slot        : 0
+        id          : BodyJoint0
+        type        : ActiveHinge
+        orientation : 90
+        children    :
+          1:
+            slot        : 0
+            id          : Body0
+            type        : FixedBrick
+            orientation : -90
+            children    :
+              1:
+                slot        : 0
+                id          : BodyJoint1
+                type        : ActiveHinge
+                orientation : 90
+                children    :
+                  1:
+                    slot        : 0
+                    id          : Body1
+                    type        : FixedBrick
+                    orientation : -90
+                    children:
+                      2:
+                        slot        : 0
+                        id          : Leg10Joint
+                        type        : ActiveHinge
+                        orientation : 0
+                        children    :
+                          1:
+                            slot        : 0
+                            id          : Leg10
+                            type        : FixedBrick
+                            orientation : 0
+                            children    :
+                              1:
+                                slot        : 0
+                                id          : Leg101Joint
+                                type        : ActiveHinge
+                                orientation : 0
+                                children    :
+                                  1:
+                                    slot        : 0
+                                    id          : Leg101
+                                    type        : FixedBrick
+                                    orientation : 0
+                      3:
+                        slot        : 0
+                        id          : Leg11Joint
+                        type        : ActiveHinge
+                        orientation : 0
+                        children    :
+                          1:
+                            slot        : 0
+                            id          : Leg11
+                            type        : FixedBrick
+                            orientation : 0
+    2:
+      slot        : 0
+      id          : Leg000Joint52
+      type        : ActiveHinge
+      orientation : 0
+      children    :
+        1:
+          slot        : 0
+          id          : Body000Joint15
+          type        : ActiveHinge
+          orientation : 0
+          children    :
+            1:
+              slot        : 0
+              id          : Leg000Joint1
+              type        : FixedBrick
+              orientation : 0
+              children    :
+                1:
+                  slot        : 0
+                  id          : Body000Joint2
+                  type        : ActiveHinge
+                  orientation : 90
+                  children    :
+                    1:
+                      slot        : 0
+                      id          : Body0002
+                      type        : FixedBrick
+                      orientation : -90
+                      children    :
+                        1:
+                          id          : Body000Joint3
+                          type        : ActiveHinge
+                          orientation : 0
+                          children    :
+                            1:
+                              slot        : 0
+                              id          : Body0003
+                              type        : FixedBrick
+                              orientation : 0
+                              children:
+                                2:
+                                  slot        : 0
+                                  id          : Leg0010Joint23
+                                  type        : ActiveHinge
+                                  orientation : 0
+                                  children    :
+                                    1:
+                                      slot        : 0
+                                      id          : Leg001022
+                                      type        : FixedBrick
+                                      orientation : 0
+                                      children    :
+                                        1:
+                                          id          : Leg00101Joint
+                                          type        : ActiveHinge
+                                          orientation : 90
+                                          children    :
+                                            1:
+                                              id          : Leg0010121
+                                              type        : FixedBrick
+                                              orientation : -90
+                                              children    :
+                                                1:
+                                                  id          : Leg00102Joint
+                                                  type        : ActiveHinge
+                                                  orientation : 0
+                                                  children    :
+                                                    1:
+                                                      id          : Leg00102
+                                                      type        : FixedBrick
+                                                      orientation : 0
+                                3:
+                                  slot        : 0
+                                  id          : Leg11Joint24
+                                  type        : ActiveHinge
+                                  orientation : 0
+                                  children    :
+                                    1:
+                                      slot        : 0
+                                      id          : Leg1145
+                                      type        : FixedBrick
+                                      orientation : 0
+                                      children    :
+                                        1:
+                                          id          : Leg111Joint
+                                          type        : ActiveHinge
+                                          orientation : 90
+                                          children    :
+                                            1:
+                                              id          : Leg112Joint
+                                              type        : ActiveHinge
+                                              orientation : -90
+                                              children    :
+                                                1:
+                                                  id          : Leg112
+                                                  type        : FixedBrick
+                                                  orientation : 0
+    3:
+      slot        : 0
+      id          : Leg01Joint
+      type        : ActiveHinge
+      orientation : 0
+      children    :
+        1:
+          id          : Leg011Joint
+          type        : ActiveHinge
+          orientation : 90
+          children    :
+            1:
+              slot        : 0
+              id          : Leg01
+              type        : FixedBrick
+              orientation : -90
+              children    :
+                1:
+                  id          : Leg021Joint
+                  type        : ActiveHinge
+                  orientation : 0
+                  children    :
+                    1:
+                      slot        : 0
+                      id          : Leg02
+                      type        : FixedBrick
+                      orientation : 0
