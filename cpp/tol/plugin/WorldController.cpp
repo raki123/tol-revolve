@@ -3,15 +3,5 @@
  */
 
 #include <revolve/gazebo/plugin/WorldController.h>
-#include <iostream>
 
-class WorldController : public revolve::gazebo::WorldController {
-public:
-    WorldController() :
-        revolve::gazebo::WorldController()
-    {
-        std::cout<<"Starging World Controller!"<<std::endl;
-    }
-};
-
-GZ_REGISTER_WORLD_PLUGIN(WorldController)
+GZ_REGISTER_WORLD_PLUGIN(revolve::gazebo::WorldController)

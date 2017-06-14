@@ -4,7 +4,7 @@ WORLD=idemo.world
 CMD=gazebo
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 MODE=$NEMODEMO
-GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:`pwd`/../build GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:`pwd`/../../revolve/tools/models:`pwd`/models $CMD -u $WORLD &
+GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:`pwd`/../build GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:`pwd`/../../revolve/tools/models:`pwd`/../res/models $CMD -u $WORLD &
 GZ_PID=$!
 ../../revolve/tools/analyzer/run-analyzer &
 ANALYZER_PID=$!
