@@ -1,9 +1,9 @@
-#include "supgbrain.h"
-#include "sensor.h"
-#include "actuator.h"
+#include "SUPGBrain.h"
+#include "Sensor.h"
+#include "Actuator.h"
 #include "revolve/gazebo/sensors/VirtualSensor.h"
 #include "revolve/gazebo/motors/Motor.h"
-#include "helper.h"
+#include "Helper.h"
 
 using namespace tol;
 

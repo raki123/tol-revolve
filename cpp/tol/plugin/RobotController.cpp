@@ -13,9 +13,9 @@
 #include "HyperNEAT_Splines.h"
 #include "MLMPCPGBrain.h"
 #include "GenericLearnerBrain.h"
-#include "supgbrain.h"
-#include "supgbrainphototaxis.h"
-#include "brain/supg/supggenomemanager.h"
+#include "SUPGBrain.h"
+#include "SUPGBrainPhototaxis.h"
+#include "brain/supg/SUPGGenomeManager.h"
 #include "neat/accneat/src/neat.h"
 #include "Helper.h"
 

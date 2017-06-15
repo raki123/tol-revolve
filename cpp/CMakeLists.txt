@@ -147,9 +147,9 @@ file(GLOB_RECURSE
      tol/plugin/HyperNEAT_CPPN.cpp
      tol/plugin/HyperNEAT_Splines.cpp
      tol/plugin/GenericLearnerBrain.cpp
-     tol/plugin/supgbrain.cpp
-     tol/plugin/supgbrainphototaxis.cpp
-     tol/plugin/fakelightsensor.cpp
+     tol/plugin/SUPGBrain.cpp
+     tol/plugin/SUPGBrainPhototaxis.cpp
+     tol/plugin/FakeLightSensor.cpp
      tol/plugin/supg/supgneuron.cpp
      tol/plugin/supg/supggenomemanager.cpp
      )

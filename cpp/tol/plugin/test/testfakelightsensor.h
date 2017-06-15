@@ -20,7 +20,7 @@
 #ifndef TESTFAKELIGHTSENSOR_H
 #define TESTFAKELIGHTSENSOR_H
 
-#include <../../tol-revolve/cpp/tol/plugin/fakelightsensor.h>
+#include "../FakeLightSensor.h"
 
 class TestFakeLightSensor : public tol::FakeLightSensor
 {

@@ -17,8 +17,8 @@
  *
  */
 
-#include "supgbrainphototaxis.h"
-#include "helper.h"
+#include "SUPGBrainPhototaxis.h"
+#include "Helper.h"
 #include <boost/make_shared.hpp>
 
 using namespace tol;

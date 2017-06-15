@@ -21,8 +21,8 @@
 #define TOL_SUPGBRAINPHOTOTAXIS_H
 
 #include "revolve/gazebo/brain/Brain.h"
-#include "brain/supgbrainphototaxis.h"
-#include "fakelightsensor.h"
+#include "brain/SUPGBrainPhototaxis.h"
+#include "FakeLightSensor.h"
 
 namespace tol {
 

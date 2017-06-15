@@ -1,8 +1,8 @@
 #ifndef SUPGBRAIN_H
 #define SUPGBRAIN_H
 
-#include "brain/supgbrain.h"
-#include "evaluator.h"
+#include "brain/SUPGBrain.h"
+#include "Evaluator.h"
 #include "revolve/gazebo/brain/Brain.h"
 
 #include <gazebo/gazebo.hh>

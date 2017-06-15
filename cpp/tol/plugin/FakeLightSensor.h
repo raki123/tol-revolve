@@ -20,7 +20,7 @@
 #ifndef FAKELIGHTSENSOR_H
 #define FAKELIGHTSENSOR_H
 
-#include "brain/fakelightsensor.h"
+#include "brain/FakeLightSensor.h"
 #include <ignition/math/Pose3.hh>
 #include <revolve/gazebo/sensors/VirtualSensor.h>
 #include <string>
