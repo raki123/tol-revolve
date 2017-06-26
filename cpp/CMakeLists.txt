@@ -143,6 +143,7 @@ file(GLOB_RECURSE
      tol/plugin/RLPower_Splines.cpp
      tol/plugin/MLMPCPGBrain.cpp
      tol/plugin/Body.cpp
+     tol/plugin/YamlBodyParser.cpp
      tol/plugin/NEAT_CPPN.cpp
      tol/plugin/HyperNEAT_CPPN.cpp
      tol/plugin/HyperNEAT_Splines.cpp

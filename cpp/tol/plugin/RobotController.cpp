@@ -13,6 +13,7 @@
 #include "HyperNEAT_Splines.h"
 #include "MLMPCPGBrain.h"
 #include "GenericLearnerBrain.h"
+#include "YamlBodyParser.h"
 #include "SUPGBrain.h"
 #include "SUPGBrainPhototaxis.h"
 #include "brain/supg/SUPGGenomeManager.h"
@@ -195,8 +196,11 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
                                          motor_n,
                                          sensor_n));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::mlmp_cpg") {
-      std::vector<std::vector<bool, std::allocator<bool>>> connections;
-      std::vector<std::vector<float>> cpgs_coordinates;
+
+//      this->model->GetName()
+      tol::YamlBodyParser* parser = new tol::YamlBodyParser("./res/robots/spider9.yaml");
+      std::vector<std::vector<bool, std::allocator<bool>>> connections = parser->connections();
+      std::vector<std::vector<float>> cpgs_coordinates = parser->coordinates();
       brain_.reset(new tol::GenericLearnerBrain(
           new revolve::brain::HyperAccNEATLearner_CPGController(
               evaluator_,
