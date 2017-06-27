@@ -31,10 +31,11 @@ public:
         : tol::FakeLightSensor(
             "test_fake_light_sensor",
             fov,
-            robot_sensor_offset,
             light_position
         )
-    {}
+    {
+        this->updateRobotPosition(robot_sensor_offset);
+    }
 
 // Expose protected methods
     float expose_light_distance() {

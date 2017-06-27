@@ -7,7 +7,7 @@ namespace tol {
 
 BodyPart::BodyPart()
 {
-  std::memset(neighbours, 0, sizeof(neighbours)*MAX_SLOTS);
+  std::memset(neighbours, 0, sizeof(neighbours));
 }
 
 BodyPart::BodyPart(const std::string &name, const std::string &type, int x, int y, size_t rotation)
@@ -17,7 +17,7 @@ BodyPart::BodyPart(const std::string &name, const std::string &type, int x, int 
         , y(y)
         , rotation(rotation)
 {
-  std::memset(neighbours, 0, sizeof(neighbours)*MAX_SLOTS);
+  std::memset(neighbours, 0, sizeof(neighbours));
 }
 
 BodyPart::~BodyPart()
@@ -82,7 +82,10 @@ BodyPart * YamlBodyParser::parseModule(BodyPart *parent,
   if (offspring.IsDefined()) {
 
     module = new BodyPart();
-    module->name = offspring["name"].as<std::string>();
+    module->name = offspring["name"].IsDefined() ?
+                   offspring["name"].as<std::string>() :
+                   offspring["id"].as<std::string>();
+
     module->type = offspring["type"].as<std::string>();
     module->rotation = rotation;
     module->x = x;

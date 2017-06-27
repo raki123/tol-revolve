@@ -4,6 +4,8 @@
 # CMake Required Version
 cmake_minimum_required(VERSION 2.8.12)
 
+enable_testing()
+
 # Project Name
 project(TriangleOfLife)
 
@@ -198,3 +200,6 @@ target_link_libraries(tolinteractiveevolution
                       ${QT_LIBRARIES}
                       ${PROTOBUF_LIBRARIES}
                       )
+
+
+add_subdirectory(tol/plugin/test)

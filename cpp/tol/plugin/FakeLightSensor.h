@@ -41,7 +41,7 @@ public:
 
     virtual std::string sensorId() const override;
 
-    virtual void updateRobotPosition(ignition::math::Pose3d &robot_position);
+    virtual void updateRobotPosition(const ignition::math::Pose3d &robot_position);
 
     /**
      * Reads the current value of this sensor into the given network

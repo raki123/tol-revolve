@@ -199,7 +199,7 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
 
 //      this->model->GetName()
       tol::YamlBodyParser* parser = new tol::YamlBodyParser("./res/robots/spider9.yaml");
-      std::vector<std::vector<bool, std::allocator<bool>>> connections = parser->connections();
+      std::vector<std::vector<bool>> connections = parser->connections();
       std::vector<std::vector<float>> cpgs_coordinates = parser->coordinates();
       brain_.reset(new tol::GenericLearnerBrain(
           new revolve::brain::HyperAccNEATLearner_CPGController(

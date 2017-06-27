@@ -52,7 +52,7 @@ std::string FakeLightSensor::sensorId() const
     return this->sensor_name;
 }
 
-void tol::FakeLightSensor::updateRobotPosition(ignition::math::Pose3d& robot_position)
+void tol::FakeLightSensor::updateRobotPosition(const ignition::math::Pose3d& robot_position)
 {
     this->robot_position = ignition::math::Pose3d(robot_position);
 }
