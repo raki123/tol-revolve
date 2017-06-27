@@ -198,7 +198,8 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::mlmp_cpg") {
 
 //      this->model->GetName()
-      tol::YamlBodyParser* parser = new tol::YamlBodyParser("./res/robots/spider9.yaml");
+      tol::YamlBodyParser* parser = new tol::YamlBodyParser();
+      parser->parseFile("./res/robots/spider9.yaml");
       std::vector<std::vector<bool>> connections = parser->connections();
       std::vector<std::vector<float>> cpgs_coordinates = parser->coordinates();
       brain_.reset(new tol::GenericLearnerBrain(

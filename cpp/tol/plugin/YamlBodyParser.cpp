@@ -28,7 +28,10 @@ BodyPart::~BodyPart()
   }
 }
 
-YamlBodyParser::YamlBodyParser(const std::string filepath)
+YamlBodyParser::YamlBodyParser()
+{}
+
+void YamlBodyParser::parseFile(const std::string &filepath)
 {
   /// Verify and open a YAML file on a given file path
   YAML::Node genome;
@@ -45,8 +48,27 @@ YamlBodyParser::YamlBodyParser(const std::string filepath)
     std::exit(1);
   }
 
+  init(genome);
+}
+
+void YamlBodyParser::parseCode(const std::string &code)
+{
+
+  /// Verify and open a YAML file on a given file path
+  YAML::Node genome = YAML::Load(code);
+
+  if (genome.IsNull()) {
+    std::cerr << "Failed to load a 'genome' code." << std::endl;
+    std::exit(1);
+  }
+
+  init(genome);
+}
+
+void YamlBodyParser::init(const YAML::Node &root_genome_node)
+{
   /// Start parsing YAML file to a tree data structure
-  this->bodyMap_ = this->parseModule(nullptr, genome["body"], 0, 0, 0); // Select the 'body' section from the YAML file.
+  this->bodyMap_ = this->parseModule(nullptr, root_genome_node["body"], 0, 0, 0); // Select the 'body' section from the YAML file.
 
   /// Prepare matrices for defining coordinates and connections
   int range_x = this->max_x - this->min_x;

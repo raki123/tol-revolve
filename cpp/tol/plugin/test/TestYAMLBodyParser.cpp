@@ -10,7 +10,8 @@ void testRobot(const std::string &yaml_source,
                const std::vector <std::vector<bool>> &connections_target,
                const std::vector <std::vector<float>> &coordinates_target)
 {
-    tol::YamlBodyParser* parser = new tol::YamlBodyParser("../res/robots/spider9.yaml");
+    tol::YamlBodyParser* parser = new tol::YamlBodyParser();
+    parser->parseCode(yaml_source);
 
     // Check connections
     std::vector <std::vector<bool>> connections = parser->connections();
@@ -33,7 +34,8 @@ void testRobot(const std::string &yaml_source,
 
 BOOST_AUTO_TEST_CASE(yaml_body_parser_just_runs)
 {
-    tol::YamlBodyParser* parser = new tol::YamlBodyParser("../res/robots/spider9.yaml");
+    tol::YamlBodyParser* parser = new tol::YamlBodyParser();
+    parser->parseFile("../res/robots/spider9.yaml");
     std::vector <std::vector<bool>> connections = parser->connections();
     std::vector <std::vector<float>> coordinates = parser->coordinates();
     BOOST_TEST(true, "Test did pass!");

@@ -36,7 +36,7 @@ typedef std::vector<std::vector<float>> CoordinatesMatrix;
 class YamlBodyParser {
 
     public:
-    YamlBodyParser(const std::string filepath);
+    YamlBodyParser();
 
     ~YamlBodyParser();
 
@@ -44,7 +44,12 @@ class YamlBodyParser {
 
     CoordinatesMatrix coordinates();
 
+    void parseFile(const std::string &filename);
+    void parseCode(const std::string &code);
+
     private:
+    void init(const YAML::Node &root_genome_node);
+
     BodyPart *parseModule(BodyPart *parent, const YAML::Node &offspring, const size_t rotation, int x, int y);
 
     size_t calculateRotation(const size_t arity, const size_t slot, const size_t parents_rotation) const;
