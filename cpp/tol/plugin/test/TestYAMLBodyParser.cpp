@@ -53,6 +53,7 @@ BOOST_AUTO_TEST_CASE(yaml_body_parser_spider)
                       {false,false,false,false,false,false, true,false}
               },
               {
+                      // Leg00Joint Leg01Joint
                       {-0.125f,    0}, //{1,    0,    1},
                       {-0.375f,    0}, //{.5,   0,    -1},
                       // Leg10Joint Leg11Joint
