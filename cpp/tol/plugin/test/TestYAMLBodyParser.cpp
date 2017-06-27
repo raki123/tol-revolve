@@ -27,8 +27,9 @@ void testRobot(const std::string &yaml_source,
     BOOST_CHECK_EQUAL(coordinates.size(), coordinates_target.size());
     for (size_t i = 0; i< coordinates.size(); i++) {
 //        std::cout << "coordinates[" << i << ']' << std::endl;
-        BOOST_CHECK_EQUAL_COLLECTIONS(coordinates[i].begin(), coordinates[i].end(),
-                                      coordinates_target[i].begin(), coordinates_target[i].end());
+        for (size_t j = 0; j< coordinates[i].size(); j++) {
+            BOOST_CHECK_CLOSE(coordinates[i][j], coordinates_target[i][j], 1);
+        }
     }
 }
 
@@ -45,14 +46,18 @@ BOOST_AUTO_TEST_CASE(yaml_body_parser_spider)
 {
     testRobot(tol::Spider9_yaml_source,
               {
-                      {false, true, true,false, true,false, true,false},
-                      { true,false,false,false,false,false,false,false},
-                      { true,false,false, true, true,false, true,false},
-                      {false,false, true,false,false,false,false,false},
-                      { true,false, true,false,false, true, true,false},
-                      {false,false,false,false, true,false,false,false},
-                      { true,false, true,false, true,false,false, true},
-                      {false,false,false,false,false,false, true,false}
+              #define X true,
+              #define _ false,
+                      { _ X X _ X _ X _ } ,
+                      { X _ _ _ _ _ _ _ } ,
+                      { X _ _ X X _ X _ } ,
+                      { _ _ X _ _ _ _ _ } ,
+                      { X _ X _ _ X X _ } ,
+                      { _ _ _ _ X _ _ _ } ,
+                      { X _ X _ X _ _ X } ,
+                      { _ _ _ _ _ _ X _ } ,
+              #undef X
+              #undef _
               },
               {
                       // Leg00Joint Leg01Joint
@@ -67,6 +72,92 @@ BOOST_AUTO_TEST_CASE(yaml_body_parser_spider)
                       // Leg30Joint Leg31Joint
                       {0,     0.125f}, //{0,    -1,   1},
                       {0,     0.375f}  //{0,    -.5f, -1}
+              }
+    );
+
+    testRobot(tol::Spider13_yaml_source,
+              {
+              #define X true,
+              #define _ false,
+                      {_ X _ X _ _ X _ _ X _ _ } ,//
+                      {X _ X _ _ _ _ _ _ _ _ _ } ,
+                      {_ X _ _ _ _ _ _ _ _ _ _ } ,
+                      {X _ _ _ X _ X _ _ X _ _ } ,//
+                      {_ _ _ X _ X _ _ _ _ _ _ } ,
+                      {_ _ _ _ X _ _ _ _ _ _ _ } ,
+                      {X _ _ X _ _ _ X _ X _ _ } ,//
+                      {_ _ _ _ _ _ X _ X _ _ _ } ,
+                      {_ _ _ _ _ _ _ X _ _ _ _ } ,
+                      {X _ _ X _ _ X _ _ _ X _ } ,//
+                      {_ _ _ _ _ _ _ _ _ X _ X } ,
+                      {_ _ _ _ _ _ _ _ _ _ X _ } ,
+              #undef X
+              #undef _
+              },
+              {
+                      // Leg00Joint Leg01Joint Leg02Joint
+                      {-.0833333f, 0},
+                      {-.25f,      0},
+                      {-0.416666f, 0},
+                      // Leg10Joint Leg11Joint Leg12Joint
+                      { .0833333f, 0},
+                      { .25f, 0},
+                      { 0.416666f, 0},
+                      // Leg20Joint Leg21Joint Leg22Joint
+                      {0, -.0833333f},
+                      {0, -.25f},
+                      {0, -.416666f},
+                      // Leg30Joint Leg31Joint Leg32Joint
+                      {0,  .0833333f},
+                      {0,  .25f},
+                      {0,  .416666f},
+              }
+    );
+
+    testRobot(tol::Spider17_yaml_source,
+              {
+              #define X true,
+              #define _ false,
+                      { _ X _ _ X _ _ _ X _ _ _ X _ _ _ } , //
+                      { X _ X _ _ _ _ _ _ _ _ _ _ _ _ _ } ,
+                      { _ X _ X _ _ _ _ _ _ _ _ _ _ _ _ } ,
+                      { _ _ X _ _ _ _ _ _ _ _ _ _ _ _ _ } ,
+                      { X _ _ _ _ X _ _ X _ _ _ X _ _ _ } , //
+                      { _ _ _ _ X _ X _ _ _ _ _ _ _ _ _ } ,
+                      { _ _ _ _ _ X _ X _ _ _ _ _ _ _ _ } ,
+                      { _ _ _ _ _ _ X _ _ _ _ _ _ _ _ _ } ,
+                      { X _ _ _ X _ _ _ _ X _ _ X _ _ _ } , //
+                      { _ _ _ _ _ _ _ _ X _ X _ _ _ _ _ } ,
+                      { _ _ _ _ _ _ _ _ _ X _ X _ _ _ _ } ,
+                      { _ _ _ _ _ _ _ _ _ _ X _ _ _ _ _ } ,
+                      { X _ _ _ X _ _ _ X _ _ _ _ X _ _ } , //
+                      { _ _ _ _ _ _ _ _ _ _ _ _ X _ X _ } ,
+                      { _ _ _ _ _ _ _ _ _ _ _ _ _ X _ X } ,
+                      { _ _ _ _ _ _ _ _ _ _ _ _ _ _ X _ } ,
+              #undef X
+              #undef _
+              },
+              {
+                      // Leg00Joint Leg01Joint Leg02Joint
+                      {-.0625f, 0},
+                      {-.1875f, 0},
+                      {-.3125f, 0},
+                      {-.4375f, 0},
+                      // Leg10Joint Leg11Joint Leg12Joint
+                      { .0625f, 0},
+                      { .1875f, 0},
+                      { .3125f, 0},
+                      { .4375f, 0},
+                      // Leg20Joint Leg21Joint Leg22Joint
+                      {0, -.0625f},
+                      {0, -.1875f},
+                      {0, -.3125f},
+                      {0, -.4375f},
+                      // Leg30Joint Leg31Joint Leg32Joint
+                      {0, .0625f},
+                      {0, .1875f},
+                      {0, .3125f},
+                      {0, .4375f},
               }
     );
 }
