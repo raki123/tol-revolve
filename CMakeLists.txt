@@ -1,6 +1,7 @@
 # CMake Required Version
 cmake_minimum_required(VERSION 2.8.12)
 
+enable_testing()
 set(CMAKE_CXX_STANDARD 11)
 
 # Project Name

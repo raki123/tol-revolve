@@ -18,6 +18,19 @@ no_experiments=10
 output=output
 restore=restore
 world=./res/worlds/gait-learning.world
+REVOLVE_HOME='' #'/home/matteo/projects/revolve'
+
+function recompile() {
+  cur_dir=$PWD
+  cd "${REVOLVE_HOME}/revolve/build"
+  echo '-> BUILDING REVOLVE'
+  make
+  cd "${REVOLVE_HOME}/tol-revolve/build"
+  echo '-> BUILDING TOL-REVOLVE'
+  make
+  cd ${cur_dir}
+}
+
 
 function error_exit() {
     echo "${PROGNAME}: ${1:-"Unknown Error"}" 1 >&2
@@ -36,6 +49,7 @@ function help() {
     echo " -o | --output          Name of a output directory"
     echo " -r | --restore         Name of a restore directory"
     echo " -w | --world           Name of a world file"
+    echo " --recompile            Path to the project folder containing revolve and tol-revolve projects"
 
     exit 0
 }
@@ -71,6 +85,10 @@ function main() {
                 -w | --world)
                     local world=${parameter}
                     if [ ! -s ${world} ]; then error_exit "World file '${world}' does not exist."; fi
+                    ;;
+                --recompile)
+                    REVOLVE_HOME=${parameter}
+                    recompile
                     ;;
                 *) error_exit "${LINENO}: In ${FUNCNAME}() unknown argument ${argument}." ;;
             esac

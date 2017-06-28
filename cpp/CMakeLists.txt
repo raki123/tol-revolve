@@ -4,6 +4,8 @@
 # CMake Required Version
 cmake_minimum_required(VERSION 2.8.12)
 
+enable_testing()
+
 # Project Name
 project(TriangleOfLife)
 
@@ -143,10 +145,16 @@ file(GLOB_RECURSE
      tol/plugin/RLPower_Splines.cpp
      tol/plugin/MLMPCPGBrain.cpp
      tol/plugin/Body.cpp
+     tol/plugin/YamlBodyParser.cpp
      tol/plugin/NEAT_CPPN.cpp
      tol/plugin/HyperNEAT_CPPN.cpp
      tol/plugin/HyperNEAT_Splines.cpp
      tol/plugin/GenericLearnerBrain.cpp
+     tol/plugin/SUPGBrain.cpp
+     tol/plugin/SUPGBrainPhototaxis.cpp
+     tol/plugin/FakeLightSensor.cpp
+     tol/plugin/supg/supgneuron.cpp
+     tol/plugin/supg/supggenomemanager.cpp
      )
 
 add_library(tolworldcontrol SHARED ${TOL_WORLD_SRC})
@@ -192,3 +200,6 @@ target_link_libraries(tolinteractiveevolution
                       ${QT_LIBRARIES}
                       ${PROTOBUF_LIBRARIES}
                       )
+
+
+add_subdirectory(tol/plugin/test)

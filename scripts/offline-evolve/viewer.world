@@ -1,23 +1,12 @@
 <?xml version="1.0" ?>
-    <sdf version="1.5">
-    <world name="default">
-    <scene>
-        <origin_visual>0</origin_visual>
-        <grid>0</grid>
-    </scene>
-
+<sdf version="1.5">
+  <world name="default">
     <physics type="ode">
       <max_step_size>0.005</max_step_size>
-
-      <!-- Run as fast as possible -->
-      <!--real_time_update_rate>0.0</real_time_update_rate-->
-
-      <!-- Simulation == real time -->
-      <real_time_update_rate>800</real_time_update_rate>
-
+      <real_time_update_rate>200</real_time_update_rate>
       <ode>
         <constraints>
-          <!-- Simulator.cpp -->
+          <!-- In Robogen: Simulator.cpp -->
           <erp>0.1</erp>
           <cfm>10e-6</cfm>
 
@@ -31,8 +20,6 @@
       </ode>
     </physics>
 
-    <gui />
-
     <!-- A global light source -->
     <include>
       <uri>model://sun</uri>
@@ -41,6 +28,6 @@
       <uri>model://tol_ground</uri>
     </include>
 
-    <plugin name="tol-control" filename="libtolworldcontrol.so" />
+    <plugin name="tol-control" filename="libtolworldcontrol.dylib" />
   </world>
 </sdf>

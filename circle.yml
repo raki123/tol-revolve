@@ -1,0 +1,26 @@
+machine:
+  services:
+    - docker
+dependencies:
+  cache_directories:
+    - "~/docker"
+  override:
+    - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
+    - docker build -t test docker
+    - mkdir -p ~/docker; docker save test > ~/docker/image.tar
+test:
+  override:
+    - docker run -v ${PWD}:/project/repo -it test /bin/bash -c 'cd repo; cmake -P build.cmake'
+#    - bundle
+#    - bundle exec rspec
+#    - touch hoge.txt
+#    - echo "hoge" >> hoge.txt
+#    - git config --global user.email "yutakakinjyo@gmail.com"
+#    - git config --global user.name "yutakakinjyo"
+#    - git add hoge.txt
+#    - git commit -m "add hoge [ci skip]"
+#    - git push origin `git rev-parse --abbrev-ref HEAD`
+#    - git diff HEAD^ HEAD > report.txt
+#general:
+#  artifacts:
+#- "report.txt"
