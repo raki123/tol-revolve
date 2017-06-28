@@ -7,11 +7,13 @@
 
 using namespace tol;
 
-SUPGBrain::SUPGBrain(revolve::brain::EvaluatorPtr evaluator,
-                          const std::vector< std::vector< float > > &neuron_coordinates,
-                          const std::vector< revolve::gazebo::MotorPtr >& motors,
-                          const std::vector< revolve::gazebo::SensorPtr >& sensors)
- : revolve::brain::SUPGBrain(
+SUPGBrain::SUPGBrain(const std::string &robot_name,
+                     revolve::brain::EvaluatorPtr evaluator,
+                     const std::vector<std::vector<float> > &neuron_coordinates,
+                     const std::vector<revolve::gazebo::MotorPtr> &motors,
+                     const std::vector<revolve::gazebo::SensorPtr> &sensors)
+   : revolve::brain::SUPGBrain(
+     robot_name,
      evaluator,
      neuron_coordinates,
      Helper::createWrapper(motors),

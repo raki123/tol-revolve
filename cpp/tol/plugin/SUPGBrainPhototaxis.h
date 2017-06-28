@@ -30,7 +30,8 @@ class SUPGBrainPhototaxis : public revolve::gazebo::Brain
                           , private revolve::brain::SUPGBrainPhototaxis
 {
 public:
-    SUPGBrainPhototaxis(revolve::brain::EvaluatorPtr evaluator,
+    SUPGBrainPhototaxis(const std::string &robot_name,
+                        revolve::brain::EvaluatorPtr evaluator,
                         double light_radius_distance,
                         const std::vector< std::vector< float > >& neuron_coordinates,
                         const std::vector< revolve::gazebo::MotorPtr >& actuators,

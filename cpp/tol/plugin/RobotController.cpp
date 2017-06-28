@@ -70,11 +70,13 @@ const char* getGeneticSearchType(const NEAT::GeneticSearchType value) {
   }
 }
 
-RobotController::RobotController() {
-  AsyncNeat::Init(
-      std::unique_ptr<NEAT::GenomeManager>(
-          new SUPGGenomeManager()
-      ));
+void init_asyncneat(const std::string &robot_name, std::unique_ptr<NEAT::GenomeManager> custom_genome_manager) {
+
+  if (custom_genome_manager) {
+    AsyncNeat::Init(std::move(custom_genome_manager));
+  } else {
+    AsyncNeat::Init(robot_name);
+  }
   unsigned int populationSize = 10;
   NEAT::real_t mutate_add_node_prob = 0.01;
   NEAT::real_t mutate_add_link_prob = 0.3;
@@ -127,6 +129,9 @@ RobotController::RobotController() {
   AsyncNeat::SetSearchType(geneticSearchType);
 }
 
+RobotController::RobotController() {
+}
+
 RobotController::~RobotController() {
   AsyncNeat::CleanUp();
 }
@@ -145,6 +150,7 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
   try {
     evaluator_ = boost::make_shared<Evaluator>();
+    const std::string &robot_name = this->model->GetName();
 
     unsigned int motor_n = 0; //motors_.size();
     for (const auto &motor : motors_)
@@ -169,43 +175,46 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
       return;
     }
     if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::spline") {
-      brain_.reset(new tol::RLPowerSplines(this->model->GetName(),
+      brain_.reset(new tol::RLPowerSplines(robot_name,
                                            brain,
                                            evaluator_,
                                            motors_,
                                            sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::net") {
-      brain_.reset(new tol::RLPowerNet(this->model->GetName(),
+      brain_.reset(new tol::RLPowerNet(robot_name,
                                        brain,
                                        evaluator_,
                                        motors_,
                                        sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::net") {
-      brain_.reset(new tol::HyperExtNN(this->model->GetName(),
+      brain_.reset(new tol::HyperExtNN(robot_name,
                                        brain,
                                        evaluator_,
                                        motors_,
                                        sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::spline") {
-      brain_.reset(new tol::HyperSplines(this->model->GetName(),
+      brain_.reset(new tol::HyperSplines(robot_name,
                                          brain,
                                          evaluator_,
                                          motors_,
                                          sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::mlmp_cpg") {
-      brain_.reset(new tol::MlmpCPGBrain(this->model->GetName(),
+      brain_.reset(new tol::MlmpCPGBrain(robot_name,
                                          evaluator_,
                                          motor_n,
                                          sensor_n));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::mlmp_cpg") {
 
-//      this->model->GetName()
+      init_asyncneat(robot_name, std::unique_ptr<NEAT::GenomeManager>());
+      std::string modelName = this->model->GetName();
       tol::YamlBodyParser* parser = new tol::YamlBodyParser();
-      parser->parseFile("./res/robots/spider9.yaml");
+      modelName =  modelName.substr(0, modelName.find("-")) + ".yaml";
+      parser->parseFile(modelName);
       std::vector<std::vector<bool>> connections = parser->connections();
       std::vector<std::vector<float>> cpgs_coordinates = parser->coordinates();
       brain_.reset(new tol::GenericLearnerBrain(
           new revolve::brain::HyperAccNEATLearner_CPGController(
+              robot_name,
               evaluator_,
               sensor_n,
               motor_n,
@@ -217,6 +226,11 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
           )
       ));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "supg::phototaxis") {
+      init_asyncneat(robot_name,
+                     std::unique_ptr<NEAT::GenomeManager>(
+                             new SUPGGenomeManager(robot_name)
+                     ));
+
       std::vector<std::vector<float> > coordinates;
 
       const std::string robot_type_str = getVARenv("ROBOT_TYPE");
@@ -547,7 +561,8 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
 
 
 //     brain_.reset(new SUPGBrain(evaluator_, coordinates, motors_, sensors_));
-      brain_.reset(new SUPGBrainPhototaxis(evaluator_,
+      brain_.reset(new SUPGBrainPhototaxis(robot_name,
+                                           evaluator_,
                                            50,
                                            coordinates,
                                            motors_,

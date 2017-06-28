@@ -15,7 +15,8 @@ namespace tol {
 class SUPGBrain : public revolve::gazebo::Brain, private revolve::brain::SUPGBrain
 {
 public:
-    SUPGBrain(revolve::brain::EvaluatorPtr evaluator,
+    SUPGBrain(const std::string &robot_name,
+              revolve::brain::EvaluatorPtr evaluator,
               const std::vector< std::vector< float > > &neuron_coordinates,
               const std::vector< revolve::gazebo::MotorPtr >& motors,
               const std::vector< revolve::gazebo::SensorPtr >& sensors);

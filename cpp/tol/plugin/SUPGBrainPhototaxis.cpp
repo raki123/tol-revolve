@@ -23,12 +23,14 @@
 
 using namespace tol;
 
-SUPGBrainPhototaxis::SUPGBrainPhototaxis(revolve::brain::EvaluatorPtr evaluator,
+SUPGBrainPhototaxis::SUPGBrainPhototaxis(const std::string &robot_name,
+                                         revolve::brain::EvaluatorPtr evaluator,
                                          double light_radius_distance,
                                          const std::vector <std::vector<float>> &neuron_coordinates,
                                          const std::vector <revolve::gazebo::MotorPtr> &actuators,
                                          std::vector <revolve::gazebo::SensorPtr> &sensors)
     : revolve::brain::SUPGBrainPhototaxis(
+        robot_name,
         evaluator,
         nullptr,
         nullptr,
