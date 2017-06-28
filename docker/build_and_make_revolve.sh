@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-apt-get -y install git
+apt-get -y install git libboost-all-dev
 
 # DOWNLOAD REVOLVE
 cd /revolve
