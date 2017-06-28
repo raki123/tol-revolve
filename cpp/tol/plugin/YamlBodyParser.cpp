@@ -207,8 +207,8 @@ void YamlBodyParser::setNormalisedCoordinates(BodyPart *module, const int range_
 {
   if (module != nullptr) {
     if (A_HINGE == module->type) {
-      this->coordinates_[module->id - 1][0] = (float)(module->x * (1.0/range_x));
-      this->coordinates_[module->id - 1][1] = (float)(module->y * (1.0/range_y));
+      this->coordinates_[module->id - 1][0] = (float)(module->x * (2.0/range_x));
+      this->coordinates_[module->id - 1][1] = (float)(module->y * (2.0/range_y));
     }
 
     size_t parents_slot = (CORE == module->type) ? 0 : 1;
