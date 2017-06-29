@@ -19,7 +19,7 @@ cd /revolve/revolve-brain
 # mkdir build && cd build
 # cmake ../cpp -DCMAKE_BUILD_TYPE="Release" \
 #              -DREVOLVE_BUILD_PATH="`pwd`/../../revolve/build"
-# make -j
+# make
 #
 # # pip install
 # cd /revolve/tol-revolve

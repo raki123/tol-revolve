@@ -47,7 +47,7 @@ setup(name='revolve',
 mkdir build && cd build
 cmake ../cpp -DCMAKE_BUILD_TYPE="Release" \
              -DLOCAL_BUILD_DIR=1
-make -j
+make
 
 # INSTALL GAZEBO
 make install
