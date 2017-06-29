@@ -124,7 +124,7 @@ cmake .. -DCMAKE_BUILD_TYPE="Release" \
          -DCMAKE_INSTALL_PREFIX=/usr \
          -DENABLE_SSE4=True \
          -DENABLE_TESTS_COMPILATION:BOOL=False
-make -j4
+make -j
 
 # INSTALL GAZEBO
 make install
