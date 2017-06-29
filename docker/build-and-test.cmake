@@ -7,7 +7,7 @@ if(NOT EXISTS ${build_dir})
 endif()
 
 execute_process(
-  COMMAND ${CMAKE_COMMAND} ../cpp -Dtest=ON -DREVOLVE_BUILD_PATH="/revolve/revolve/build"
+  COMMAND ${CMAKE_COMMAND} ../cpp -Dtest=ON -DREVOLVE_BUILD_PATH=/revolve/revolve/build -DREVOLVE_BRAIN_PATH=/revolve/revolve-brain/cpp/
 
   WORKING_DIRECTORY ${build_dir}
   RESULT_VARIABLE cmake_result
