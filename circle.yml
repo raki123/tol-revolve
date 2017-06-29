@@ -10,7 +10,7 @@ dependencies:
     - mkdir -p ~/docker; docker save test > ~/docker/image.tar
 test:
   override:
-    - docker run -v ${PWD}:/project/repo -it test /bin/bash -c 'cd repo; cmake -P build.cmake'
+    - docker run -v ${PWD}:/project/repo -it test /bin/bash -c 'cd repo; cmake -P docker/build-and-test.cmake'
 #    - bundle
 #    - bundle exec rspec
 #    - touch hoge.txt
