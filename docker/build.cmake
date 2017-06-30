@@ -37,13 +37,3 @@ execute_process(
 if(${compilation_result})
   message(FATAL_ERROR "compilation failed")
 endif()
-
-execute_process(
-  COMMAND make test
-  WORKING_DIRECTORY ${build_dir}
-  RESULT_VARIABLE test_result
-)
-
-if(${test_result})
-  message(FATAL_ERROR "test failed")
-endif()

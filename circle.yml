@@ -9,9 +9,15 @@ dependencies:
     - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
     - docker build -t test docker
     - mkdir -p ~/docker; docker save test > ~/docker/image.tar
+
+compile:
+  cache_directories:
+    - "${PWD}/build_docker"
+  override:
+    - docker run -v ${PWD}:/project/repo -it test /bin/bash -c 'cd repo; cmake -P docker/build.cmake'
 test:
   override:
-    - docker run -v ${PWD}:/project/repo -it test /bin/bash -c 'cd repo; cmake -P docker/build-and-test.cmake'
+    - docker run -v ${PWD}:/project/repo -it test /bin/bash -c 'cd repo; cmake -P docker/test.cmake'
 #    - bundle
 #    - bundle exec rspec
 #    - touch hoge.txt
