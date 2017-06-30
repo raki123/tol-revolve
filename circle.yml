@@ -5,9 +5,7 @@ dependencies:
   cache_directories:
     - "~/docker"
   override:
-    - if [[ -e ~/docker/image_gazebo.tar ]]; then docker load -i ~/docker/image_gazebo.tar; fi
-    - docker build -t base_gazebo_image docker/base_gazebo_image
-    - mkdir -p ~/docker; docker save base_gazebo_image > ~/docker/image_gazebo.tar
+    - if [[ -e ~/docker/image_gazebo.tar ]]; then docker load -i ~/docker/image_gazebo.tar; else docker build -t base_gazebo_image docker/base_gazebo_image; mkdir -p ~/docker; docker save base_gazebo_image > ~/docker/image_gazebo.tar; fi
     - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
     - docker build -t test docker
     - mkdir -p ~/docker; docker save test > ~/docker/image.tar
