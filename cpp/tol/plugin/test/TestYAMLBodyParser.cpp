@@ -39,7 +39,6 @@ BOOST_AUTO_TEST_CASE(yaml_body_parser_just_runs)
     parser->parseFile("../res/robots/spider9.yaml");
     std::vector <std::vector<bool>> connections = parser->connections();
     std::vector <std::vector<float>> coordinates = parser->coordinates();
-    BOOST_TEST(true, "Test did pass!");
 }
 
 BOOST_AUTO_TEST_CASE(yaml_body_parser_spider)
