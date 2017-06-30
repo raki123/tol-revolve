@@ -87,14 +87,19 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 find_package(GSL REQUIRED)
 
 # add revolve-brain
-add_subdirectory(../../revolve-brain/cpp revolve-brain)
+if (NOT DEFINED REVOLVE_BRAIN_PATH)
+  message("REVOLVE_BRIAN_PATH is not defined, using default value")
+  set(REVOLVE_BRAIN_PATH "../../revolve-brain/cpp")
+endif()
+
+add_subdirectory(${REVOLVE_BRAIN_PATH} revolve-brain)
 include_directories(
-        ../../revolve-brain/cpp
-        ../../revolve-brain/cpp/neat/accneat/src
+        ${REVOLVE_BRAIN_PATH}
+        ${REVOLVE_BRAIN_PATH}/neat/accneat/src
 )
 
 if (DEFINED REVOLVE_BUILD_PATH)
-  message("Deriving include path / libary path from custom build path.")
+  message("Deriving include path / libary path from custom build path: REVOLVE_BUILD_PATH=\"${REVOLVE_BUILD_PATH}\".")
   set(REVOLVE_INCLUDE_PATH ${REVOLVE_BUILD_PATH}/include)
   set(REVOLVE_LIBRARIES ${REVOLVE_BUILD_PATH}/lib/librevolve-gazebo.a ${REVOLVE_BUILD_PATH}/lib/librevolve-spec.a)
 endif ()

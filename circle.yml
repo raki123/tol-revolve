@@ -5,12 +5,19 @@ dependencies:
   cache_directories:
     - "~/docker"
   override:
+    - if [[ -e ~/docker/image_gazebo.tar ]]; then docker load -i ~/docker/image_gazebo.tar; else docker build -t base_gazebo_image docker/base_gazebo_image; mkdir -p ~/docker; docker save base_gazebo_image > ~/docker/image_gazebo.tar; fi
     - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
     - docker build -t test docker
     - mkdir -p ~/docker; docker save test > ~/docker/image.tar
+
+compile:
+  cache_directories:
+    - "${PWD}/build_docker"
+  override:
+    - docker run -v ${PWD}:/project/repo -it test /bin/bash -c 'cd repo; cmake -P docker/build.cmake'
 test:
   override:
-    - docker run -v ${PWD}:/project/repo -it test /bin/bash -c 'cd repo; cmake -P build.cmake'
+    - docker run -v ${PWD}:/project/repo -it test /bin/bash -c 'cd repo; cmake -P docker/test.cmake'
 #    - bundle
 #    - bundle exec rspec
 #    - touch hoge.txt

@@ -6,8 +6,9 @@ apt-get -y install git libboost-all-dev
 # DOWNLOAD REVOLVE
 cd /revolve
 
-git clone https://github.com/ElteHupkes/revolve.git
+git clone https://github.com/ci-group/revolve.git
 cd revolve
+git checkout working
 
 #Disable `gz` target, it won't compile for some weird reason
 echo >/revolve/revolve/setup.py "#!/usr/bin/env python
@@ -46,7 +47,7 @@ setup(name='revolve',
 mkdir build && cd build
 cmake ../cpp -DCMAKE_BUILD_TYPE="Release" \
              -DLOCAL_BUILD_DIR=1
-make -j4
+make
 
 # INSTALL GAZEBO
 make install
