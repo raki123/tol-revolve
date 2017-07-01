@@ -586,7 +586,7 @@ RobotController::DoUpdate(const gazebo::common::UpdateInfo info)
   evaluator_->updatePosition(this->model->GetRelativePose().Ign());
     auto pose = this->model->GetRelativePose().Ign();
     evaluator_->updatePosition(pose);
-    reinterpret_cast<SUPGBrainPhototaxis&>(*brain_).updateRobotPosition(pose);
+//    reinterpret_cast<SUPGBrainPhototaxis&>(*brain_).updateRobotPosition(pose);
 }
 
 // EVALUATOR CODE

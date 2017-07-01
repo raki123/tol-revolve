@@ -71,7 +71,7 @@ def run():
     # This is the general convention for all message actions in the
     # world manager. `wait_for` saves the hassle of grabbing the
     # intermediary future in this case.
-    yield From(wait_for(world.pause(True)))
+    yield From(wait_for(world.pause(False)))
 
     # Start a run loop to do some stuff
     while True:
