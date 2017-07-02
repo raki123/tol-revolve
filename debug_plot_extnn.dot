@@ -1,0 +1,131 @@
+digraph G {
+size="8,10.5";
+node0[label="Leg30Joint-hidden-0 DifferentialCPG
+"];
+node1[label="Leg30Joint-hidden-1
+"];
+node2[label="Leg30Joint-out-0
+"];
+node3[label="Leg31Joint-hidden-0
+"];
+node4[label="Leg31Joint-hidden-1
+"];
+node5[label="Leg31Joint-out-0
+"];
+node6[label="Leg20Joint-hidden-0
+"];
+node7[label="Leg20Joint-hidden-1
+"];
+node8[label="Leg20Joint-out-0
+"];
+node9[label="Leg21Joint-hidden-0
+"];
+node10[label="Leg21Joint-hidden-1
+"];
+node11[label="Leg21Joint-out-0
+"];
+node12[label="Leg10Joint-hidden-0
+"];
+node13[label="Leg10Joint-hidden-1
+"];
+node14[label="Leg10Joint-out-0
+"];
+node15[label="Leg11Joint-hidden-0
+"];
+node16[label="Leg11Joint-hidden-1
+"];
+node17[label="Leg11Joint-out-0
+"];
+node18[label="Leg00Joint-hidden-0
+"];
+node19[label="Leg00Joint-hidden-1
+"];
+node20[label="Leg00Joint-out-0
+"];
+node21[label="Leg01Joint-hidden-0
+"];
+node22[label="Leg01Joint-hidden-1
+"];
+node23[label="Leg01Joint-out-0
+"];
+node24[label="Core-in-0
+"];
+node25[label="Core-in-1
+"];
+node26[label="Core-in-2
+"];
+node27[label="Core-in-3
+"];
+node28[label="Core-in-4
+"];
+node29[label="Core-in-5
+"];
+node0->node1 ;
+node0->node2 ;
+node0->node3 ;
+node0->node6 ;
+node0->node12 ;
+node0->node18 ;
+node1->node0 ;
+node3->node0 ;
+node3->node4 ;
+node3->node5 ;
+node4->node3 ;
+node6->node0 ;
+node6->node7 ;
+node6->node8 ;
+node6->node9 ;
+node6->node12 ;
+node6->node18 ;
+node7->node6 ;
+node9->node6 ;
+node9->node10 ;
+node9->node11 ;
+node10->node9 ;
+node12->node0 ;
+node12->node6 ;
+node12->node13 ;
+node12->node14 ;
+node12->node15 ;
+node12->node18 ;
+node13->node12 ;
+node15->node12 ;
+node15->node16 ;
+node15->node17 ;
+node16->node15 ;
+node18->node0 ;
+node18->node6 ;
+node18->node12 ;
+node18->node19 ;
+node18->node20 ;
+node18->node21 ;
+node19->node18 ;
+node21->node18 ;
+node21->node22 ;
+node21->node23 ;
+node22->node21 ;
+node24->node0 ;
+node24->node6 ;
+node24->node12 ;
+node24->node18 ;
+node25->node0 ;
+node25->node6 ;
+node25->node12 ;
+node25->node18 ;
+node26->node0 ;
+node26->node6 ;
+node26->node12 ;
+node26->node18 ;
+node27->node0 ;
+node27->node6 ;
+node27->node12 ;
+node27->node18 ;
+node28->node0 ;
+node28->node6 ;
+node28->node12 ;
+node28->node18 ;
+node29->node0 ;
+node29->node6 ;
+node29->node12 ;
+node29->node18 ;
+}
