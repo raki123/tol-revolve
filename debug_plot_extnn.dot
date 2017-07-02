@@ -1,6 +1,16 @@
 digraph G {
-size="8,10.5";
-node0[label="Leg30Joint-hidden-0 DifferentialCPG
+
+{
+rank = same;
+"node2"; "node5"; "node8"; "node11"; "node14"; "node17"; "node20"; "node23";
+}
+
+{
+rank = same;
+"node24"; "node25"; "node26"; "node27"; "node28"; "node29";
+}
+
+node0[label="Leg30Joint-hidden-0
 "];
 node1[label="Leg30Joint-hidden-1
 "];
