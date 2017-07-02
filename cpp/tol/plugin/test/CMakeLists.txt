@@ -3,7 +3,7 @@ find_package(Boost COMPONENTS REQUIRED
         "unit_test_framework"
         )
 
-add_executable(testsupgbrain testsupgbrain.cpp)
+add_executable(testsupgbrain test_SUPGBrain.cpp)
 target_link_libraries(testsupgbrain ${Boost_LIBRARIES})
 add_test(tol-testsupgbrain testsupgbrain)
 
@@ -15,7 +15,7 @@ add_test(tol-testsupgbrain testsupgbrain)
 #target_link_libraries(testsupgbrainphototaxis ${Boost_LIBRARIES} tolrobotcontrol)
 #add_test(tol-testsupgbrainphototaxis testsupgbrainphototaxis)
 
-add_executable(TestYAMLBodyParser TestYAMLBodyParser.cpp)
+add_executable(TestYAMLBodyParser test_YAMLBodyParser.cpp)
 target_link_libraries(TestYAMLBodyParser ${Boost_LIBRARIES} tolrobotcontrol)
 add_test(NAME tol-TestYAMLBodyParser
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

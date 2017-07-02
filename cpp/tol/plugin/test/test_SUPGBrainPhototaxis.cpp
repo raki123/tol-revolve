@@ -17,7 +17,7 @@
  *
  */
 
-#include "testsupgbrainphototaxis.h"
+#include "test_SUPGBrainPhototaxis.h"
 #include "../FakeLightSensor.h"
 
 #include <revolve/gazebo/motors/Motor.h>

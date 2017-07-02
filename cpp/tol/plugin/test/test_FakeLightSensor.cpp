@@ -17,7 +17,7 @@
  *
  */
 
-#include "testfakelightsensor.h"
+#include "test_FakeLightSensor.h"
 
 #define BOOST_TEST_MODULE FakeLightSensor test
 #define BOOST_TEST_DYN_LINK

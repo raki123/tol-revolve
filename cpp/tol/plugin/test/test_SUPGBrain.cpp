@@ -1,4 +1,4 @@
-#include "testsupgbrain.h"
+#include "test_SUPGBrain.h"
 
 #include "../brain/SUPGBrain.h"
 #include <iostream>

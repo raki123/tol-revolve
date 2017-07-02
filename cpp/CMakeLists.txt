@@ -88,7 +88,7 @@ find_package(GSL REQUIRED)
 
 # add revolve-brain
 if (NOT DEFINED REVOLVE_BRAIN_PATH)
-  message("REVOLVE_BRIAN_PATH is not defined, using default value")
+  message("REVOLVE_BRIAN_PATH is not defined, using the default value")
   set(REVOLVE_BRAIN_PATH "../../revolve-brain/cpp")
 endif()
 
@@ -99,8 +99,8 @@ include_directories(
 )
 
 if (NOT DEFINED REVOLVE_BUILD_PATH)
-  message("REVOLVE_BRIAN_PATH is not defined, using default value")
-  set(REVOLVE_BUILD_PATH "../../revolve/build")
+  message("REVOLVE_BRIAN_PATH is not defined, using the default value")
+  set(REVOLVE_BUILD_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../revolve/build")
   set(REVOLVE_INCLUDE_PATH ${REVOLVE_BUILD_PATH}/include)
   set(REVOLVE_LIBRARIES ${REVOLVE_BUILD_PATH}/lib/librevolve-gazebo.a ${REVOLVE_BUILD_PATH}/lib/librevolve-spec.a)
 else ()
@@ -108,6 +108,7 @@ else ()
   set(REVOLVE_INCLUDE_PATH ${REVOLVE_BUILD_PATH}/include)
   set(REVOLVE_LIBRARIES ${REVOLVE_BUILD_PATH}/lib/librevolve-gazebo.a ${REVOLVE_BUILD_PATH}/lib/librevolve-spec.a)
 endif ()
+
 
 if (NOT DEFINED REVOLVE_INCLUDE_PATH)
   # Add Revolve as an external project

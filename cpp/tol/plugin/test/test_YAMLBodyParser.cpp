@@ -1,4 +1,4 @@
-#include "TestYAMLBodyParser.h"
+#include "test_YAMLBodyParser.h"
 
 #define BOOST_TEST_MODULE TestYAMLBodyParser test
 #define BOOST_TEST_DYN_LINK
