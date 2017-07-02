@@ -98,7 +98,12 @@ include_directories(
         ${REVOLVE_BRAIN_PATH}/neat/accneat/src
 )
 
-if (DEFINED REVOLVE_BUILD_PATH)
+if (NOT DEFINED REVOLVE_BUILD_PATH)
+  message("REVOLVE_BRIAN_PATH is not defined, using default value")
+  set(REVOLVE_BUILD_PATH "../../revolve/build")
+  set(REVOLVE_INCLUDE_PATH ${REVOLVE_BUILD_PATH}/include)
+  set(REVOLVE_LIBRARIES ${REVOLVE_BUILD_PATH}/lib/librevolve-gazebo.a ${REVOLVE_BUILD_PATH}/lib/librevolve-spec.a)
+else ()
   message("Deriving include path / libary path from custom build path: REVOLVE_BUILD_PATH=\"${REVOLVE_BUILD_PATH}\".")
   set(REVOLVE_INCLUDE_PATH ${REVOLVE_BUILD_PATH}/include)
   set(REVOLVE_LIBRARIES ${REVOLVE_BUILD_PATH}/lib/librevolve-gazebo.a ${REVOLVE_BUILD_PATH}/lib/librevolve-spec.a)
