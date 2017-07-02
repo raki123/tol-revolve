@@ -22,7 +22,7 @@
 
 #include "revolve/gazebo/brain/Brain.h"
 #include "brain/SUPGBrainPhototaxis.h"
-#include "FakeLightSensor.h"
+#include "../FakeLightSensor.h"
 
 namespace tol {
 

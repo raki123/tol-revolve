@@ -141,22 +141,22 @@ file(GLOB_RECURSE
 
 file(GLOB_RECURSE
      TOL_ROBOT_SRC
-     tol/plugin/Evaluator.cpp
+     tol/plugin/brain/Evaluator.cpp
      tol/plugin/RobotController.cpp
-     tol/plugin/FakeBrain.cpp
-     tol/plugin/Helper.cpp
-     tol/plugin/RLPower.cpp
-     tol/plugin/RLPower_CPPN.cpp
-     tol/plugin/RLPower_Splines.cpp
-     tol/plugin/MLMPCPGBrain.cpp
-     tol/plugin/Body.cpp
-     tol/plugin/YamlBodyParser.cpp
-     tol/plugin/NEAT_CPPN.cpp
-     tol/plugin/HyperNEAT_CPPN.cpp
-     tol/plugin/HyperNEAT_Splines.cpp
-     tol/plugin/GenericLearnerBrain.cpp
-     tol/plugin/SUPGBrain.cpp
-     tol/plugin/SUPGBrainPhototaxis.cpp
+     tol/plugin/brain/FakeBrain.cpp
+     tol/plugin/brain/Helper.cpp
+     tol/plugin/brain/RLPower.cpp
+     tol/plugin/brain/RLPower_CPPN.cpp
+     tol/plugin/brain/RLPower_Splines.cpp
+     tol/plugin/brain/MLMPCPGBrain.cpp
+     tol/plugin/brain/Body.cpp
+     tol/plugin/brain/YamlBodyParser.cpp
+     tol/plugin/brain/NEAT_CPPN.cpp
+     tol/plugin/brain/HyperNEAT_CPPN.cpp
+     tol/plugin/brain/HyperNEAT_Splines.cpp
+     tol/plugin/brain/GenericLearnerBrain.cpp
+     tol/plugin/brain/SUPGBrain.cpp
+     tol/plugin/brain/SUPGBrainPhototaxis.cpp
      tol/plugin/FakeLightSensor.cpp
      tol/plugin/supg/supgneuron.cpp
      tol/plugin/supg/supggenomemanager.cpp

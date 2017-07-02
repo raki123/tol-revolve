@@ -10,8 +10,8 @@
 
 #include <revolve/gazebo/plugin/RobotController.h>
 
-#include "Evaluator.h"
-#include "RLPower.h"
+#include "brain/Evaluator.h"
+#include "brain/RLPower.h"
 
 namespace tol {
 

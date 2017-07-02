@@ -1,6 +1,6 @@
 #include "testsupgbrain.h"
 
-#include "../SUPGBrain.h"
+#include "../brain/SUPGBrain.h"
 #include <iostream>
 
 int main(int argc, char *argv[]) {

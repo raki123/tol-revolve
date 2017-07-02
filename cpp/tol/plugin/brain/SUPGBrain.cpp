@@ -1,6 +1,6 @@
 #include "SUPGBrain.h"
-#include "Sensor.h"
-#include "Actuator.h"
+#include "../Sensor.h"
+#include "../Actuator.h"
 #include "revolve/gazebo/sensors/VirtualSensor.h"
 #include "revolve/gazebo/motors/Motor.h"
 #include "Helper.h"

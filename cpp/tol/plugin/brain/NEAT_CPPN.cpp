@@ -3,7 +3,7 @@
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
-#include "Actuator.h"
+#include "../Actuator.h"
 #include "Body.h"
 #include "Helper.h"
 #include "brain/Conversion.h"

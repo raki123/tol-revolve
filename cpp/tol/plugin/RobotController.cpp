@@ -7,18 +7,18 @@
 
 #include "RobotController.h"
 
-#include "RLPower_Splines.h"
-#include "RLPower_CPPN.h"
-#include "HyperNEAT_CPPN.h"
-#include "HyperNEAT_Splines.h"
-#include "MLMPCPGBrain.h"
-#include "GenericLearnerBrain.h"
-#include "YamlBodyParser.h"
-#include "SUPGBrain.h"
-#include "SUPGBrainPhototaxis.h"
+#include "brain/RLPower_Splines.h"
+#include "brain/RLPower_CPPN.h"
+#include "brain/HyperNEAT_CPPN.h"
+#include "brain/HyperNEAT_Splines.h"
+#include "brain/MLMPCPGBrain.h"
+#include "brain/GenericLearnerBrain.h"
+#include "brain/YamlBodyParser.h"
+#include "brain/SUPGBrain.h"
+#include "brain/SUPGBrainPhototaxis.h"
 #include "brain/supg/SUPGGenomeManager.h"
 #include "neat/accneat/src/neat.h"
-#include "Helper.h"
+#include "brain/Helper.h"
 
 #include <iostream>
 #include <exception>

@@ -22,8 +22,8 @@
 
 #include <vector>
 
-#include "Actuator.h"
-#include "Sensor.h"
+#include "../Actuator.h"
+#include "../Sensor.h"
 
 namespace tol {
 

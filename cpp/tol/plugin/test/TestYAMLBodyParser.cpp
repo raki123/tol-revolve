@@ -4,7 +4,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/included/unit_test.hpp>
 
-#include "../YamlBodyParser.h"
+#include "../brain/YamlBodyParser.h"
 
 void testRobot(const std::string &yaml_source,
                const std::vector <std::vector<bool>> &connections_target,

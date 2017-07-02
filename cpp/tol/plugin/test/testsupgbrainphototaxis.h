@@ -20,7 +20,7 @@
 #ifndef TESTSUPGBRAINPHOTOTAXIS_H
 #define TESTSUPGBRAINPHOTOTAXIS_H
 
-#include "../SUPGBrainPhototaxis.h"
+#include "../brain/SUPGBrainPhototaxis.h"
 
 class testSUPGBrainPhototaxis : private tol::SUPGBrainPhototaxis
 {
