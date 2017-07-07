@@ -21,7 +21,7 @@
 
 namespace tol {
 
-class RLPowerSplines
+class RLPower_Splines
         : public revolve::gazebo::Brain
           , private revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>
 {
@@ -37,13 +37,13 @@ public:
      * @param n_sensors: number of sensors
      * @return pointer to the RLPower class object
      */
-    RLPowerSplines(std::string modelName,
+    RLPower_Splines(std::string modelName,
                    sdf::ElementPtr brain,
                    tol::EvaluatorPtr evaluator,
                    std::vector<revolve::gazebo::MotorPtr> &actuators,
                    std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-    virtual ~RLPowerSplines();
+    virtual ~RLPower_Splines();
 
     /**
      * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy

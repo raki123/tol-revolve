@@ -11,14 +11,14 @@
 
 #include "Evaluator.h"
 #include "brain/ConvertingSplitBrain.h"
-#include "brain/controller/ExtendedANN.h"
+#include "brain/controller/ExtCPPN.h"
 #include "brain/learner/NEATLearner.h"
 
 namespace tol {
 
 class NeatExtNN
         : public revolve::gazebo::Brain
-          , private revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>
+          , private revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>, CPPNEAT::GeneticEncodingPtr>
 {
 
 public:

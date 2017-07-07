@@ -17,7 +17,7 @@ NeatExtNN::NeatExtNN(std::string modelName,
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors)
         :
-        revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController,
+        revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController,
                                                                                                                     &revolve::brain::convertForLearner,
                                                                                                                     modelName)
 {
@@ -33,8 +33,8 @@ NeatExtNN::NeatExtNN(std::string modelName,
   revolve::brain::output_map = in_out.second;
   CPPNEAT::Learner::LearningConfiguration learn_conf = parseLearningSDF(node);
   learn_conf.start_from = body.get_coupled_cpg_network();
-  boost::shared_ptr<revolve::brain::ExtNNController1>
-          swap1(new revolve::brain::ExtNNController1(modelName,
+  boost::shared_ptr<revolve::brain::CPPNController>
+          swap1(new revolve::brain::CPPNController(modelName,
                                                      revolve::brain::convertForController(learn_conf.start_from),
                                                      Helper::createWrapper(actuators),
                                                      Helper::createWrapper(sensors)));
@@ -72,7 +72,7 @@ NeatExtNN::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                   double step)
 {
 // 	std::cout << "yay" << std::endl;
-  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>::update(
+  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>, CPPNEAT::GeneticEncodingPtr>::update(
           Helper::createWrapper(actuators),
           Helper::createWrapper(sensors),
           t,

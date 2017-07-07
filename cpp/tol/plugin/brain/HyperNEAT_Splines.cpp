@@ -11,7 +11,7 @@
 namespace tol {
 
 
-HyperSplines::HyperSplines(std::string modelName,
+HyperNEAT_Splines::HyperNEAT_Splines(std::string modelName,
                            sdf::ElementPtr brain,
                            tol::EvaluatorPtr evaluator,
                            const std::vector<revolve::gazebo::MotorPtr> &actuators,
@@ -58,14 +58,14 @@ HyperSplines::HyperSplines(std::string modelName,
   evaluator_ = evaluator;
 }
 
-HyperSplines::~HyperSplines()
+HyperNEAT_Splines::~HyperNEAT_Splines()
 {
 
 }
 
 
 void
-HyperSplines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+HyperNEAT_Splines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors,
                      double t,
                      double step)
@@ -80,7 +80,7 @@ HyperSplines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
 }
 
 revolve::brain::RLPowerLearner::Config
-HyperSplines::parseSDF(sdf::ElementPtr brain)
+HyperNEAT_Splines::parseSDF(sdf::ElementPtr brain)
 {
   revolve::brain::RLPowerLearner::Config config;
 
@@ -107,7 +107,7 @@ HyperSplines::parseSDF(sdf::ElementPtr brain)
 
 
 CPPNEAT::Learner::LearningConfiguration
-HyperSplines::parseLearningSDF(sdf::ElementPtr brain)
+HyperNEAT_Splines::parseLearningSDF(sdf::ElementPtr brain)
 {
   CPPNEAT::Learner::LearningConfiguration config;
 

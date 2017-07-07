@@ -10,11 +10,11 @@
 #include "Body.h"
 #include "Helper.h"
 #include "brain/Conversion.h"
-#include "brain/controller/ExtendedANNWeights.h"
+#include "brain/controller/ExtCPPNWeights.h"
 
 namespace tol {
 
-RLPowerSplines::RLPowerSplines(std::string modelName,
+RLPower_Splines::RLPower_Splines(std::string modelName,
                                sdf::ElementPtr brain,
                                EvaluatorPtr evaluator,
                                std::vector<revolve::gazebo::MotorPtr> &actuators,
@@ -40,11 +40,11 @@ RLPowerSplines::RLPowerSplines(std::string modelName,
   evaluator_ = evaluator;
 }
 
-RLPowerSplines::~RLPowerSplines()
+RLPower_Splines::~RLPower_Splines()
 {}
 
 void
-RLPowerSplines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+RLPower_Splines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                        const std::vector<revolve::gazebo::SensorPtr> &sensors,
                        double t,
                        double step)
@@ -58,7 +58,7 @@ RLPowerSplines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
 }
 
 revolve::brain::RLPowerLearner::Config
-RLPowerSplines::parseSDF(sdf::ElementPtr brain)
+RLPower_Splines::parseSDF(sdf::ElementPtr brain)
 {
   revolve::brain::RLPowerLearner::Config config;
 

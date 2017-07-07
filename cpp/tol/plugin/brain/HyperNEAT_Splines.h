@@ -17,7 +17,7 @@
 
 namespace tol {
 
-class HyperSplines
+class HyperNEAT_Splines
         : public revolve::gazebo::Brain
           , private revolve::brain::ConvSplitBrain<revolve::brain::PolicyPtr, CPPNEAT::GeneticEncodingPtr>
 {
@@ -32,13 +32,13 @@ public:
 * @param sensors: vector list of robot's sensors
 * @return pointer to the neural network
 */
-    HyperSplines(std::string modelName,
+    HyperNEAT_Splines(std::string modelName,
                  sdf::ElementPtr brain,
                  tol::EvaluatorPtr evaluator,
                  const std::vector<revolve::gazebo::MotorPtr> &actuators,
                  const std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-    virtual ~HyperSplines();
+    virtual ~HyperNEAT_Splines();
 
     /**
      * Method for updating sensors readings, actuators positions, ranked list of policies and generating

@@ -80,7 +80,7 @@ void init_asyncneat(const std::string &robot_name, std::unique_ptr<NEAT::GenomeM
   unsigned int populationSize = 10;
   NEAT::real_t mutate_add_node_prob = 0.01;
   NEAT::real_t mutate_add_link_prob = 0.3;
-  NEAT::GeneticSearchType geneticSearchType = NEAT::GeneticSearchType::PHASED;
+  NEAT::GeneticSearchType geneticSearchType = NEAT::GeneticSearchType::COMPLEXIFY;
 
   if(const char* env_p = getVARenv("NEAT_POP_SIZE")) {
     try {
@@ -175,25 +175,25 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
       return;
     }
     if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::spline") {
-      brain_.reset(new tol::RLPowerSplines(robot_name,
+      brain_.reset(new tol::RLPower_Splines(robot_name,
                                            brain,
                                            evaluator_,
                                            motors_,
                                            sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::net") {
-      brain_.reset(new tol::RLPowerNet(robot_name,
+      brain_.reset(new tol::RLPower_CPG(robot_name,
                                        brain,
                                        evaluator_,
                                        motors_,
                                        sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::net") {
-      brain_.reset(new tol::HyperExtNN(robot_name,
+      brain_.reset(new tol::HyperNEAT_CPG(robot_name,
                                        brain,
                                        evaluator_,
                                        motors_,
                                        sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::spline") {
-      brain_.reset(new tol::HyperSplines(robot_name,
+      brain_.reset(new tol::HyperNEAT_Splines(robot_name,
                                          brain,
                                          evaluator_,
                                          motors_,
@@ -222,7 +222,7 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
               connections,
               cpgs_coordinates,
               30, //seconds
-              -1 // infinite evaluations
+              999 // -1 // infinite evaluations
           )
       ));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "supg::phototaxis") {

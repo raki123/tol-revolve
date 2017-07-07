@@ -10,11 +10,11 @@
 #include "Body.h"
 #include "Helper.h"
 #include "brain/Conversion.h"
-#include "brain/controller/ExtendedANNWeights.h"
+#include "brain/controller/ExtCPPNWeights.h"
 
 namespace tol {
 
-RLPowerNet::RLPowerNet(std::string modelName,
+RLPower_CPG::RLPower_CPG(std::string modelName,
                        sdf::ElementPtr brain,
                        EvaluatorPtr evaluator,
                        std::vector<revolve::gazebo::MotorPtr> &actuators,
@@ -51,11 +51,11 @@ RLPowerNet::RLPowerNet(std::string modelName,
   evaluator_ = evaluator;
 }
 
-RLPowerNet::~RLPowerNet()
+RLPower_CPG::~RLPower_CPG()
 {}
 
 void
-RLPowerNet::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+RLPower_CPG::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                    const std::vector<revolve::gazebo::SensorPtr> &sensors,
                    double t,
                    double step)
@@ -69,7 +69,7 @@ RLPowerNet::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
 }
 
 revolve::brain::RLPowerLearner::Config
-RLPowerNet::parseSDF(sdf::ElementPtr brain)
+RLPower_CPG::parseSDF(sdf::ElementPtr brain)
 {
   revolve::brain::RLPowerLearner::Config config;
 

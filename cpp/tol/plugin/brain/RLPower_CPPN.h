@@ -19,7 +19,7 @@
 
 namespace tol {
 
-class RLPowerNet
+class RLPower_CPG
         : public revolve::gazebo::Brain
           , private revolve::brain::ConvSplitBrain<std::vector<double>, revolve::brain::PolicyPtr>
 {
@@ -35,13 +35,13 @@ public:
      * @param n_sensors: number of sensors
      * @return pointer to the RLPower class object
      */
-    RLPowerNet(std::string modelName,
+    RLPower_CPG(std::string modelName,
                sdf::ElementPtr brain,
                tol::EvaluatorPtr evaluator,
                std::vector<revolve::gazebo::MotorPtr> &actuators,
                std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-    virtual ~RLPowerNet();
+    virtual ~RLPower_CPG();
 
     /**
      * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy

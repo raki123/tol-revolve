@@ -11,14 +11,14 @@
 
 #include "Evaluator.h"
 #include "brain/ConvertingSplitBrain.h"
-#include "brain/controller/ExtendedANNWeights.h"
+#include "brain/controller/ExtCPPNWeights.h"
 #include "brain/learner/NEATLearner.h"
 
 namespace tol {
 
-class HyperExtNN
+class HyperNEAT_CPG
         : public revolve::gazebo::Brain
-          , private revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>
+          , private revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>, CPPNEAT::GeneticEncodingPtr>
 {
 
 public:
@@ -31,13 +31,13 @@ public:
 * @param sensors: vector list of robot's sensors
 * @return pointer to the neural network
 */
-    HyperExtNN(std::string modelName,
+    HyperNEAT_CPG(std::string modelName,
                sdf::ElementPtr brain,
                tol::EvaluatorPtr evaluator,
                const std::vector<revolve::gazebo::MotorPtr> &actuators,
                const std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-    virtual ~HyperExtNN();
+    virtual ~HyperNEAT_CPG();
 
     /**
      * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy

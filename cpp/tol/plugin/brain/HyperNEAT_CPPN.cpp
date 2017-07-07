@@ -10,13 +10,14 @@
 
 namespace tol {
 
-HyperExtNN::HyperExtNN(std::string modelName,
+HyperNEAT_CPG::HyperNEAT_CPG(std::string modelName,
                        sdf::ElementPtr brain,
                        tol::EvaluatorPtr evaluator,
                        const std::vector<revolve::gazebo::MotorPtr> &actuators,
                        const std::vector<revolve::gazebo::SensorPtr> &sensors)
         :
-        revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForExtNNFromHyper,
+        revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>,
+                                       CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForExtNNFromHyper,
                                                                                                                     &revolve::brain::convertForHyperFromExtNN,
                                                                                                                     modelName)
 {
@@ -32,7 +33,7 @@ HyperExtNN::HyperExtNN(std::string modelName,
   revolve::brain::output_map = in_out.second;
   revolve::brain::cpg_network = revolve::brain::convertForController(body.get_coupled_cpg_network());
   revolve::brain::neuron_coordinates = body.get_id_to_coordinate_map();
-  controller = boost::shared_ptr<revolve::brain::ExtNNController1>(new revolve::brain::ExtNNController1(modelName,
+  controller = boost::shared_ptr<revolve::brain::CPPNController>(new revolve::brain::CPPNController(modelName,
                                                                                                         revolve::brain::cpg_network,
                                                                                                         Helper::createWrapper(actuators),
                                                                                                         Helper::createWrapper(sensors)));
@@ -113,20 +114,20 @@ HyperExtNN::HyperExtNN(std::string modelName,
   evaluator_ = evaluator;
 }
 
-HyperExtNN::~HyperExtNN()
+HyperNEAT_CPG::~HyperNEAT_CPG()
 {
 
 }
 
 
 void
-HyperExtNN::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+HyperNEAT_CPG::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                    const std::vector<revolve::gazebo::SensorPtr> &sensors,
                    double t,
                    double step)
 {
 // 	std::cout << "yay" << std::endl;
-  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::ExtNNConfig>, CPPNEAT::GeneticEncodingPtr>::update(
+  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>, CPPNEAT::GeneticEncodingPtr>::update(
           Helper::createWrapper(actuators),
           Helper::createWrapper(sensors),
           t,
@@ -135,7 +136,7 @@ HyperExtNN::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
 }
 
 CPPNEAT::Learner::LearningConfiguration
-HyperExtNN::parseLearningSDF(sdf::ElementPtr brain)
+HyperNEAT_CPG::parseLearningSDF(sdf::ElementPtr brain)
 {
   CPPNEAT::Learner::LearningConfiguration config;
 
