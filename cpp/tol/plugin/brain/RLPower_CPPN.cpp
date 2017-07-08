@@ -29,9 +29,8 @@ RLPower_CPG::RLPower_CPG(std::string modelName,
   std::string name(modelName.substr(0,
                                     modelName.find("-")) + ".yaml");
   Body body(name);
-  std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> in_out =
-          body.get_input_output_map(actuators,
-                                    sensors);
+  std::pair<std::map<int, size_t>, std::map<int, size_t>> in_out =
+          body.get_input_output_map(actuators, sensors);
   revolve::brain::input_map = in_out.first;
   revolve::brain::output_map = in_out.second;
 
@@ -41,7 +40,7 @@ RLPower_CPG::RLPower_CPG(std::string modelName,
                                                Helper::createWrapper(actuators),
                                                Helper::createWrapper(sensors)));
   revolve::brain::RLPowerLearner::Config config = parseSDF(brain);
-  config.source_y_size = (unsigned int)controller->getGenome()
+  config.source_y_size = (size_t)controller->getGenome()
                                                  .size();
 
   learner = boost::shared_ptr<revolve::brain::RLPowerLearner>

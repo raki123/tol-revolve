@@ -18,7 +18,7 @@ namespace tol {
 
 class NeatExtNN
         : public revolve::gazebo::Brain
-          , private revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>, CPPNEAT::GeneticEncodingPtr>
+          , private revolve::brain::ConvSplitBrain<revolve::brain::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>
 {
 
 public:

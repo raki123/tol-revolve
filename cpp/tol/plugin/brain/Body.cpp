@@ -133,16 +133,16 @@ Body::get_coupled_cpg_network()
   return ret;
 }
 
-std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>>
+std::pair<std::map<int, size_t>, std::map<int, size_t>>
 Body::get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                            const std::vector<revolve::gazebo::SensorPtr> &sensors)
 {
-  unsigned int p = 0;
-  std::map<int, unsigned int> output_map;
+  size_t p = 0;
+  std::map<int, size_t> output_map;
   // Admapd output neurons to motors:
 
   // map of numbers of output neurons for each body part
-  std::map<std::string, unsigned int> outputCountMap;
+  std::map<std::string, size_t> outputCountMap;
 
   for (auto it = actuators.begin(); it != actuators.end(); ++it) {
     auto motor = *it;
@@ -152,12 +152,12 @@ Body::get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuato
       outputCountMap[partId] = 0;
     }
 
-    for (unsigned int i = 0, l = motor->outputs(); i < l; ++i) {
+    for (size_t i = 0, l = motor->outputs(); i < l; ++i) {
       std::stringstream neuronId;
       neuronId << partId << "-out-" << outputCountMap[partId];
       outputCountMap[partId]++;
 
-      unsigned int j;
+      size_t j;
       for (j = 0; j < output_neurons.size(); j++) {
         if (output_neurons[j]->neuron
                              ->neuron_id == neuronId.str()) {
@@ -175,12 +175,12 @@ Body::get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuato
   }
 
   p = 0;
-  std::map<int, unsigned int> input_map;
+  std::map<int, size_t> input_map;
   // Map input neurons to sensors:
 
   // map of number of input neurons for each part:
 
-  std::map<std::string, unsigned int> inputCountMap;
+  std::map<std::string, size_t> inputCountMap;
 
   for (auto it = sensors.begin(); it != sensors.end(); ++it) {
     auto sensor = *it;
@@ -190,12 +190,12 @@ Body::get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuato
       inputCountMap[partId] = 0;
     }
 
-    for (unsigned int i = 0, l = sensor->inputs(); i < l; ++i) {
+    for (size_t i = 0, l = sensor->inputs(); i < l; ++i) {
       std::stringstream neuronId;
       neuronId << partId << "-in-" << inputCountMap[partId];
       inputCountMap[partId]++;
 
-      unsigned int j;
+      size_t j;
       for (j = 0; j < input_neurons.size(); j++) {
         if (input_neurons[j]->neuron
                             ->neuron_id == neuronId.str()) {
@@ -317,7 +317,7 @@ Body::get_coordinates_sorted(const std::vector<revolve::gazebo::MotorPtr> &actua
   std::vector<std::pair<int, int>> ret;
 
   // map of numbers of output neurons for each body part
-  std::map<std::string, unsigned int> outputCountMap;
+  std::map<std::string, size_t> outputCountMap;
 
   for (auto it = actuators.begin(); it != actuators.end(); ++it) {
     auto motor = *it;
@@ -327,12 +327,12 @@ Body::get_coordinates_sorted(const std::vector<revolve::gazebo::MotorPtr> &actua
       outputCountMap[partId] = 0;
     }
 
-    for (unsigned int i = 0, l = motor->outputs(); i < l; ++i) {
+    for (size_t i = 0, l = motor->outputs(); i < l; ++i) {
       std::stringstream neuronId;
       neuronId << partId << "-out-" << outputCountMap[partId];
       outputCountMap[partId]++;
 
-      unsigned int j;
+      size_t j;
       for (j = 0; j < output_neurons.size(); j++) {
         if (output_neurons[j]->neuron
                              ->neuron_id == neuronId.str()) {

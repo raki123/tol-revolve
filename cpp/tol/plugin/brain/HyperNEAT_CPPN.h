@@ -13,12 +13,13 @@
 #include "brain/ConvertingSplitBrain.h"
 #include "brain/controller/ExtCPPNWeights.h"
 #include "brain/learner/NEATLearner.h"
+#include "brain/Types.h"
 
 namespace tol {
 
 class HyperNEAT_CPG
         : public revolve::gazebo::Brain
-          , private revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>, CPPNEAT::GeneticEncodingPtr>
+          , private revolve::brain::ConvSplitBrain<revolve::brain::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>
 {
 
 public:

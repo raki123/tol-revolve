@@ -35,7 +35,7 @@ public:
     CPPNEAT::GeneticEncodingPtr
     get_coupled_cpg_network();
 
-    std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>>
+    std::pair<std::map<int, size_t>, std::map<int, size_t>>
     get_input_output_map(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                          const std::vector<revolve::gazebo::SensorPtr> &sensors);
 

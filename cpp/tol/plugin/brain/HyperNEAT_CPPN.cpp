@@ -7,6 +7,7 @@
 #include "Body.h"
 #include "Helper.h"
 #include "brain/Conversion.h"
+#include "brain/Types.h"
 
 namespace tol {
 
@@ -15,79 +16,62 @@ HyperNEAT_CPG::HyperNEAT_CPG(std::string modelName,
                        tol::EvaluatorPtr evaluator,
                        const std::vector<revolve::gazebo::MotorPtr> &actuators,
                        const std::vector<revolve::gazebo::SensorPtr> &sensors)
-        :
-        revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>,
+        : revolve::brain::ConvSplitBrain<revolve::brain::CPPNConfigPtr,
                                        CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForExtNNFromHyper,
-                                                                                                                    &revolve::brain::convertForHyperFromExtNN,
-                                                                                                                    modelName)
+                                                                    &revolve::brain::convertForHyperFromExtNN,
+                                                                    modelName)
 {
 //  	sleep(20);
 
   //initialise controller
-  std::string name(modelName.substr(0,
-                                    modelName.find("-")) + ".yaml");
+  std::string name(modelName.substr(0, modelName.find("-")) + ".yaml");
   Body body(name);
-  std::pair<std::map<int, unsigned int>, std::map<int, unsigned int>> in_out = body.get_input_output_map(actuators,
-                                                                                                         sensors);
+
+  std::pair<std::map<int, size_t >, std::map<int, size_t >> in_out = body.get_input_output_map(actuators, sensors);
   revolve::brain::input_map = in_out.first;
   revolve::brain::output_map = in_out.second;
   revolve::brain::cpg_network = revolve::brain::convertForController(body.get_coupled_cpg_network());
   revolve::brain::neuron_coordinates = body.get_id_to_coordinate_map();
-  controller = boost::shared_ptr<revolve::brain::CPPNController>(new revolve::brain::CPPNController(modelName,
-                                                                                                        revolve::brain::cpg_network,
-                                                                                                        Helper::createWrapper(actuators),
-                                                                                                        Helper::createWrapper(sensors)));
+  controller = revolve::brain::CPPNControllerPtr(new revolve::brain::CPPNController(modelName,
+                                                                                    revolve::brain::cpg_network,
+                                                                                    Helper::createWrapper(actuators),
+                                                                                    Helper::createWrapper(sensors)));
 
   //initialise learner
   CPPNEAT::Learner::LearningConfiguration learn_conf = parseLearningSDF(brain);
   revolve::brain::set_brain_spec(true);
   learn_conf.start_from = body.get_hyper_neat_network();
-  CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
-                                                   0.8,
-                                                   learn_conf.start_from
-                                                             ->min_max_innov_numer()
-                                                             .second,
-                                                   100,
+  CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec, 0.8,
+                                                   learn_conf.start_from->min_max_innov_numer().second, 100,
                                                    std::vector<CPPNEAT::Neuron::Ntype>(),
                                                    true));
   std::string mutator_path = brain->HasAttribute("path_to_mutator") ?
-                             brain->GetAttribute("path_to_mutator")
-                                  ->GetAsString()
-                                                                    : "none";
-  learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator,
-                                                                     mutator_path,
-                                                                     learn_conf));
+                             brain->GetAttribute("path_to_mutator")->GetAsString() : "none";
+  learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator, mutator_path, learn_conf));
+
   //initialise starting population
   int number_of_brains_from_first = brain->HasAttribute("number_of_brains_from_first") ?
-                                    std::stoi(brain->GetAttribute("number_of_brains_from_first")
-                                                   ->GetAsString())
-                                                                                       : 0;
+                                    std::stoi(brain->GetAttribute("number_of_brains_from_first")->GetAsString()) : 0;
   int number_of_brains_from_second = brain->HasAttribute("number_of_brains_from_second") ?
-                                     std::stoi(brain->GetAttribute("number_of_brains_from_second")
-                                                    ->GetAsString())
-                                                                                         : 0;
+                                     std::stoi(brain->GetAttribute("number_of_brains_from_second")->GetAsString()) : 0;
   std::string path_to_first_brains = brain->HasAttribute("path_to_first_brains") ?
-                                     brain->GetAttribute("path_to_first_brains")
-                                          ->GetAsString()
-                                                                                 : "";
-  std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_init = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_init_brains();
+                                     brain->GetAttribute("path_to_first_brains")->GetAsString() : "";
+
+  std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_init =
+          boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_init_brains();
   std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_first;
   if (path_to_first_brains == "" || path_to_first_brains == "none") {
     number_of_brains_from_first = 0;
   } else {
-    brains_from_first = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_first_brains,
-                                                                                                     -1);
+    brains_from_first = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_first_brains, -1);
   }
   std::string path_to_second_brains = brain->HasAttribute("path_to_second_brains") ?
-                                      brain->GetAttribute("path_to_second_brains")
-                                           ->GetAsString()
-                                                                                   : "";
+                                      brain->GetAttribute("path_to_second_brains")->GetAsString() : "";
   std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_second;
   if (path_to_second_brains == "" || path_to_second_brains == "none") {
     number_of_brains_from_second = 0;
   } else {
-    brains_from_second = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_second_brains,
-                                                                                                      -1);
+    brains_from_second = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_second_brains, -1);
   }
 
   std::vector<CPPNEAT::GeneticEncodingPtr> init_brains;
