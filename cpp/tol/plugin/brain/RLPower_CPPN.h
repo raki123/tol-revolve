@@ -14,28 +14,28 @@
 #include "revolve/gazebo/brain/Brain.h"
 
 #include "Evaluator.h"
-#include "brain/ConvertingSplitBrain.h"
+#include "brain/ConverterSplitBrain.h"
 #include "brain/learner/RLPowerLearner.h"
 
 namespace tol {
 
 class RLPower_CPG
         : public revolve::gazebo::Brain
-          , private revolve::brain::ConvSplitBrain<std::vector<double>, revolve::brain::PolicyPtr>
+          , private revolve::brain::ConverterSplitBrain<std::vector<double>, revolve::brain::PolicyPtr>
 {
 
 public:
     /**
      * The RLPower constructor reads out configuration file, deretmines which algorithm type to apply and
      * initialises new policy.
-     * @param modelName: name of a robot
+     * @param model_name: name of a robot
      * @param brain: configuration file
      * @param evaluator: pointer to fitness evaluatior
      * @param n_actuators: number of actuators
      * @param n_sensors: number of sensors
      * @return pointer to the RLPower class object
      */
-    RLPower_CPG(std::string modelName,
+    RLPower_CPG(std::string model_name,
                sdf::ElementPtr brain,
                tol::EvaluatorPtr evaluator,
                std::vector<revolve::gazebo::MotorPtr> &actuators,

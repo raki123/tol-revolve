@@ -17,7 +17,7 @@ NeatExtNN::NeatExtNN(std::string modelName,
                      const std::vector<revolve::gazebo::MotorPtr> &actuators,
                      const std::vector<revolve::gazebo::SensorPtr> &sensors)
         :
-        revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>,
+        revolve::brain::ConverterSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>,
                                        CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForController,
                                                                     &revolve::brain::convertForLearner,
                                                                     modelName)
@@ -38,7 +38,7 @@ NeatExtNN::NeatExtNN(std::string modelName,
                                                      Helper::createWrapper(actuators),
                                                      Helper::createWrapper(sensors)));
   int innov_number = body.getInnovNumber();
-  controller = new_controller;
+  controller_ = new_controller;
 
   //initialise learner
   revolve::brain::set_brain_spec(false);
@@ -50,7 +50,7 @@ NeatExtNN::NeatExtNN(std::string modelName,
                                                    false));
   std::string mutator_path = node->HasAttribute("path_to_mutator") ?
                              node->GetAttribute("path_to_mutator")->GetAsString() : "none";
-  learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator, mutator_path, learn_conf));
+  learner_ = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator, mutator_path, learn_conf));
   evaluator_ = evaluator;
 }
 
@@ -67,7 +67,7 @@ NeatExtNN::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                   double step)
 {
 // 	std::cout << "yay" << std::endl;
-  revolve::brain::ConvSplitBrain<revolve::brain::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>::update(
+  revolve::brain::ConverterSplitBrain<revolve::brain::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>::update(
           Helper::createWrapper(actuators),
           Helper::createWrapper(sensors),
           t,

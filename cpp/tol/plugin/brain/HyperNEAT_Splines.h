@@ -10,7 +10,7 @@
 #include "revolve/gazebo/brain/Brain.h"
 
 #include "Evaluator.h"
-#include "brain/ConvertingSplitBrain.h"
+#include "brain/ConverterSplitBrain.h"
 #include "brain/controller/PolicyController.h"
 #include "brain/learner/NEATLearner.h"
 #include "brain/learner/RLPowerLearner.h"
@@ -19,7 +19,7 @@ namespace tol {
 
 class HyperNEAT_Splines
         : public revolve::gazebo::Brain
-          , private revolve::brain::ConvSplitBrain<revolve::brain::PolicyPtr, CPPNEAT::GeneticEncodingPtr>
+          , private revolve::brain::ConverterSplitBrain<revolve::brain::PolicyPtr, CPPNEAT::GeneticEncodingPtr>
 {
 
 public:

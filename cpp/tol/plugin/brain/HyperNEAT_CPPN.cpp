@@ -12,14 +12,15 @@
 namespace tol {
 
 HyperNEAT_CPG::HyperNEAT_CPG(std::string modelName,
-                       sdf::ElementPtr brain,
-                       tol::EvaluatorPtr evaluator,
-                       const std::vector<revolve::gazebo::MotorPtr> &actuators,
-                       const std::vector<revolve::gazebo::SensorPtr> &sensors)
-        : revolve::brain::ConvSplitBrain<revolve::brain::CPPNConfigPtr,
-                                       CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForExtNNFromHyper,
-                                                                    &revolve::brain::convertForHyperFromExtNN,
-                                                                    modelName)
+                             sdf::ElementPtr brain,
+                             tol::EvaluatorPtr evaluator,
+                             const std::vector<revolve::gazebo::MotorPtr> &actuators,
+                             const std::vector<revolve::gazebo::SensorPtr> &sensors)
+        : revolve::brain::ConverterSplitBrain<revolve::brain::CPPNConfigPtr,
+                                              CPPNEAT::GeneticEncodingPtr>
+                  (&revolve::brain::convertGeneticEncodingToCPPNConfig,
+                   &revolve::brain::convertCPPNConfigToGeneticEncoding,
+                   modelName)
 {
 //  	sleep(20);
 
@@ -32,7 +33,9 @@ HyperNEAT_CPG::HyperNEAT_CPG(std::string modelName,
   revolve::brain::output_map = in_out.second;
   revolve::brain::cpg_network = revolve::brain::convertForController(body.get_coupled_cpg_network());
   revolve::brain::neuron_coordinates = body.get_id_to_coordinate_map();
-  controller = revolve::brain::CPPNControllerPtr(new revolve::brain::CPPNController(modelName,
+
+  // initialise controller
+  controller_ = revolve::brain::CPPNControllerPtr(new revolve::brain::CPPNController(modelName,
                                                                                     revolve::brain::cpg_network,
                                                                                     Helper::createWrapper(actuators),
                                                                                     Helper::createWrapper(sensors)));
@@ -47,7 +50,9 @@ HyperNEAT_CPG::HyperNEAT_CPG(std::string modelName,
                                                    true));
   std::string mutator_path = brain->HasAttribute("path_to_mutator") ?
                              brain->GetAttribute("path_to_mutator")->GetAsString() : "none";
-  learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator, mutator_path, learn_conf));
+
+  // initialise learner
+  learner_ = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator, mutator_path, learn_conf));
 
   //initialise starting population
   int number_of_brains_from_first = brain->HasAttribute("number_of_brains_from_first") ?
@@ -58,12 +63,12 @@ HyperNEAT_CPG::HyperNEAT_CPG(std::string modelName,
                                      brain->GetAttribute("path_to_first_brains")->GetAsString() : "";
 
   std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_init =
-          boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_init_brains();
+          boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner_)->get_init_brains();
   std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_first;
   if (path_to_first_brains == "" || path_to_first_brains == "none") {
     number_of_brains_from_first = 0;
   } else {
-    brains_from_first = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_first_brains, -1);
+    brains_from_first = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner_)->get_brains_from_yaml(path_to_first_brains, -1);
   }
   std::string path_to_second_brains = brain->HasAttribute("path_to_second_brains") ?
                                       brain->GetAttribute("path_to_second_brains")->GetAsString() : "";
@@ -71,7 +76,7 @@ HyperNEAT_CPG::HyperNEAT_CPG(std::string modelName,
   if (path_to_second_brains == "" || path_to_second_brains == "none") {
     number_of_brains_from_second = 0;
   } else {
-    brains_from_second = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->get_brains_from_yaml(path_to_second_brains, -1);
+    brains_from_second = boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner_)->get_brains_from_yaml(path_to_second_brains, -1);
   }
 
   std::vector<CPPNEAT::GeneticEncodingPtr> init_brains;
@@ -94,15 +99,15 @@ HyperNEAT_CPG::HyperNEAT_CPG(std::string modelName,
     i++;
     cur_number++;
   }
-  boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner)->initialise(init_brains);
+  boost::dynamic_pointer_cast<CPPNEAT::Learner>(learner_)->initialise(init_brains);
+
+  // initialise evaluator
   evaluator_ = evaluator;
 }
 
 HyperNEAT_CPG::~HyperNEAT_CPG()
 {
-
 }
-
 
 void
 HyperNEAT_CPG::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
@@ -110,8 +115,7 @@ HyperNEAT_CPG::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                    double t,
                    double step)
 {
-// 	std::cout << "yay" << std::endl;
-  revolve::brain::ConvSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>, CPPNEAT::GeneticEncodingPtr>::update(
+  revolve::brain::ConverterSplitBrain<boost::shared_ptr<revolve::brain::CPPNConfig>, CPPNEAT::GeneticEncodingPtr>::update(
           Helper::createWrapper(actuators),
           Helper::createWrapper(sensors),
           t,

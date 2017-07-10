@@ -10,7 +10,7 @@
 #include "revolve/gazebo/brain/Brain.h"
 
 #include "Evaluator.h"
-#include "brain/ConvertingSplitBrain.h"
+#include "brain/ConverterSplitBrain.h"
 #include "brain/controller/ExtCPPN.h"
 #include "brain/learner/NEATLearner.h"
 
@@ -18,7 +18,7 @@ namespace tol {
 
 class NeatExtNN
         : public revolve::gazebo::Brain
-          , private revolve::brain::ConvSplitBrain<revolve::brain::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>
+          , private revolve::brain::ConverterSplitBrain<revolve::brain::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>
 {
 
 public:
@@ -54,6 +54,9 @@ public:
 
     static CPPNEAT::Learner::LearningConfiguration
     parseLearningSDF(sdf::ElementPtr brain);
+
+//    private:
+//    using revolve::gazebo::Brain::update;
 };
 
 } /* namespace tol */

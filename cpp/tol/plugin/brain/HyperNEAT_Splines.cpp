@@ -12,49 +12,49 @@ namespace tol {
 
 
 HyperNEAT_Splines::HyperNEAT_Splines(std::string modelName,
-                           sdf::ElementPtr brain,
-                           tol::EvaluatorPtr evaluator,
-                           const std::vector<revolve::gazebo::MotorPtr> &actuators,
-                           const std::vector<revolve::gazebo::SensorPtr> &sensors)
-        :
-        revolve::brain::ConvSplitBrain<revolve::brain::PolicyPtr,
-                                       CPPNEAT::GeneticEncodingPtr>(&revolve::brain::convertForSplinesFromHyper,
-                                                                    &revolve::brain::convertForHyperFromSplines,
-                                                                    modelName)
+                                     sdf::ElementPtr brain,
+                                     tol::EvaluatorPtr evaluator,
+                                     const std::vector<revolve::gazebo::MotorPtr> &actuators,
+                                     const std::vector<revolve::gazebo::SensorPtr> &sensors)
+        : revolve::brain::ConverterSplitBrain<revolve::brain::PolicyPtr,
+                                              CPPNEAT::GeneticEncodingPtr>
+                  (&revolve::brain::convertForSplinesFromHyper,
+                   &revolve::brain::convertForHyperFromSplines,
+                   modelName)
 {
 // 	sleep(20);
 
-  //initialise controller
-  std::string name(modelName.substr(0,
-                                    modelName.find("-")) + ".yaml");
+  std::string name(modelName.substr(0, modelName.find("-")) + ".yaml");
   Body body(name);
   revolve::brain::sorted_coordinates = body.get_coordinates_sorted(actuators);
+
+  // Prepare for controller
   revolve::brain::RLPowerLearner::Config conf = parseSDF(brain);
   revolve::brain::update_rate = conf.update_step;
   revolve::brain::spline_size = conf.source_y_size;
-  controller = boost::shared_ptr<revolve::brain::PolicyController>
-          (new revolve::brain::PolicyController(revolve::brain::sorted_coordinates.size(),
-                                                conf.interpolation_spline_size));
+  std::string mutator_path = brain->HasAttribute("path_to_mutator") ?
+                             brain->GetAttribute("path_to_mutator")->GetAsString() : "none";
 
-  //initialise learner
+  // Prepare for learner
   CPPNEAT::Learner::LearningConfiguration learn_conf = parseLearningSDF(brain);
-  revolve::brain::set_brain_spec(true);
-  learn_conf.start_from = revolve::brain::get_hyper_neat_net_splines();
   CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
                                                    0.8,
-                                                   learn_conf.start_from
-                                                             ->min_max_innov_numer()
-                                                             .second,
+                                                   learn_conf.start_from->min_max_innov_numer().second,
                                                    100,
                                                    std::vector<CPPNEAT::Neuron::Ntype>(),
                                                    true));
-  std::string mutator_path = brain->HasAttribute("path_to_mutator") ?
-                             brain->GetAttribute("path_to_mutator")
-                                  ->GetAsString()
-                                                                    : "none";
-  learner = boost::shared_ptr<CPPNEAT::Learner>(new CPPNEAT::Learner(mutator,
-                                                                     mutator_path,
-                                                                     learn_conf));
+  revolve::brain::set_brain_spec(true);
+  learn_conf.start_from = revolve::brain::get_hyper_neat_net_splines();
+
+  // initialise controller
+  controller_ = boost::shared_ptr<revolve::brain::PolicyController>
+          (new revolve::brain::PolicyController(revolve::brain::sorted_coordinates.size(),
+                                                conf.interpolation_spline_size));
+  // initialise learner
+  learner_ = boost::shared_ptr<CPPNEAT::Learner>
+          (new CPPNEAT::Learner(mutator, mutator_path, learn_conf));
+
+  // initialise evaluator
   evaluator_ = evaluator;
 }
 
@@ -71,7 +71,7 @@ HyperNEAT_Splines::update(const std::vector<revolve::gazebo::MotorPtr> &actuator
                      double step)
 {
 // 	std::cout << "yay" << std::endl;
-  revolve::brain::ConvSplitBrain<revolve::brain::PolicyPtr, CPPNEAT::GeneticEncodingPtr>::update(
+  revolve::brain::ConverterSplitBrain<revolve::brain::PolicyPtr, CPPNEAT::GeneticEncodingPtr>::update(
           Helper::createWrapper(actuators),
           Helper::createWrapper(sensors),
           t,

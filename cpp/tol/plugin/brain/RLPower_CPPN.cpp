@@ -14,39 +14,37 @@
 
 namespace tol {
 
-RLPower_CPG::RLPower_CPG(std::string modelName,
-                       sdf::ElementPtr brain,
-                       EvaluatorPtr evaluator,
-                       std::vector<revolve::gazebo::MotorPtr> &actuators,
-                       std::vector<revolve::gazebo::SensorPtr> &sensors) :
-        revolve::brain::ConvSplitBrain<std::vector<double>,
-                                       revolve::brain::PolicyPtr>(&revolve::brain::forController,
-                                                                  &revolve::brain::forLearner,
-                                                                  modelName)
+RLPower_CPG::RLPower_CPG(std::string model_name,
+                         sdf::ElementPtr brain,
+                         EvaluatorPtr evaluator,
+                         std::vector<revolve::gazebo::MotorPtr> &actuators,
+                         std::vector<revolve::gazebo::SensorPtr> &sensors)
+        : revolve::brain::ConverterSplitBrain<std::vector<double>,
+                                              revolve::brain::PolicyPtr>
+                  (&revolve::brain::convertPolicyToDouble,
+                   &revolve::brain::convertDoubleToNull,
+                   model_name)
 {
 
   //initialise controller
-  std::string name(modelName.substr(0,
-                                    modelName.find("-")) + ".yaml");
+  std::string name(model_name.substr(0, model_name.find("-")) + ".yaml");
   Body body(name);
+
   std::pair<std::map<int, size_t>, std::map<int, size_t>> in_out =
           body.get_input_output_map(actuators, sensors);
   revolve::brain::input_map = in_out.first;
   revolve::brain::output_map = in_out.second;
 
-  controller = boost::shared_ptr<revolve::brain::ExtNNController>
-          (new revolve::brain::ExtNNController(modelName,
+  controller_ = boost::shared_ptr<revolve::brain::ExtNNController>
+          (new revolve::brain::ExtNNController(model_name,
                                                revolve::brain::convertForController(body.get_coupled_cpg_network()),
                                                Helper::createWrapper(actuators),
                                                Helper::createWrapper(sensors)));
   revolve::brain::RLPowerLearner::Config config = parseSDF(brain);
-  config.source_y_size = (size_t)controller->getGenome()
-                                                 .size();
+  config.source_y_size = (size_t)controller_->getPhenotype().size();
 
-  learner = boost::shared_ptr<revolve::brain::RLPowerLearner>
-          (new revolve::brain::RLPowerLearner(modelName,
-                                              config,
-                                              1));
+  learner_ = boost::shared_ptr<revolve::brain::RLPowerLearner>
+          (new revolve::brain::RLPowerLearner(model_name, config, 1));
   evaluator_ = evaluator;
 }
 
@@ -59,7 +57,7 @@ RLPower_CPG::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                    double t,
                    double step)
 {
-  revolve::brain::ConvSplitBrain<std::vector<double>, revolve::brain::PolicyPtr>::update(
+  revolve::brain::ConverterSplitBrain<std::vector<double>, revolve::brain::PolicyPtr>::update(
           Helper::createWrapper(actuators),
           Helper::createWrapper(sensors),
           t,

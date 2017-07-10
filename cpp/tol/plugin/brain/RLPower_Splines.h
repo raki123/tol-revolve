@@ -23,21 +23,22 @@ namespace tol {
 
 class RLPower_Splines
         : public revolve::gazebo::Brain
-          , private revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>
+          , private revolve::brain::ConverterSplitBrain<revolve::brain::PolicyPtr,
+                                                        revolve::brain::PolicyPtr>
 {
 
 public:
     /**
      * The RLPower constructor reads out configuration file, deretmines which algorithm type to apply and
      * initialises new policy.
-     * @param modelName: name of a robot
+     * @param model_name: name of a robot
      * @param brain: configuration file
      * @param evaluator: pointer to fitness evaluatior
      * @param n_actuators: number of actuators
      * @param n_sensors: number of sensors
      * @return pointer to the RLPower class object
      */
-    RLPower_Splines(std::string modelName,
+    RLPower_Splines(std::string model_name,
                    sdf::ElementPtr brain,
                    tol::EvaluatorPtr evaluator,
                    std::vector<revolve::gazebo::MotorPtr> &actuators,

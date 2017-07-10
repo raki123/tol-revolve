@@ -14,12 +14,16 @@
 
 namespace tol {
 
-RLPower_Splines::RLPower_Splines(std::string modelName,
-                               sdf::ElementPtr brain,
-                               EvaluatorPtr evaluator,
-                               std::vector<revolve::gazebo::MotorPtr> &actuators,
-                               std::vector<revolve::gazebo::SensorPtr> &sensors) :
-        revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>(modelName)
+RLPower_Splines::RLPower_Splines(std::string model_name,
+                                 sdf::ElementPtr brain,
+                                 EvaluatorPtr evaluator,
+                                 std::vector<revolve::gazebo::MotorPtr> &actuators,
+                                 std::vector<revolve::gazebo::SensorPtr> &sensors)
+        : revolve::brain::ConverterSplitBrain<revolve::brain::PolicyPtr,
+                                              revolve::brain::PolicyPtr>
+                (&revolve::brain::convertPolicyToPolicy,
+                 &revolve::brain::convertPolicyToPolicy,
+                 model_name)
 {
 
   revolve::brain::RLPowerLearner::Config config = parseSDF(brain);
@@ -28,13 +32,13 @@ RLPower_Splines::RLPower_Splines(std::string modelName,
   for (auto it : actuators) {
     n_actuators += it->outputs();
   }
-  controller = boost::shared_ptr<revolve::brain::PolicyController>
+  controller_ = boost::shared_ptr<revolve::brain::PolicyController>
           (new revolve::brain::PolicyController(n_actuators,
                                                 config.interpolation_spline_size));
 
   //initialise learner
-  learner = boost::shared_ptr<revolve::brain::RLPowerLearner>
-          (new revolve::brain::RLPowerLearner(modelName,
+  learner_ = boost::shared_ptr<revolve::brain::RLPowerLearner>
+          (new revolve::brain::RLPowerLearner(model_name,
                                               config,
                                               n_actuators));
   evaluator_ = evaluator;
