@@ -53,7 +53,8 @@ RLPower_Splines::update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
                        double t,
                        double step)
 {
-  revolve::brain::SimpleSplitBrain<revolve::brain::PolicyPtr>::update(
+  revolve::brain::ConverterSplitBrain<revolve::brain::PolicyPtr,
+                                      revolve::brain::PolicyPtr>::update(
           Helper::createWrapper(actuators),
           Helper::createWrapper(sensors),
           t,
