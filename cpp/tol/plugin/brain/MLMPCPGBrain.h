@@ -29,18 +29,31 @@
 
 namespace tol {
 
-class MlmpCPGBrain : public revolve::gazebo::Brain, private revolve::brain::CPGBrain
+class MlmpCPGBrain
+        : public revolve::gazebo::Brain
+        , private revolve::brain::CPGBrain
 {
-public:
-    MlmpCPGBrain(std::string robot_name,
-                 EvaluatorPtr evaluator,
-                 unsigned int n_actuators,
-                 unsigned int n_sensors);
-    virtual ~MlmpCPGBrain();
+  public:
 
-    virtual void update(const std::vector< revolve::gazebo::MotorPtr >& actuators,
-                        const std::vector< revolve::gazebo::SensorPtr >& sensors,
-                        double t, double step) override;
+  /// \brief Constructor
+  MlmpCPGBrain(std::string robot_name,
+               EvaluatorPtr evaluator,
+               unsigned int n_actuators,
+               unsigned int n_sensors);
+
+  /// \brief Destructor
+  virtual ~MlmpCPGBrain();
+
+  using revolve::brain::CPGBrain::update;
+  /// \brief Update sensors reading, actuators position, and `brain` state
+  /// \param[inout] actuators List of actuators
+  /// \param[inout] sensors List of sensors
+  /// \param[in] t Time value
+  /// \param[in] step Time step
+  virtual void update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+                      const std::vector<revolve::gazebo::SensorPtr> &sensors,
+                      double t,
+                      double step) override;
 };
 
 }

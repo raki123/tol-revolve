@@ -45,8 +45,8 @@ protected:
 
     double start_eval_time_;
 
-private:
-    double cycle_start_time_;
+//private:
+//    double cycle_start_time_;
 
     /**
      * Transport node

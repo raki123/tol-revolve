@@ -11,52 +11,47 @@
 
 #include "Evaluator.h"
 #include "brain/ConverterSplitBrain.h"
-#include "brain/controller/ExtCPPN.h"
+#include "brain/controller/RafCPGController.h"
 #include "brain/learner/NEATLearner.h"
 
 namespace tol {
 
 class NeatExtNN
         : public revolve::gazebo::Brain
-          , private revolve::brain::ConverterSplitBrain<revolve::brain::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>
+        , private revolve::brain::ConverterSplitBrain<revolve::brain::CPPNConfigPtr,
+                                                      CPPNEAT::GeneticEncodingPtr>
 {
+  public:
 
-public:
-    /**
-* Constructor for a neural network including neurons that are of a different type than the usual ones.
-* @param modelName: name of the model
-* @param evaluator: pointer to the evaluator that is used
-* @param node: the sdf file containing the necessary information to build the network
-* @param actuators: vector list of robot's actuators
-* @param sensors: vector list of robot's sensors
-* @return pointer to the neural network
-*/
-    NeatExtNN(std::string modelName,
-              sdf::ElementPtr node,
-              tol::EvaluatorPtr evaluator,
-              const std::vector<revolve::gazebo::MotorPtr> &actuators,
-              const std::vector<revolve::gazebo::SensorPtr> &sensors);
+  /// \brief Constructor
+  /// \param modelName: name of the model
+  /// \param evaluator: pointer to the evaluator that is used
+  /// \param node: the sdf file containing the necessary information to build the network
+  /// \param actuators: vector list of robot's actuators
+  /// \param sensors: vector list of robot's sensors
+  /// \return pointer to the neural network
+  NeatExtNN(std::string modelName,
+            sdf::ElementPtr node,
+            tol::EvaluatorPtr evaluator,
+            const std::vector<revolve::gazebo::MotorPtr> &actuators,
+            const std::vector<revolve::gazebo::SensorPtr> &sensors);
 
-    virtual ~NeatExtNN();
+  /// \brief Destructor
+  virtual ~NeatExtNN();
 
-    /**
-     * Method for updating sensors readings, actuators positions, ranked list of policies and generating new policy
-     * @param actuators: vector list of robot's actuators
-     * @param sensors: vector list of robot's sensors
-     * @param t:
-     * @param step:
-     */
-    virtual void
-    update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
-           const std::vector<revolve::gazebo::SensorPtr> &sensors,
-           double t,
-           double step);
+  using revolve::brain::ConverterSplitBrain<revolve::brain::CPPNConfigPtr,
+                                            CPPNEAT::GeneticEncodingPtr>::update;
+  /// \brief Update sensors reading, actuators position, and `brain` state
+  /// \param[inout] actuators List of actuators
+  /// \param[inout] sensors List of sensors
+  /// \param[in] t Time value
+  /// \param[in] step Time step
+  virtual void update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
+                      const std::vector<revolve::gazebo::SensorPtr> &sensors,
+                      double t,
+                      double step);
 
-    static CPPNEAT::Learner::LearningConfiguration
-    parseLearningSDF(sdf::ElementPtr brain);
-
-//    private:
-//    using revolve::gazebo::Brain::update;
+  static CPPNEAT::NEATLearner::LearningConfiguration parseLearningSDF(sdf::ElementPtr brain);
 };
 
 } /* namespace tol */

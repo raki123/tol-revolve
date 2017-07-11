@@ -1,141 +1,192 @@
 digraph G {
-
-{
-rank = same;
-"node2"; "node5"; "node8"; "node11"; "node14"; "node17"; "node20"; "node23";
-}
-
-{
-rank = same;
-"node24"; "node25"; "node26"; "node27"; "node28"; "node29";
-}
-
-node0[label="Leg30Joint-hidden-0
+0[label="Leg30Joint-hidden-0 of type: DifferentialCPG
+rv:bias: -1.23238
+(x,y,z) = (-1,0,1)
 "];
-node1[label="Leg30Joint-hidden-1
+1[label="Leg30Joint-hidden-1 of type: DifferentialCPG
+rv:bias: -0.175684
+(x,y,z) = (-1,0,-1)
 "];
-node2[label="Leg30Joint-out-0
+2[label="Leg30Joint-out-0 of type: Simple
+rv:bias: -0.70403
+rv:gain: 0
+(x,y,z) = (-1,0,0)
 "];
-node3[label="Leg31Joint-hidden-0
+3[label="Leg31Joint-hidden-0 of type: DifferentialCPG
+rv:bias: -2.64044
+(x,y,z) = (-3,0,1)
 "];
-node4[label="Leg31Joint-hidden-1
+4[label="Leg31Joint-hidden-1 of type: DifferentialCPG
+rv:bias: -1.58375
+(x,y,z) = (-3,0,-1)
 "];
-node5[label="Leg31Joint-out-0
+5[label="Leg31Joint-out-0 of type: Simple
+rv:bias: -2.11209
+rv:gain: -0
+(x,y,z) = (-3,0,0)
 "];
-node6[label="Leg20Joint-hidden-0
+6[label="Leg20Joint-hidden-0 of type: DifferentialCPG
+rv:bias: 0.175684
+(x,y,z) = (1,0,1)
 "];
-node7[label="Leg20Joint-hidden-1
+7[label="Leg20Joint-hidden-1 of type: DifferentialCPG
+rv:bias: 1.23238
+(x,y,z) = (1,0,-1)
 "];
-node8[label="Leg20Joint-out-0
+8[label="Leg20Joint-out-0 of type: Simple
+rv:bias: 0.70403
+rv:gain: 0
+(x,y,z) = (1,0,0)
 "];
-node9[label="Leg21Joint-hidden-0
+9[label="Leg21Joint-hidden-0 of type: DifferentialCPG
+rv:bias: 1.58375
+(x,y,z) = (3,0,1)
 "];
-node10[label="Leg21Joint-hidden-1
+10[label="Leg21Joint-hidden-1 of type: DifferentialCPG
+rv:bias: 2.64044
+(x,y,z) = (3,0,-1)
 "];
-node11[label="Leg21Joint-out-0
+11[label="Leg21Joint-out-0 of type: Simple
+rv:bias: 2.11209
+rv:gain: 0
+(x,y,z) = (3,0,0)
 "];
-node12[label="Leg10Joint-hidden-0
+12[label="Leg10Joint-hidden-0 of type: DifferentialCPG
+rv:bias: -2.19869
+(x,y,z) = (0,-1,1)
 "];
-node13[label="Leg10Joint-hidden-1
+13[label="Leg10Joint-hidden-1 of type: DifferentialCPG
+rv:bias: -1.14199
+(x,y,z) = (0,-1,-1)
 "];
-node14[label="Leg10Joint-out-0
+14[label="Leg10Joint-out-0 of type: Simple
+rv:bias: -1.67034
+rv:gain: 0
+(x,y,z) = (0,-1,0)
 "];
-node15[label="Leg11Joint-hidden-0
+15[label="Leg11Joint-hidden-0 of type: DifferentialCPG
+rv:bias: -5.53937
+(x,y,z) = (0,-3,1)
 "];
-node16[label="Leg11Joint-hidden-1
+16[label="Leg11Joint-hidden-1 of type: DifferentialCPG
+rv:bias: -4.48268
+(x,y,z) = (0,-3,-1)
 "];
-node17[label="Leg11Joint-out-0
+17[label="Leg11Joint-out-0 of type: Simple
+rv:bias: -5.01102
+rv:gain: 0
+(x,y,z) = (0,-3,0)
 "];
-node18[label="Leg00Joint-hidden-0
+18[label="Leg00Joint-hidden-0 of type: DifferentialCPG
+rv:bias: 1.14199
+(x,y,z) = (0,1,1)
 "];
-node19[label="Leg00Joint-hidden-1
+19[label="Leg00Joint-hidden-1 of type: DifferentialCPG
+rv:bias: 2.19869
+(x,y,z) = (0,1,-1)
 "];
-node20[label="Leg00Joint-out-0
+20[label="Leg00Joint-out-0 of type: Simple
+rv:bias: 1.67034
+rv:gain: 0
+(x,y,z) = (0,1,0)
 "];
-node21[label="Leg01Joint-hidden-0
+21[label="Leg01Joint-hidden-0 of type: DifferentialCPG
+rv:bias: 4.48268
+(x,y,z) = (0,3,1)
 "];
-node22[label="Leg01Joint-hidden-1
+22[label="Leg01Joint-hidden-1 of type: DifferentialCPG
+rv:bias: 5.53937
+(x,y,z) = (0,3,-1)
 "];
-node23[label="Leg01Joint-out-0
+23[label="Leg01Joint-out-0 of type: Simple
+rv:bias: 5.01102
+rv:gain: 0
+(x,y,z) = (0,3,0)
 "];
-node24[label="Core-in-0
+24[label="Core-in-0 of type: Input
+(x,y,z) = (0,0,0)
 "];
-node25[label="Core-in-1
+25[label="Core-in-1 of type: Input
+(x,y,z) = (0,0,0)
 "];
-node26[label="Core-in-2
+26[label="Core-in-2 of type: Input
+(x,y,z) = (0,0,0)
 "];
-node27[label="Core-in-3
+27[label="Core-in-3 of type: Input
+(x,y,z) = (0,0,0)
 "];
-node28[label="Core-in-4
+28[label="Core-in-4 of type: Input
+(x,y,z) = (0,0,0)
 "];
-node29[label="Core-in-5
+29[label="Core-in-5 of type: Input
+(x,y,z) = (0,0,0)
 "];
-node0->node1 ;
-node0->node2 ;
-node0->node3 ;
-node0->node6 ;
-node0->node12 ;
-node0->node18 ;
-node1->node0 ;
-node3->node0 ;
-node3->node4 ;
-node3->node5 ;
-node4->node3 ;
-node6->node0 ;
-node6->node7 ;
-node6->node8 ;
-node6->node9 ;
-node6->node12 ;
-node6->node18 ;
-node7->node6 ;
-node9->node6 ;
-node9->node10 ;
-node9->node11 ;
-node10->node9 ;
-node12->node0 ;
-node12->node6 ;
-node12->node13 ;
-node12->node14 ;
-node12->node15 ;
-node12->node18 ;
-node13->node12 ;
-node15->node12 ;
-node15->node16 ;
-node15->node17 ;
-node16->node15 ;
-node18->node0 ;
-node18->node6 ;
-node18->node12 ;
-node18->node19 ;
-node18->node20 ;
-node18->node21 ;
-node19->node18 ;
-node21->node18 ;
-node21->node22 ;
-node21->node23 ;
-node22->node21 ;
-node24->node0 ;
-node24->node6 ;
-node24->node12 ;
-node24->node18 ;
-node25->node0 ;
-node25->node6 ;
-node25->node12 ;
-node25->node18 ;
-node26->node0 ;
-node26->node6 ;
-node26->node12 ;
-node26->node18 ;
-node27->node0 ;
-node27->node6 ;
-node27->node12 ;
-node27->node18 ;
-node28->node0 ;
-node28->node6 ;
-node28->node12 ;
-node28->node18 ;
-node29->node0 ;
-node29->node6 ;
-node29->node12 ;
-node29->node18 ;
+0->1 ;
+0->2 ;
+0->3 ;
+0->6 ;
+0->12 ;
+0->18 ;
+1->0 ;
+3->0 ;
+3->4 ;
+3->5 ;
+4->3 ;
+6->0 ;
+6->7 ;
+6->8 ;
+6->9 ;
+6->12 ;
+6->18 ;
+7->6 ;
+9->6 ;
+9->10 ;
+9->11 ;
+10->9 ;
+12->0 ;
+12->6 ;
+12->13 ;
+12->14 ;
+12->15 ;
+12->18 ;
+13->12 ;
+15->12 ;
+15->16 ;
+15->17 ;
+16->15 ;
+18->0 ;
+18->6 ;
+18->12 ;
+18->19 ;
+18->20 ;
+18->21 ;
+19->18 ;
+21->18 ;
+21->22 ;
+21->23 ;
+22->21 ;
+24->0 ;
+24->6 ;
+24->12 ;
+24->18 ;
+25->0 ;
+25->6 ;
+25->12 ;
+25->18 ;
+26->0 ;
+26->6 ;
+26->12 ;
+26->18 ;
+27->0 ;
+27->6 ;
+27->12 ;
+27->18 ;
+28->0 ;
+28->6 ;
+28->12 ;
+28->18 ;
+29->0 ;
+29->6 ;
+29->12 ;
+29->18 ;
 }

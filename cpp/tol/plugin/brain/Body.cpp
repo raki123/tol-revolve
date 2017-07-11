@@ -128,8 +128,7 @@ Body::~Body()
 CPPNEAT::GeneticEncodingPtr
 Body::get_coupled_cpg_network()
 {
-  CPPNEAT::GeneticEncodingPtr ret(new CPPNEAT::GeneticEncoding(neurons,
-                                                               connections));
+  CPPNEAT::GeneticEncodingPtr ret(new CPPNEAT::GeneticEncoding(neurons, connections));
   return ret;
 }
 
@@ -341,8 +340,7 @@ Body::get_coordinates_sorted(const std::vector<revolve::gazebo::MotorPtr> &actua
       }
       if (j == output_neurons.size()) {
         std::cerr << "Required output neuron " << neuronId.str() <<
-                  " for motor could not be located"
-                  << std::endl;
+                  " for motor could not be located" << std::endl;
         throw std::runtime_error("Robot brain error");
       }
       ret.push_back(std::pair<int, int>(std::get<0>(neuron_coordinates[output_neurons[j]]),

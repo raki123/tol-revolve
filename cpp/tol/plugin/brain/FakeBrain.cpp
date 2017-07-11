@@ -9,9 +9,9 @@ FakeBrain::FakeBrain(std::string modelName,
                      std::vector<revolve::gazebo::MotorPtr> &actuators,
                      std::vector<revolve::gazebo::SensorPtr> &sensors)
         : nActuators_(actuators.size())
-          , nSensors_(sensors.size())
-          , start_eval_time_(0)
-          , cycle_start_time_(-1)
+        , nSensors_(sensors.size())
+        , start_eval_time_(0)
+//          , cycle_start_time_(-1)
 {
   std::cout << "FakeBrain::FakeBrain()" << std::endl;
 
