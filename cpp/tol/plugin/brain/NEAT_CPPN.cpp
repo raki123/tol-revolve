@@ -41,7 +41,7 @@ NeatExtNN::NeatExtNN(std::string modelName,
   controller_ = new_controller;
 
   //initialise learner
-  revolve::brain::set_brain_spec(false);
+  revolve::brain::SetBrainSpec(false);
   CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
                                                    0.8,
                                                    innov_number,

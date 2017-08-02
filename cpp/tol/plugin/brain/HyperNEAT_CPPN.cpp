@@ -48,7 +48,7 @@ namespace tol
 
     // Initialise learner
     CPPNEAT::NEATLearner::LearningConfiguration learn_conf = parseLearningSDF(brain);
-    rb::set_brain_spec(true);
+    rb::SetBrainSpec(true);
     learn_conf.start_from = body.CppnNetwork();
     CPPNEAT::MutatorPtr mutator(
             new CPPNEAT::Mutator(rb::brain_spec,

@@ -457,45 +457,84 @@ namespace tol
     {
       //add neurons
       std::map<std::string, double> empty;
-      empty["rv:bias"] = 0;
-      empty["rv:gain"] = 1;
+      if(this->isMlmp_){
+        empty["rv:bias"] = 0;
+        empty["rv:gain"] = 1;
 
-      CPPNEAT::NeuronPtr first_neuron(new CPPNEAT::Neuron(part->name + "-hidden-0",
-                                                          CPPNEAT::Neuron::HIDDEN_LAYER,
-                                                          CPPNEAT::Neuron::DIFFERENTIAL_CPG,
-                                                          empty));
-      part->differential_oscillator[0] = CPPNEAT::NeuronGenePtr(new CPPNEAT::NeuronGene(
-              first_neuron,
-              ++innov_number,
-              true));
-      neurons.push_back(part->differential_oscillator[0]);
-      std::tuple<int, int, int> first_coord(part->coordinates[0],
-                                            part->coordinates[1],
-                                            1);
-      neuron_coordinates[part->differential_oscillator[0]] = first_coord;
+        CPPNEAT::NeuronPtr first_neuron(
+                new CPPNEAT::Neuron(part->name + "-hidden-0",
+                                    CPPNEAT::Neuron::HIDDEN_LAYER,
+                                    CPPNEAT::Neuron::RYTHM_GENERATOR_CPG,
+                                    empty)
+        );
+        part->differential_oscillator[0] = CPPNEAT::NeuronGenePtr(
+                new CPPNEAT::NeuronGene(first_neuron, ++innov_number, true)
+        );
+        neurons.push_back(part->differential_oscillator[0]);
+        std::tuple<int, int, int> first_coord(part->coordinates[0],
+                                              part->coordinates[1],
+                                              1);
+        neuron_coordinates[part->differential_oscillator[0]] = first_coord;
 
-      CPPNEAT::NeuronPtr second_neuron(new CPPNEAT::Neuron(part->name + "-hidden-1",
-                                                           CPPNEAT::Neuron::HIDDEN_LAYER,
-                                                           CPPNEAT::Neuron::DIFFERENTIAL_CPG,
-                                                           empty));
-      part->differential_oscillator[1] = CPPNEAT::NeuronGenePtr(new CPPNEAT::NeuronGene(
-              second_neuron,
-              ++innov_number,
-              true));
-      neurons.push_back(part->differential_oscillator[1]);
-      std::tuple<int, int, int> second_coord(part->coordinates[0],
-                                             part->coordinates[1],
-                                             -1);
-      neuron_coordinates[part->differential_oscillator[1]] = second_coord;
+        CPPNEAT::NeuronPtr second_neuron(
+                new CPPNEAT::Neuron(part->name + "-hidden-1",
+                                    CPPNEAT::Neuron::HIDDEN_LAYER,
+                                    CPPNEAT::Neuron::RYTHM_GENERATOR_CPG,
+                                    empty)
+        );
+        part->differential_oscillator[1] = CPPNEAT::NeuronGenePtr(
+                new CPPNEAT::NeuronGene(second_neuron, ++innov_number, true)
+        );
+        neurons.push_back(part->differential_oscillator[1]);
+        std::tuple<int, int, int> second_coord(part->coordinates[0],
+                                               part->coordinates[1],
+                                               -1);
+        neuron_coordinates[part->differential_oscillator[1]] = second_coord;
+      } else
+      {
+        empty["rv:bias"] = 0;
+        empty["rv:gain"] = 1;
 
-      CPPNEAT::NeuronPtr output_neuron(new CPPNEAT::Neuron(part->name + "-out-0",
-                                                           CPPNEAT::Neuron::OUTPUT_LAYER,
-                                                           CPPNEAT::Neuron::SIMPLE,
-                                                           empty));
-      part->differential_oscillator[2] = CPPNEAT::NeuronGenePtr(new CPPNEAT::NeuronGene(
-              output_neuron,
-              ++innov_number,
-              true));
+        CPPNEAT::NeuronPtr first_neuron(
+                new CPPNEAT::Neuron(part->name + "-hidden-0",
+                                    CPPNEAT::Neuron::HIDDEN_LAYER,
+                                    CPPNEAT::Neuron::DIFFERENTIAL_CPG,
+                                    empty)
+        );
+        part->differential_oscillator[0] = CPPNEAT::NeuronGenePtr(
+                new CPPNEAT::NeuronGene(first_neuron, ++innov_number, true));
+
+        neurons.push_back(part->differential_oscillator[0]);
+        std::tuple<int, int, int> first_coord(part->coordinates[0],
+                                              part->coordinates[1],
+                                              1);
+        neuron_coordinates[part->differential_oscillator[0]] = first_coord;
+
+        CPPNEAT::NeuronPtr second_neuron(
+                new CPPNEAT::Neuron(part->name + "-hidden-1",
+                                    CPPNEAT::Neuron::HIDDEN_LAYER,
+                                    CPPNEAT::Neuron::DIFFERENTIAL_CPG,
+                                    empty)
+        );
+        part->differential_oscillator[1] = CPPNEAT::NeuronGenePtr(
+                new CPPNEAT::NeuronGene(second_neuron, ++innov_number, true));
+
+        neurons.push_back(part->differential_oscillator[1]);
+        std::tuple<int, int, int> second_coord(part->coordinates[0],
+                                               part->coordinates[1],
+                                               -1);
+        neuron_coordinates[part->differential_oscillator[1]] = second_coord;
+      }
+
+      CPPNEAT::NeuronPtr output_neuron(
+              new CPPNEAT::Neuron(part->name + "-out-0",
+                                  CPPNEAT::Neuron::OUTPUT_LAYER,
+                                  CPPNEAT::Neuron::SIMPLE,
+                                  empty)
+      );
+      part->differential_oscillator[2] = CPPNEAT::NeuronGenePtr(
+              new CPPNEAT::NeuronGene(output_neuron, ++innov_number, true));
+
       neurons.push_back(part->differential_oscillator[2]);
       output_neurons.push_back(part->differential_oscillator[2]);
       std::tuple<int, int, int> output_coord(part->coordinates[0],

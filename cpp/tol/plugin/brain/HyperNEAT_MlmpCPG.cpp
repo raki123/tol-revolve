@@ -49,7 +49,7 @@ namespace tol
 
     // Initialise controller
     std::string name(modelName.substr(0, modelName.find("-")) + ".yaml");
-    BodyParser body(name);
+    BodyParser body(name, true);
 
     std::pair<std::map<int, size_t>, std::map<int, size_t >> in_out =
             body.InputOutputMap(actuators, sensors);
@@ -69,7 +69,7 @@ namespace tol
 
     // Initialise learner
     CPPNEAT::NEATLearner::LearningConfiguration learn_conf = parseLearningSDF(brain);
-    rb::set_brain_spec(true);
+    rb::SetBrainSpec(true);
     learn_conf.start_from = body.CppnNetwork();
     CPPNEAT::MutatorPtr mutator(
             new CPPNEAT::Mutator(rb::brain_spec,

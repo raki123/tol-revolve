@@ -43,7 +43,7 @@ HyperNEAT_Splines::HyperNEAT_Splines(std::string modelName,
                                                    100,
                                                    std::vector<CPPNEAT::Neuron::Ntype>(),
                                                    true));
-  revolve::brain::set_brain_spec(true);
+  revolve::brain::SetBrainSpec(true);
   learn_conf.start_from = revolve::brain::get_hyper_neat_net_splines();
 
   // initialise controller
