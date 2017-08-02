@@ -155,10 +155,11 @@ file(GLOB_RECURSE
      tol/plugin/brain/RLPower_CPPN.cpp
      tol/plugin/brain/RLPower_Splines.cpp
      tol/plugin/brain/MLMPCPGBrain.cpp
-     tol/plugin/brain/Body.cpp
+     tol/plugin/brain/BodyParser.cpp
      tol/plugin/brain/YamlBodyParser.cpp
      tol/plugin/brain/NEAT_CPPN.cpp
      tol/plugin/brain/HyperNEAT_CPPN.cpp
+     tol/plugin/brain/HyperNEAT_MlmpCPG.cpp
      tol/plugin/brain/HyperNEAT_Splines.cpp
      tol/plugin/brain/GenericLearnerBrain.cpp
      tol/plugin/brain/SUPGBrain.cpp

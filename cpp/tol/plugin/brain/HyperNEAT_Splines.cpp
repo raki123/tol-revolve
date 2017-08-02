@@ -4,7 +4,7 @@
 #include "revolve/gazebo/sensors/Sensor.h"
 
 #include "../Actuator.h"
-#include "Body.h"
+#include "BodyParser.h"
 #include "Helper.h"
 #include "brain/Conversion.h"
 
@@ -25,7 +25,7 @@ HyperNEAT_Splines::HyperNEAT_Splines(std::string modelName,
 // 	sleep(20);
 
   std::string name(modelName.substr(0, modelName.find("-")) + ".yaml");
-  Body body(name);
+  BodyParser body(name);
   revolve::brain::sorted_coordinates = body.get_coordinates_sorted(actuators);
 
   // Prepare for controller

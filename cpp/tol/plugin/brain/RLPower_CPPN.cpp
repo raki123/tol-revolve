@@ -7,7 +7,7 @@
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
-#include "Body.h"
+#include "BodyParser.h"
 #include "Helper.h"
 #include "brain/Conversion.h"
 #include "brain/controller/ExtCPPNWeights.h"
@@ -28,16 +28,17 @@ RLPower_CPG::RLPower_CPG(std::string model_name,
 
   //initialise controller
   std::string name(model_name.substr(0, model_name.find("-")) + ".yaml");
-  Body body(name);
+  BodyParser body(name);
 
   std::pair<std::map<int, size_t>, std::map<int, size_t>> in_out =
-          body.get_input_output_map(actuators, sensors);
-  revolve::brain::input_map = in_out.first;
-  revolve::brain::output_map = in_out.second;
+          body.InputOutputMap(actuators, sensors);
+  revolve::brain::InputMap = in_out.first;
+  revolve::brain::OutputMap = in_out.second;
 
   controller_ = boost::shared_ptr<revolve::brain::ExtNNController>
           (new revolve::brain::ExtNNController(model_name,
-                                               revolve::brain::convertForController(body.get_coupled_cpg_network()),
+                                               revolve::brain::convertForController(
+                                                       body.CoupledCpgNetwork()),
                                                Helper::createWrapper(actuators),
                                                Helper::createWrapper(sensors)));
   revolve::brain::RLPowerLearner::Config config = parseSDF(brain);

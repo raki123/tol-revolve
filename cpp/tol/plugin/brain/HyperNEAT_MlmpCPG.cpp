@@ -1,4 +1,25 @@
-#include "HyperNEAT_CPPN.h"
+/*
+ * Copyright (C) 2015-2017 Vrije Universiteit Amsterdam
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Description: TODO: <Add brief description about file purpose>
+ * Author: Milan Jelisavcic
+ * Date: August 2, 2017.
+ *
+ */
+
+#include "HyperNEAT_MlmpCPG.h"
 
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
@@ -14,13 +35,13 @@ namespace rg = revolve::gazebo;
 namespace tol
 {
 
-  HyperNEAT_CPG::HyperNEAT_CPG(std::string modelName,
+  HyperNEAT_MlmpCPG::HyperNEAT_MlmpCPG(std::string modelName,
                                sdf::ElementPtr brain,
                                tol::EvaluatorPtr evaluator,
                                const std::vector<rg::MotorPtr> &actuators,
                                const std::vector<rg::SensorPtr> &sensors)
           : rb::ConverterSplitBrain<rb::CPPNConfigPtr,
-                                                CPPNEAT::GeneticEncodingPtr>
+                                    CPPNEAT::GeneticEncodingPtr>
                     (&rb::convertGEtoNN,
                      &rb::convertNNtoGE,
                      modelName)
@@ -135,12 +156,12 @@ namespace tol
     evaluator_ = evaluator;
   }
 
-  HyperNEAT_CPG::~HyperNEAT_CPG()
+  HyperNEAT_MlmpCPG::~HyperNEAT_MlmpCPG()
   {
   }
 
   void
-  HyperNEAT_CPG::update(const std::vector<rg::MotorPtr> &actuators,
+  HyperNEAT_MlmpCPG::update(const std::vector<rg::MotorPtr> &actuators,
                         const std::vector<rg::SensorPtr> &sensors,
                         double t,
                         double step)
@@ -155,7 +176,7 @@ namespace tol
   }
 
   CPPNEAT::NEATLearner::LearningConfiguration
-  HyperNEAT_CPG::parseLearningSDF(sdf::ElementPtr brain)
+  HyperNEAT_MlmpCPG::parseLearningSDF(sdf::ElementPtr brain)
   {
     CPPNEAT::NEATLearner::LearningConfiguration config;
 

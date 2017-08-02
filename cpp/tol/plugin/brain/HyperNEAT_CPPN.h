@@ -15,11 +15,14 @@
 #include "brain/learner/NEATLearner.h"
 #include "brain/Types.h"
 
+namespace rb = revolve::brain;
+namespace rg = revolve::gazebo;
+
 namespace tol {
 
 class HyperNEAT_CPG
-        : public revolve::gazebo::Brain
-        , private revolve::brain::ConverterSplitBrain<revolve::brain::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>
+        : public rg::Brain
+        , private rb::ConverterSplitBrain<rb::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>
 {
   public:
 
@@ -33,23 +36,22 @@ class HyperNEAT_CPG
   HyperNEAT_CPG(std::string modelName,
                 sdf::ElementPtr brain,
                 tol::EvaluatorPtr evaluator,
-                const std::vector<revolve::gazebo::MotorPtr> &actuators,
-                const std::vector<revolve::gazebo::SensorPtr> &sensors);
+                const std::vector<rg::MotorPtr> &actuators,
+                const std::vector<rg::SensorPtr> &sensors);
 
   /// \brief Destructor
   virtual ~HyperNEAT_CPG();
 
-  using revolve::brain::ConverterSplitBrain<revolve::brain::CPPNConfigPtr,
-                                            CPPNEAT::GeneticEncodingPtr>::update;
+  using rb::ConverterSplitBrain<rb::CPPNConfigPtr, CPPNEAT::GeneticEncodingPtr>::update;
   /// \brief Update sensors reading, actuators position, and `brain` state
   /// \param[inout] actuators List of actuators
   /// \param[inout] sensors List of sensors
   /// \param[in] t Time value
   /// \param[in] step Time step
-  virtual void update(const std::vector<revolve::gazebo::MotorPtr> &actuators,
-         const std::vector<revolve::gazebo::SensorPtr> &sensors,
-         double t,
-         double step);
+  virtual void update(const std::vector<rg::MotorPtr> &actuators,
+                      const std::vector<rg::SensorPtr> &sensors,
+                      double t,
+                      double step);
 
   static CPPNEAT::NEATLearner::LearningConfiguration parseLearningSDF(sdf::ElementPtr brain);
 };

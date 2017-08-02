@@ -11,6 +11,7 @@
 #include "brain/RLPower_CPPN.h"
 #include "brain/HyperNEAT_CPPN.h"
 #include "brain/HyperNEAT_Splines.h"
+#include "brain/HyperNEAT_MlmpCPG.h"
 #include "brain/MLMPCPGBrain.h"
 #include "brain/GenericLearnerBrain.h"
 #include "brain/YamlBodyParser.h"
@@ -136,17 +137,14 @@ RobotController::~RobotController() {
   AsyncNeat::CleanUp();
 }
 
-void
-RobotController::Load(::gazebo::physics::ModelPtr _parent,
-                      sdf::ElementPtr _sdf)
+void RobotController::Load(::gazebo::physics::ModelPtr _parent,
+                           sdf::ElementPtr _sdf)
 {
-  ::revolve::gazebo::RobotController::Load(_parent,
-                                           _sdf);
+  ::revolve::gazebo::RobotController::Load(_parent, _sdf);
   std::cout << "ToL Robot loaded." << std::endl;
 }
 
-void
-RobotController::LoadBrain(sdf::ElementPtr sdf)
+void RobotController::LoadBrain(sdf::ElementPtr sdf)
 {
   try {
     evaluator_ = boost::make_shared<Evaluator>();
@@ -192,6 +190,12 @@ RobotController::LoadBrain(sdf::ElementPtr sdf)
                                        evaluator_,
                                        motors_,
                                        sensors_));
+    } else if (brain->GetAttribute("algorithm")->GetAsString() == "rafhyperneat::mlmp_cpg") {
+      brain_.reset(new tol::HyperNEAT_MlmpCPG(robot_name,
+                                              brain,
+                                              evaluator_,
+                                              motors_,
+                                              sensors_));
     } else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::spline") {
       brain_.reset(new tol::HyperNEAT_Splines(robot_name,
                                          brain,

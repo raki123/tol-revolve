@@ -4,7 +4,7 @@
 #include "revolve/gazebo/sensors/Sensor.h"
 
 #include "../Actuator.h"
-#include "Body.h"
+#include "BodyParser.h"
 #include "Helper.h"
 #include "brain/Conversion.h"
 
@@ -25,19 +25,19 @@ NeatExtNN::NeatExtNN(std::string modelName,
 
   //initialise controller
   std::string name(modelName.substr(0, modelName.find("-")) + ".yaml");
-  Body body(name);
+  BodyParser body(name);
   std::pair<std::map<int, size_t>, std::map<int, size_t>>
-          in_out = body.get_input_output_map(actuators,
-                                             sensors);
-  revolve::brain::input_map = in_out.first;
-  revolve::brain::output_map = in_out.second;
+          in_out = body.InputOutputMap(actuators,
+                                       sensors);
+  revolve::brain::InputMap = in_out.first;
+  revolve::brain::OutputMap = in_out.second;
   CPPNEAT::NEATLearner::LearningConfiguration learn_conf = parseLearningSDF(node);
-  learn_conf.start_from = body.get_coupled_cpg_network();
+  learn_conf.start_from = body.CoupledCpgNetwork();
   revolve::brain::RafCPGControllerPtr new_controller(new revolve::brain::RafCPGController(modelName,
                                                      revolve::brain::convertForController(learn_conf.start_from),
                                                      Helper::createWrapper(actuators),
                                                      Helper::createWrapper(sensors)));
-  int innov_number = body.getInnovNumber();
+  int innov_number = body.InnovationNumber();
   controller_ = new_controller;
 
   //initialise learner

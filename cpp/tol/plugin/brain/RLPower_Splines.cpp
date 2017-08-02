@@ -7,7 +7,7 @@
 #include "revolve/gazebo/motors/Motor.h"
 #include "revolve/gazebo/sensors/Sensor.h"
 
-#include "Body.h"
+#include "BodyParser.h"
 #include "Helper.h"
 #include "brain/Conversion.h"
 #include "brain/controller/ExtCPPNWeights.h"
