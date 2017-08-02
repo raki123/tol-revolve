@@ -1,5 +1,7 @@
 #include "BodyParser.h"
 
+namespace rg = revolve::gazebo;
+
 namespace tol
 {
 
@@ -156,8 +158,8 @@ namespace tol
   }
 
   std::pair<std::map<int, size_t>, std::map<int, size_t>>
-  BodyParser::InputOutputMap(const std::vector<revolve::gazebo::MotorPtr> &actuators,
-                       const std::vector<revolve::gazebo::SensorPtr> &sensors)
+  BodyParser::InputOutputMap(const std::vector<rg::MotorPtr> &actuators,
+                             const std::vector<rg::SensorPtr> &sensors)
   {
     size_t p = 0;
     std::map<int, size_t> output_map;
@@ -171,7 +173,7 @@ namespace tol
       auto motor = *it;
       auto partId = motor->partId();
 
-      if (!outputCountMap.count(partId))
+      if (not outputCountMap.count(partId))
       {
         outputCountMap[partId] = 0;
       }
@@ -213,7 +215,7 @@ namespace tol
       auto sensor = *it;
       auto partId = sensor->partId();
 
-      if (!inputCountMap.count(partId))
+      if (not inputCountMap.count(partId))
       {
         inputCountMap[partId] = 0;
       }
@@ -344,7 +346,7 @@ namespace tol
   }
 
   std::vector<std::pair<int, int> >
-  BodyParser::get_coordinates_sorted(const std::vector<revolve::gazebo::MotorPtr> &actuators)
+  BodyParser::get_coordinates_sorted(const std::vector<rg::MotorPtr> &actuators)
   {
     std::vector<std::pair<int, int>> ret;
 
@@ -356,7 +358,7 @@ namespace tol
       auto motor = *it;
       auto partId = motor->partId();
 
-      if (!outputCountMap.count(partId))
+      if (not outputCountMap.count(partId))
       {
         outputCountMap[partId] = 0;
       }

@@ -97,7 +97,7 @@ InteractiveEvolutionPlugin::OnReproduceButton()
   auto modelVis1 = visuals[0]->GetRootVisual();
   auto modelVis2 = visuals[1]->GetRootVisual();
 
-  if (!modelVis1 || !modelVis2 || modelVis1 == modelVis2) {
+  if (not modelVis1 || not modelVis2 || modelVis1 == modelVis2) {
     std::cerr << "Incorrect selection (missing model or models identical)" << std::endl;
     return;
   }

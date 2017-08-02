@@ -157,18 +157,18 @@ void RobotController::LoadBrain(sdf::ElementPtr sdf)
     for (const auto &sensor : sensors_)
       sensor_n += sensor->inputs();
 
-    if (!sdf->HasElement("rv:brain")) {
+    if (not sdf->HasElement("rv:brain")) {
       std::cerr << "No robot brain detected, this is probably an error." << std::endl;
       return;
     }
     auto brain = sdf->GetElement("rv:brain");
 
-    if (!brain->HasAttribute("algorithm")) {
+    if (not brain->HasAttribute("algorithm")) {
       std::cerr << "Brain does not define type, this is probably an error." << std::endl;
       return;
     }
 
-    if (!brain->HasAttribute("algorithm")) {
+    if (not brain->HasAttribute("algorithm")) {
       std::cerr << "Brain does not define type, this is probably an error." << std::endl;
       return;
     }
