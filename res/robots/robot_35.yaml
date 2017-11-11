@@ -1,0 +1,96 @@
+body:
+  children:
+    0:
+      children:
+        1:
+          children:
+            2:
+              id: bodygen-8
+              label: ''
+              orientation: 0
+              params:
+                blue: 0.04922502486027458
+                green: 0.03750519840301081
+                red: 0.674294660774688
+              slot: 1
+              type: FixedBrick
+            3:
+              id: bodygen-6
+              label: ''
+              orientation: 180
+              params:
+                blue: 0.04922502486027458
+                green: 0.03750519840301081
+                red: 0.674294660774688
+              slot: 0
+              type: ActiveHinge
+          id: bodygen-5
+          label: ''
+          orientation: 90
+          params:
+            blue: 0.04922502486027458
+            green: 0.03750519840301081
+            red: 0.674294660774688
+          slot: 1
+          type: FixedBrick
+      id: bodygen-4
+      label: ''
+      orientation: 270
+      params:
+        blue: 0.04922502486027458
+        green: 0.03750519840301081
+        red: 0.674294660774688
+      slot: 0
+      type: ActiveHinge
+    2:
+      children:
+        1:
+          id: bodygen-3
+          label: ''
+          orientation: 0
+          params:
+            blue: 0.04922502486027458
+            green: 0.03750519840301081
+            red: 0.674294660774688
+          slot: 1
+          type: ActiveHinge
+      id: bodygen-2
+      label: ''
+      orientation: 180
+      params:
+        blue: 0.04922502486027458
+        green: 0.03750519840301081
+        red: 0.674294660774688
+      slot: 0
+      type: ActiveHinge
+    3:
+      children:
+        0:
+          id: bodygen-7
+          label: ''
+          orientation: 180
+          params:
+            blue: 0.04922502486027458
+            green: 0.03750519840301081
+            red: 0.674294660774688
+          slot: 2
+          type: FixedBrick
+      id: bodygen-1
+      label: ''
+      orientation: 180
+      params:
+        blue: 0.04922502486027458
+        green: 0.03750519840301081
+        red: 0.674294660774688
+      slot: 1
+      type: ActiveHinge
+  id: bodygen-root
+  label: ''
+  orientation: 0
+  params:
+    blue: 0.04922502486027458
+    green: 0.03750519840301081
+    red: 0.674294660774688
+  type: Core
+
+id: 35
