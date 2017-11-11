@@ -26,7 +26,7 @@ HyperNEAT_Splines::HyperNEAT_Splines(std::string modelName,
 
   std::string name(modelName.substr(0, modelName.find("-")) + ".yaml");
   BodyParser body(name);
-  revolve::brain::sorted_coordinates = body.get_coordinates_sorted(actuators);
+  revolve::brain::sorted_coordinates = body.SortedCoordinates(actuators);
 
   // Prepare for controller
   revolve::brain::RLPowerLearner::Config conf = parseSDF(brain);

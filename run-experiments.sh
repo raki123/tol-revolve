@@ -6,15 +6,13 @@ trap " exit " INT
 PROGNAME=$(basename $0)
 
 # Default argument list
-robot_list=(spider9 spider13 spider17 gecko7 gecko12 gecko17 snake5 snake7 snake9 babyA babyB babyC)
-#robot_list=(babyAB babyAC babyBC)
-#robot_list=(babyABAC babyABBC babyACBC)
+robot_list=(robot_1 robot_2 robot_3 robot_4 robot_5 robot_6 robot_7 robot_8 robot_9 robot_10 robot_11 robot_12 robot_13 robot_14 robot_15 robot_16 robot_17 robot_18 robot_19 robot_20 robot_21 robot_22 robot_23 robot_24 robot_25 robot_26 robot_27 robot_28 robot_29 robot_30 robot_31 robot_32 robot_33 robot_34 robot_35 robot_36 robot_37 robot_38 robot_39 robot_40)
 
 config=./res/rlpower_spline.cfg
 gz_command=gzserver
 load_controller=None
 manager=./experiments/single_robot_manager.py
-no_experiments=10
+no_experiments=3
 output=output
 restore=restore
 world=./res/worlds/gait-learning.world

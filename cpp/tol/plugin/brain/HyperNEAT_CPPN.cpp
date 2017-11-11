@@ -66,7 +66,8 @@ namespace tol
     learner_ = boost::shared_ptr<CPPNEAT::NEATLearner>(
             new CPPNEAT::NEATLearner(
                     mutator,
-                    mutator_path,
+//                    mutator_path,
+                    modelName + ".innovations",
                     learn_conf)
     );
 
