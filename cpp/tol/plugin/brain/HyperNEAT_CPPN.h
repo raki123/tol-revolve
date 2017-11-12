@@ -27,17 +27,18 @@ class HyperNEAT_CPG
   public:
 
   /// \brief Constructor
-  /// \param modelName: name of the model
-  /// \param evaluator: pointer to the evaluator that is used
+  /// \param _name: name of the model
+  /// \param _evaluator: pointer to the evaluator that is used
   /// \param node: the sdf file containing the necessary information to build the network
-  /// \param actuators: vector list of robot's actuators
-  /// \param sensors: vector list of robot's sensors
+  /// \param _actuators: vector list of robot's actuators
+  /// \param _sensors: vector list of robot's sensors
   /// \return pointer to the neural network
-  HyperNEAT_CPG(std::string modelName,
-                sdf::ElementPtr brain,
-                tol::EvaluatorPtr evaluator,
-                const std::vector<rg::MotorPtr> &actuators,
-                const std::vector<rg::SensorPtr> &sensors);
+  HyperNEAT_CPG(
+          const std::string &_name,
+          sdf::ElementPtr _brain,
+          tol::EvaluatorPtr _evaluator,
+          const std::vector< rg::MotorPtr > &_actuators,
+          const std::vector< rg::SensorPtr > &_sensors);
 
   /// \brief Destructor
   virtual ~HyperNEAT_CPG();
@@ -53,7 +54,7 @@ class HyperNEAT_CPG
                       double t,
                       double step);
 
-  static CPPNEAT::NEATLearner::LearningConfiguration parseLearningSDF(sdf::ElementPtr brain);
+  static CPPNEAT::NEATLearner::LearningConfiguration parseLearningSDF(sdf::ElementPtr _brain);
 };
 
 } /* namespace tol */

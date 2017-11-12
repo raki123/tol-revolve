@@ -50,7 +50,12 @@ NeatExtNN::NeatExtNN(std::string modelName,
                                                    false));
   std::string mutator_path = node->HasAttribute("path_to_mutator") ?
                              node->GetAttribute("path_to_mutator")->GetAsString() : "none";
-  learner_ = boost::shared_ptr<CPPNEAT::NEATLearner>(new CPPNEAT::NEATLearner(mutator, mutator_path, learn_conf));
+  learner_ = boost::shared_ptr<CPPNEAT::NEATLearner>(new CPPNEAT::NEATLearner(
+          mutator,
+          mutator_path,
+          "none",
+          "none",
+          learn_conf));
   evaluator_ = evaluator;
 }
 

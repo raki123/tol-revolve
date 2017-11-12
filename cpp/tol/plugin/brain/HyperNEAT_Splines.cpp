@@ -51,8 +51,12 @@ HyperNEAT_Splines::HyperNEAT_Splines(std::string modelName,
           (new revolve::brain::PolicyController(revolve::brain::sorted_coordinates.size(),
                                                 conf.interpolation_spline_size));
   // initialise learner
-  learner_ = boost::shared_ptr<CPPNEAT::NEATLearner>
-          (new CPPNEAT::NEATLearner(mutator, mutator_path, learn_conf));
+  learner_ = boost::shared_ptr<CPPNEAT::NEATLearner>(new CPPNEAT::NEATLearner(
+          mutator,
+          mutator_path,
+          "none",
+          "none",
+          learn_conf));
 
   // initialise evaluator
   evaluator_ = evaluator;

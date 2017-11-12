@@ -88,6 +88,8 @@ namespace tol
             new CPPNEAT::NEATLearner(
                     mutator,
                     mutator_path,
+                    "none",
+                    "none",
                     learn_conf)
     );
 
@@ -103,15 +105,15 @@ namespace tol
             brain->GetAttribute("path_to_first_brains")->GetAsString() : "";
 
     std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_init =
-            boost::dynamic_pointer_cast<CPPNEAT::NEATLearner>(learner_)->get_init_brains();
+            boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(learner_)->InitCppns();
     std::vector<CPPNEAT::GeneticEncodingPtr> brains_from_first;
     if (path_to_first_brains == "" || path_to_first_brains == "none")
     {
       number_of_brains_from_first = 0;
     } else
     {
-      brains_from_first = boost::dynamic_pointer_cast<CPPNEAT::NEATLearner>(
-              learner_)->get_brains_from_yaml(path_to_first_brains, -1);
+      brains_from_first = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
+              learner_)->BrainsFromYaml(path_to_first_brains, -1);
     }
     std::string path_to_second_brains =
             brain->HasAttribute("path_to_second_brains") ?
@@ -122,8 +124,8 @@ namespace tol
       number_of_brains_from_second = 0;
     } else
     {
-      brains_from_second = boost::dynamic_pointer_cast<CPPNEAT::NEATLearner>(
-              learner_)->get_brains_from_yaml(path_to_second_brains, -1);
+      brains_from_second = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
+              learner_)->BrainsFromYaml(path_to_second_brains, -1);
     }
 
     std::vector<CPPNEAT::GeneticEncodingPtr> init_brains;
