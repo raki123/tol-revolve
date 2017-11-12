@@ -1,6 +1,7 @@
 import ast
 import os
 import sys
+import yaml
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
@@ -20,6 +21,8 @@ from revolve.convert.yaml import yaml_to_robot
 from revolve.angle import Tree
 from revolve.util import wait_for
 
+from tol.logging import logger, output_console
+output_console()
 
 @trollius.coroutine
 def run():
@@ -43,6 +46,10 @@ def run():
 
     with open("{}.yaml".format(conf.robot_name), 'r') as yamlfile:
         bot_yaml = yamlfile.read()
+
+    parent1, parent2 = \
+        yaml.load(bot_yaml)["parents"][1], yaml.load(bot_yaml)["parents"][2] \
+        if yaml.load(bot_yaml).has_key("parents") else {1: "none", 2: "none"}
 
     # Create the world, this connects to the Gazebo world
     world = yield From(World.create(conf))
