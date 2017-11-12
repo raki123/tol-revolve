@@ -38,7 +38,6 @@ def run():
         brain_conf = ast.literal_eval(s)
     if conf.load_controller != "None":
         brain_conf["policy_load_path"] = conf.load_controller
-    conf.brain_conf = brain_conf
 
     # This disables the analyzer; enable it if you want to generate valid robots
     # Can also do this using arguments of course, just pass an empty string
@@ -47,9 +46,10 @@ def run():
     with open("{}.yaml".format(conf.robot_name), 'r') as yamlfile:
         bot_yaml = yamlfile.read()
 
-    parent1, parent2 = \
-        yaml.load(bot_yaml)["parents"][1], yaml.load(bot_yaml)["parents"][2] \
-        if yaml.load(bot_yaml).has_key("parents") else {1: "none", 2: "none"}
+    brain_conf["parent1"], brain_conf["parent2"] = \
+        (yaml.load(bot_yaml)["parents"][1], yaml.load(bot_yaml)["parents"][2])\
+        if yaml.load(bot_yaml).has_key("parents") else ("none", "none")
+    conf.brain_conf = brain_conf
 
     # Create the world, this connects to the Gazebo world
     world = yield From(World.create(conf))
