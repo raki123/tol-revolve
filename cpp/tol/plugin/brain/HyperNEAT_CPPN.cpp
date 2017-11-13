@@ -29,7 +29,7 @@ namespace tol
 
     // Initialise controller
     std::string name(_name.substr(0, _name.find("-")) + ".yaml");
-    BodyParser body(_name);
+    BodyParser body(name);
 
     std::tie(rb::InputMap, rb::OutputMap) = body.InputOutputMap(
             _actuators,
@@ -47,76 +47,76 @@ namespace tol
     );
 
     // Initialise learner
-    auto learn_conf = parseLearningSDF(_brain);
+    auto learnConf = parseLearningSDF(_brain);
     rb::SetBrainSpec(true);
-    learn_conf.start_from = body.CppnNetwork();
+    learnConf.start_from = body.CppnNetwork();
     CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(
             rb::brain_spec,
             0.8,
-            learn_conf.start_from->min_max_innov_numer().second,
+            learnConf.start_from->min_max_innov_numer().second,
             100,
             std::vector< CPPNEAT::Neuron::Ntype >(),
             true)
     );
 
-    std::string parent1(_name.substr(0, _name.find("_")) + learn_conf.parent1
+    std::string parent1(_name.substr(0, _name.find("_")) + learnConf.parent1
                         + _name.substr(_name.find("-")) + ".innovations");
-    std::string parent2(_name.substr(0, _name.find("_")) + learn_conf.parent2
+    std::string parent2(_name.substr(0, _name.find("_")) + learnConf.parent2
                         + _name.substr(_name.find("-"))+ ".innovations");
     // initialise learner
     this->learner_ =
             boost::shared_ptr< CPPNEAT::NEATLearner >(new CPPNEAT::NEATLearner(
                     mutator,
                     _name + ".innovations",
-                    parent1,
-                    parent2,
-                    learn_conf)
+                    "none",  // parent1,
+                    "none",  // parent2,
+                    learnConf)
             );
 
-    std::vector< CPPNEAT::GeneticEncodingPtr > brains_from_init =
+    auto brainsFromInit =
             boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(learner_)->InitCppns();
-    std::vector< CPPNEAT::GeneticEncodingPtr > brains_from_first;
-    if (learn_conf.parent1 == "" || learn_conf.parent1 == "none")
+    std::vector< CPPNEAT::GeneticEncodingPtr > brainsFromFirst;
+    if (learnConf.parent1 == "" or learnConf.parent1 == "none")
     {
-      learn_conf.num_first = 0;
+      learnConf.num_first = 0;
     }
     else
     {
-      brains_from_first = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
-              learner_)->BrainsFromYaml(learn_conf.parent1 + ".best", -1);
+      brainsFromFirst = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
+              learner_)->BrainsFromYaml(learnConf.parent1 + ".best", -1);
     }
 
-    std::vector< CPPNEAT::GeneticEncodingPtr > brains_from_second;
-    if (learn_conf.parent2 == "" or learn_conf.parent2 == "none")
+    std::vector< CPPNEAT::GeneticEncodingPtr > brainsFromSecond;
+    if (learnConf.parent2 == "" or learnConf.parent2 == "none")
     {
-      learn_conf.num_second = 0;
+      learnConf.num_second = 0;
     }
     else
     {
-      brains_from_second = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
-              learner_)->BrainsFromYaml(learn_conf.parent2 + ".best", -1);
+      brainsFromSecond = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
+              learner_)->BrainsFromYaml(learnConf.parent2 + ".best", -1);
     }
 
     std::vector< CPPNEAT::GeneticEncodingPtr > init_brains;
     int cur_number = 0;
     int i = 0;
-    while (cur_number < learn_conf.num_first)
+    while (cur_number < learnConf.num_first)
     {
-      init_brains.push_back(brains_from_first[i]);
+      init_brains.push_back(brainsFromFirst[i]);
       i++;
       cur_number++;
     }
     i = 0;
-    while (cur_number < learn_conf.num_first + learn_conf.num_second)
+    while (cur_number < learnConf.num_first + learnConf.num_second)
     {
-      init_brains.push_back(brains_from_second[i]);
+      init_brains.push_back(brainsFromSecond[i]);
       i++;
       cur_number++;
     }
     i = 0;
-    while (cur_number < learn_conf.pop_size)
+    while (cur_number < learnConf.pop_size)
     {
-      init_brains.push_back(brains_from_init[i]);
+      init_brains.push_back(brainsFromInit[i]);
       i++;
       cur_number++;
     }
@@ -222,8 +222,11 @@ namespace tol
     //initialise starting population
     config.parent1 = _brain->HasAttribute("parent1") ?
                       _brain->GetAttribute("parent1")->GetAsString() : "none";
+    std::cout << "parent 1 is " << config.parent1 << std::endl;
     config.parent2 = _brain->HasAttribute("parent2") ?
                      _brain->GetAttribute("parent2")->GetAsString() : "none";
+    std::cout << "parent 2 is " << config.parent2 << std::endl;
+
     return config;
   }
 

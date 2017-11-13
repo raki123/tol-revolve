@@ -226,7 +226,8 @@ namespace tol
                   << std::endl;
         return;
       }
-      if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::spline")
+      auto algorithm = brain->GetAttribute("algorithm")->GetAsString();
+      if ("rlpower::spline" == algorithm)
       {
         brain_.reset(new tol::RLPower_Splines(
                 robot_name,
@@ -235,7 +236,7 @@ namespace tol
                 motors_,
                 sensors_));
       }
-      else if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::net")
+      else if ("rlpower::net" == algorithm)
       {
         brain_.reset(new tol::RLPower_CPG(
                 robot_name,
@@ -244,7 +245,7 @@ namespace tol
                 motors_,
                 sensors_));
       }
-      else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::net")
+      else if ("hyperneat::net" == algorithm)
       {
         brain_.reset(new tol::HyperNEAT_CPG(
                 robot_name,
@@ -253,7 +254,7 @@ namespace tol
                 motors_,
                 sensors_));
       }
-      else if (brain->GetAttribute("algorithm")->GetAsString() == "rafhyperneat::mlmp_cpg")
+      else if ("rafhyperneat::mlmp_cpg" == algorithm)
       {
         brain_.reset(new tol::HyperNEAT_MlmpCPG(
                 robot_name,
@@ -262,7 +263,7 @@ namespace tol
                 motors_,
                 sensors_));
       }
-      else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::spline")
+      else if ("hyperneat::spline" == algorithm)
       {
         brain_.reset(new tol::HyperNEAT_Splines(
                 robot_name,
@@ -271,7 +272,7 @@ namespace tol
                 motors_,
                 sensors_));
       }
-      else if (brain->GetAttribute("algorithm")->GetAsString() == "rlpower::mlmp_cpg")
+      else if ("rlpower::mlmp_cpg" == algorithm)
       {
         brain_.reset(new tol::MlmpCPGBrain(
                 robot_name,
@@ -279,7 +280,7 @@ namespace tol
                 motor_n,
                 sensor_n));
       }
-      else if (brain->GetAttribute("algorithm")->GetAsString() == "hyperneat::mlmp_cpg")
+      else if ("hyperneat::mlmp_cpg" == algorithm)
       {
 
         init_asyncneat(robot_name, std::unique_ptr< NEAT::GenomeManager >());
