@@ -76,8 +76,7 @@ namespace tol
                                  0.8,
                                  learn_conf.start_from->min_max_innov_numer().second,
                                  100,
-                                 std::vector<CPPNEAT::Neuron::Ntype>(),
-                                 true)
+                                 std::vector< CPPNEAT::Neuron::Ntype >())
     );
     std::string mutator_path =
             brain->HasAttribute("path_to_mutator") ?
@@ -235,7 +234,7 @@ namespace tol
             brain->HasAttribute("repeat_evaluations") ?
             std::stoi(brain->GetAttribute("repeat_evaluations")->GetAsString()) :
             CPPNEAT::NEATLearner::REPEAT_EVALUATIONS;
-    config.initial_structural_mutations =
+    config.initStructMutations =
             brain->HasAttribute("initial_structural_mutations") ?
             std::stoi(brain->GetAttribute("initial_structural_mutations")->GetAsString()) :
             CPPNEAT::NEATLearner::INITIAL_STRUCTURAL_MUTATIONS;

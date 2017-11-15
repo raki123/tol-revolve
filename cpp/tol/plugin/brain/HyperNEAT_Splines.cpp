@@ -41,8 +41,7 @@ HyperNEAT_Splines::HyperNEAT_Splines(std::string modelName,
                                                    0.8,
                                                    learn_conf.start_from->min_max_innov_numer().second,
                                                    100,
-                                                   std::vector<CPPNEAT::Neuron::Ntype>(),
-                                                   true));
+                                                   std::vector< CPPNEAT::Neuron::Ntype >()));
   revolve::brain::SetBrainSpec(true);
   learn_conf.start_from = revolve::brain::get_hyper_neat_net_splines();
 
@@ -163,7 +162,7 @@ HyperNEAT_Splines::parseLearningSDF(sdf::ElementPtr brain)
                               std::stoi(brain->GetAttribute("repeat_evaluations")
                                              ->GetAsString()) :
                               CPPNEAT::NEATLearner::REPEAT_EVALUATIONS;
-  config.initial_structural_mutations = brain->HasAttribute("initial_structural_mutations") ?
+  config.initStructMutations = brain->HasAttribute("initial_structural_mutations") ?
                                         std::stoi(brain->GetAttribute("initial_structural_mutations")
                                                        ->GetAsString()) :
                                         CPPNEAT::NEATLearner::INITIAL_STRUCTURAL_MUTATIONS;

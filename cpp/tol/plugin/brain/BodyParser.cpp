@@ -201,7 +201,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
             neuron,
             innovationNumber++,
             true));
-    cppn->add_neuron_gene(neuron_gene, 0, i == 0);
+    cppn->AddNeuron(neuron_gene, 0, i == 0);
   }
 
   // add outputs
@@ -216,7 +216,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
           weightNeuron,
           innovationNumber++,
           true));
-  cppn->add_neuron_gene(weightNeuronGene, 1, true);
+  cppn->AddNeuron(weightNeuronGene, 1, true);
   CPPNEAT::NeuronPtr biasNeuron(new CPPNEAT::Neuron(
           "rv:bias",
           CPPNEAT::Neuron::OUTPUT_LAYER,
@@ -226,7 +226,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
           biasNeuron,
           innovationNumber++,
           true));
-  cppn->add_neuron_gene(biasNeuronGene, 1, false);
+  cppn->AddNeuron(biasNeuronGene, 1, false);
   CPPNEAT::NeuronPtr gainNeuron(new CPPNEAT::Neuron(
           "rv:gain",
           CPPNEAT::Neuron::OUTPUT_LAYER,
@@ -236,7 +236,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
           gainNeuron,
           innovationNumber++,
           true));
-  cppn->add_neuron_gene(gainNeuronGene, 1, false);
+  cppn->AddNeuron(gainNeuronGene, 1, false);
 
   // connect every input with every output
   for (size_t i = 0; i < 6; ++i)
@@ -247,7 +247,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
             0,
             innovationNumber++,
             true, ""));
-    cppn->add_connection_gene(connectionToWeight);
+    cppn->AddConnection(connectionToWeight);
 
     CPPNEAT::ConnectionGenePtr connectionToBias(new CPPNEAT::ConnectionGene(
             biasNeuronGene->InnovationNumber(),
@@ -255,7 +255,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
             0,
             innovationNumber++,
             true, ""));
-    cppn->add_connection_gene(connectionToBias);
+    cppn->AddConnection(connectionToBias);
 
     CPPNEAT::ConnectionGenePtr connectionToGain(new CPPNEAT::ConnectionGene(
             gainNeuronGene->InnovationNumber(),
@@ -263,7 +263,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
             0,
             innovationNumber++,
             true, ""));
-    cppn->add_connection_gene(connectionToGain);
+    cppn->AddConnection(connectionToGain);
   }
   return cppn;
 }

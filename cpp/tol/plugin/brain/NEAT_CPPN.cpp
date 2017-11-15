@@ -46,8 +46,7 @@ NeatExtNN::NeatExtNN(std::string modelName,
                                                    0.8,
                                                    innov_number,
                                                    100,
-                                                   std::vector<CPPNEAT::Neuron::Ntype>(),
-                                                   false));
+                                                   std::vector< CPPNEAT::Neuron::Ntype >()));
   std::string mutator_path = node->HasAttribute("path_to_mutator") ?
                              node->GetAttribute("path_to_mutator")->GetAsString() : "none";
   learner_ = boost::shared_ptr<CPPNEAT::NEATLearner>(new CPPNEAT::NEATLearner(
@@ -127,7 +126,7 @@ NeatExtNN::parseLearningSDF(sdf::ElementPtr brain)
   config.repeat_evaluations = brain->HasAttribute("repeat_evaluations") ?
                               std::stoi(brain->GetAttribute("repeat_evaluations")->GetAsString()) :
                               CPPNEAT::NEATLearner::REPEAT_EVALUATIONS;
-  config.initial_structural_mutations = brain->HasAttribute("initial_structural_mutations") ?
+  config.initStructMutations = brain->HasAttribute("initial_structural_mutations") ?
                                         std::stoi(brain->GetAttribute("initial_structural_mutations")->GetAsString()) :
                                         CPPNEAT::NEATLearner::INITIAL_STRUCTURAL_MUTATIONS;
   config.interspecies_mate_probability = brain->HasAttribute("interspecies_mate_probability") ?

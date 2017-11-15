@@ -28,7 +28,7 @@ namespace tol
   {
 
     // Initialise controller
-    std::string name(_name.substr(0, _name.find("-")) + ".yaml");
+    std::string name(_name.substr(0, _name.find('-')) + ".yaml");
     BodyParser body(name);
 
     std::tie(rb::InputMap, rb::OutputMap) = body.InputOutputMap(
@@ -55,14 +55,13 @@ namespace tol
             0.8,
             learnConf.start_from->min_max_innov_numer().second,
             100,
-            std::vector< CPPNEAT::Neuron::Ntype >(),
-            true)
+            std::vector< CPPNEAT::Neuron::Ntype >())
     );
 
-    std::string parent1(_name.substr(0, _name.find("_")) + learnConf.parent1
-                        + _name.substr(_name.find("-")) + ".innovations");
-    std::string parent2(_name.substr(0, _name.find("_")) + learnConf.parent2
-                        + _name.substr(_name.find("-"))+ ".innovations");
+    std::string parent1(_name.substr(0, _name.find('_')) + learnConf.parent1
+                        + _name.substr(_name.find('-')) + ".innovations");
+    std::string parent2(_name.substr(0, _name.find('_')) + learnConf.parent2
+                        + _name.substr(_name.find('-'))+ ".innovations");
     // initialise learner
     this->learner_ =
             boost::shared_ptr< CPPNEAT::NEATLearner >(new CPPNEAT::NEATLearner(
@@ -76,7 +75,7 @@ namespace tol
     auto brainsFromInit =
             boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(learner_)->InitCppns();
     std::vector< CPPNEAT::GeneticEncodingPtr > brainsFromFirst;
-    if (learnConf.parent1 == "" or learnConf.parent1 == "none")
+    if (""  == learnConf.parent1 or "none" == learnConf.parent1)
     {
       learnConf.num_first = 0;
     }
@@ -87,7 +86,7 @@ namespace tol
     }
 
     std::vector< CPPNEAT::GeneticEncodingPtr > brainsFromSecond;
-    if (learnConf.parent2 == "" or learnConf.parent2 == "none")
+    if (""  == learnConf.parent2 or "none" == learnConf.parent2)
     {
       learnConf.num_second = 0;
     }
@@ -204,7 +203,7 @@ namespace tol
             _brain->HasAttribute("repeat_evaluations") ?
             std::stoi(_brain->GetAttribute("repeat_evaluations")->GetAsString()) :
             CPPNEAT::NEATLearner::REPEAT_EVALUATIONS;
-    config.initial_structural_mutations =
+    config.initStructMutations =
             _brain->HasAttribute("initial_structural_mutations") ?
             std::stoi(_brain->GetAttribute("initial_structural_mutations")->GetAsString()) :
             CPPNEAT::NEATLearner::INITIAL_STRUCTURAL_MUTATIONS;
