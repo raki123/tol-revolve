@@ -74,7 +74,7 @@ namespace tol
     CPPNEAT::MutatorPtr mutator(
             new CPPNEAT::Mutator(rb::brain_spec,
                                  0.8,
-                                 learn_conf.start_from->min_max_innov_numer().second,
+                                 learn_conf.start_from->InnovationsRange().second,
                                  100,
                                  std::vector< CPPNEAT::Neuron::Ntype >())
     );
@@ -112,7 +112,7 @@ namespace tol
     } else
     {
       brains_from_first = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
-              learner_)->BrainsFromYaml(path_to_first_brains, -1);
+              learner_)->LoadCppns(path_to_first_brains, -1);
     }
     std::string path_to_second_brains =
             brain->HasAttribute("path_to_second_brains") ?
@@ -124,7 +124,7 @@ namespace tol
     } else
     {
       brains_from_second = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
-              learner_)->BrainsFromYaml(path_to_second_brains, -1);
+              learner_)->LoadCppns(path_to_second_brains, -1);
     }
 
     std::vector<CPPNEAT::GeneticEncodingPtr> init_brains;
@@ -150,7 +150,7 @@ namespace tol
       i++;
       cur_number++;
     }
-    boost::dynamic_pointer_cast<CPPNEAT::NEATLearner>(learner_)->initialise(
+    boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(learner_)->Initialise(
             init_brains);
 
     // initialise evaluator

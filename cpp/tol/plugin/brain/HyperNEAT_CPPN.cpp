@@ -53,7 +53,7 @@ namespace tol
     CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(
             rb::brain_spec,
             0.8,
-            learnConf.start_from->min_max_innov_numer().second,
+            learnConf.start_from->InnovationsRange().second,
             100,
             std::vector< CPPNEAT::Neuron::Ntype >())
     );
@@ -67,8 +67,8 @@ namespace tol
             boost::shared_ptr< CPPNEAT::NEATLearner >(new CPPNEAT::NEATLearner(
                     mutator,
                     _name + ".innovations",
-                    "none",  // parent1,
-                    "none",  // parent2,
+                    parent1, // "none",  // parent1,
+                    parent2, // "none",  // parent2,
                     learnConf)
             );
 
@@ -82,7 +82,7 @@ namespace tol
     else
     {
       brainsFromFirst = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
-              learner_)->BrainsFromYaml(learnConf.parent1 + ".best", -1);
+              learner_)->LoadCppns(learnConf.parent1 + ".best", -1);
     }
 
     std::vector< CPPNEAT::GeneticEncodingPtr > brainsFromSecond;
@@ -93,7 +93,7 @@ namespace tol
     else
     {
       brainsFromSecond = boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(
-              learner_)->BrainsFromYaml(learnConf.parent2 + ".best", -1);
+              learner_)->LoadSecondCppns(learnConf.parent2 + ".best", -1);
     }
 
     std::vector< CPPNEAT::GeneticEncodingPtr > init_brains;
@@ -119,7 +119,7 @@ namespace tol
       i++;
       cur_number++;
     }
-    boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(learner_)->initialise(
+    boost::dynamic_pointer_cast< CPPNEAT::NEATLearner >(learner_)->Initialise(
             init_brains);
 
     // initialise evaluator

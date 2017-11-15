@@ -39,7 +39,7 @@ HyperNEAT_Splines::HyperNEAT_Splines(std::string modelName,
   CPPNEAT::NEATLearner::LearningConfiguration learn_conf = parseLearningSDF(brain);
   CPPNEAT::MutatorPtr mutator(new CPPNEAT::Mutator(revolve::brain::brain_spec,
                                                    0.8,
-                                                   learn_conf.start_from->min_max_innov_numer().second,
+                                                   learn_conf.start_from->InnovationsRange().second,
                                                    100,
                                                    std::vector< CPPNEAT::Neuron::Ntype >()));
   revolve::brain::SetBrainSpec(true);
