@@ -134,7 +134,7 @@ BodyParser::InputOutputMap(
 //                  << " for motor could not be located" << std::endl;
 //        throw std::runtime_error("Robot brain error");
 //      }
-      output_map[this->outputNeurons_[j]->getInnovNumber()] = p++;
+      output_map[this->outputNeurons_[j]->InnovationNumber()] = p++;
     }
   }
 
@@ -175,7 +175,7 @@ BodyParser::InputOutputMap(
                   << " for sensor could not be located" << std::endl;
         throw std::runtime_error("Robot brain error");
       }
-      input_map[this->inputNeurons_[j]->getInnovNumber()] = p++;
+      input_map[this->inputNeurons_[j]->InnovationNumber()] = p++;
     }
   }
   return {input_map, output_map};
@@ -242,7 +242,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
   for (size_t i = 0; i < 6; ++i)
   {
     CPPNEAT::ConnectionGenePtr connectionToWeight(new CPPNEAT::ConnectionGene(
-            weightNeuronGene->getInnovNumber(),
+            weightNeuronGene->InnovationNumber(),
             i + 1,
             0,
             innovationNumber++,
@@ -250,7 +250,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
     cppn->add_connection_gene(connectionToWeight);
 
     CPPNEAT::ConnectionGenePtr connectionToBias(new CPPNEAT::ConnectionGene(
-            biasNeuronGene->getInnovNumber(),
+            biasNeuronGene->InnovationNumber(),
             i + 1,
             0,
             innovationNumber++,
@@ -258,7 +258,7 @@ CPPNEAT::GeneticEncodingPtr BodyParser::CppnNetwork()
     cppn->add_connection_gene(connectionToBias);
 
     CPPNEAT::ConnectionGenePtr connectionToGain(new CPPNEAT::ConnectionGene(
-            gainNeuronGene->getInnovNumber(),
+            gainNeuronGene->InnovationNumber(),
             i + 1,
             0,
             innovationNumber++,
@@ -487,8 +487,8 @@ void BodyParser::GenerateConnection(
   bool isActive = true;
 
   CPPNEAT::ConnectionGenePtr connection(new CPPNEAT::ConnectionGene(
-          _to->getInnovNumber(),
-          _from->getInnovNumber(),
+          _to->InnovationNumber(),
+          _from->InnovationNumber(),
           weight,
           ++innovation_number_,
           isActive));
