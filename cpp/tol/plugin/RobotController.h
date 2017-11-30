@@ -9,6 +9,7 @@
 #define TOL_PLUGIN_ROBOTCONTROLLER_H_
 
 #include <revolve/gazebo/plugin/RobotController.h>
+#include <boost/make_shared.hpp>
 
 #include "brain/Evaluator.h"
 #include "brain/RLPower.h"

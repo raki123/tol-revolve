@@ -20,6 +20,7 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <tuple>
 #include <vector>
 
 #include "brain/learner/cppneat/CPPNNeuron.h"
@@ -353,7 +354,7 @@ std::tuple< int, int > BodyParser::setCoordinates(
       std::exit(-1);
   }
 
-  return {x, y};
+  return std::make_tuple(x, y);
 }
 
 ///////////////////////////////////////////////////

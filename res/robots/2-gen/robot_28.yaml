@@ -1,0 +1,229 @@
+body:
+  children:
+    0:
+      children:
+        1:
+          children:
+            0:
+              children:
+                1:
+                  children:
+                    1:
+                      children:
+                        1:
+                          children:
+                            1:
+                              id: node-7
+                              label: ''
+                              orientation: 180
+                              params:
+                                blue: 0.19289625399958532
+                                green: 0.9910686554212178
+                                red: 0.01660156244721278
+                              slot: 0
+                              type: ActiveHinge
+                          id: node-6
+                          label: ''
+                          orientation: 0
+                          params:
+                            blue: 0.19289625399958532
+                            green: 0.9910686554212178
+                            red: 0.01660156244721278
+                          slot: 0
+                          type: FixedBrick
+                      id: node-5
+                      label: ''
+                      orientation: 0
+                      params:
+                        blue: 0.6318711575495761
+                        green: 0.14356145020518074
+                        red: 0.4178014116507156
+                      slot: 0
+                      type: ActiveHinge
+                  id: node-4
+                  label: ''
+                  orientation: 180
+                  params:
+                    blue: 0.6318711575495761
+                    green: 0.14356145020518074
+                    red: 0.4178014116507156
+                  slot: 0
+                  type: ActiveHinge
+              id: node-3
+              label: ''
+              orientation: 270
+              params:
+                blue: 0.6318711575495761
+                green: 0.14356145020518074
+                red: 0.4178014116507156
+              slot: 0
+              type: ActiveHinge
+          id: node-2
+          label: ''
+          orientation: 0
+          params:
+            blue: 0.6318711575495761
+            green: 0.14356145020518074
+            red: 0.4178014116507156
+          slot: 1
+          type: ActiveHinge
+      id: node-1
+      label: ''
+      orientation: 270
+      params:
+        blue: 0.6318711575495761
+        green: 0.14356145020518074
+        red: 0.4178014116507156
+      slot: 0
+      type: ActiveHinge
+    1:
+      children:
+        2:
+          id: node-9
+          label: ''
+          orientation: 0
+          params:
+            blue: 0.6318711575495761
+            green: 0.14356145020518074
+            red: 0.4178014116507156
+          slot: 1
+          type: FixedBrick
+      id: node-8
+      label: ''
+      orientation: 0
+      params:
+        blue: 0.6318711575495761
+        green: 0.14356145020518074
+        red: 0.4178014116507156
+      slot: 3
+      type: FixedBrick
+    2:
+      id: node-10
+      label: ''
+      orientation: 0
+      params:
+        blue: 0.6318711575495761
+        green: 0.14356145020518074
+        red: 0.4178014116507156
+      slot: 0
+      type: ActiveHinge
+    3:
+      id: node-11
+      label: ''
+      orientation: 180
+      params:
+        blue: 0.6318711575495761
+        green: 0.14356145020518074
+        red: 0.4178014116507156
+      slot: 0
+      type: ActiveHinge
+  id: node-0
+  label: ''
+  orientation: 0
+  params:
+    blue: 0.6318711575495761
+    green: 0.14356145020518074
+    red: 0.4178014116507156
+  type: Core
+brain:
+  connections: []
+  neurons:
+    node-0-in-0:
+      id: node-0-in-0
+      layer: input
+      part_id: node-0
+      type: Input
+    node-0-in-1:
+      id: node-0-in-1
+      layer: input
+      part_id: node-0
+      type: Input
+    node-0-in-2:
+      id: node-0-in-2
+      layer: input
+      part_id: node-0
+      type: Input
+    node-0-in-3:
+      id: node-0-in-3
+      layer: input
+      part_id: node-0
+      type: Input
+    node-0-in-4:
+      id: node-0-in-4
+      layer: input
+      part_id: node-0
+      type: Input
+    node-0-in-5:
+      id: node-0-in-5
+      layer: input
+      part_id: node-0
+      type: Input
+    node-1-out-0:
+      id: node-1-out-0
+      layer: output
+      part_id: node-1
+      type: Simple
+    node-10-out-0:
+      id: node-10-out-0
+      layer: output
+      part_id: node-10
+      type: Simple
+    node-11-out-0:
+      id: node-11-out-0
+      layer: output
+      part_id: node-11
+      type: Simple
+    node-2-out-0:
+      id: node-2-out-0
+      layer: output
+      part_id: node-2
+      type: Simple
+    node-3-out-0:
+      id: node-3-out-0
+      layer: output
+      part_id: node-3
+      type: Simple
+    node-4-out-0:
+      id: node-4-out-0
+      layer: output
+      part_id: node-4
+      type: Simple
+    node-5-out-0:
+      id: node-5-out-0
+      layer: output
+      part_id: node-5
+      type: Simple
+    node-7-out-0:
+      id: node-7-out-0
+      layer: output
+      part_id: node-7
+      type: Simple
+  params:
+    node-1-out-0:
+      bias: 0.08504125884907349
+      gain: 0.47470958793809165
+    node-10-out-0:
+      bias: 0.030989797033173328
+      gain: 0.49329363498489504
+    node-11-out-0:
+      bias: 0.004082515634939887
+      gain: 0.4534994084840492
+    node-2-out-0:
+      bias: -0.0046193277707845095
+      gain: 0.515998934985967
+    node-3-out-0:
+      bias: 0.04861915377329987
+      gain: 0.49439516800762434
+    node-4-out-0:
+      bias: 0.08220560469115007
+      gain: 0.5038252309167496
+    node-5-out-0:
+      bias: -0.02708930993275005
+      gain: 0.5475354091942037
+    node-7-out-0:
+      bias: 0.05863589891812174
+      gain: 0.45611891207933786
+id: 28
+parents:
+  1: '17'
+  2: '4'
